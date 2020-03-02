@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/myBlogs/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/myBlogs/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/myBlogs/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/myBlogs/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/myBlogs/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/myBlogs/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/myBlogs/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="webpack," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言一个前端工程从开发到上线务必会运行在多种环境中，同时会对环境变量进行相应的配置，如果使用人力去对这些变量进行维护，那么必然会出现错误，所以这个功能交给 webpack 去做最为合适。">
+<meta name="keywords" content="webpack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前端工程多环境配置方案">
+<meta property="og:url" content="http://www.zpblogs.com/2019/03/30/工程多环境配置方案/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言一个前端工程从开发到上线务必会运行在多种环境中，同时会对环境变量进行相应的配置，如果使用人力去对这些变量进行维护，那么必然会出现错误，所以这个功能交给 webpack 去做最为合适。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/55542770-563a8800-56fa-11e9-8ad5-9a0e87d95c9c.png">
+<meta property="og:updated_time" content="2019-05-20T01:12:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前端工程多环境配置方案">
+<meta name="twitter:description" content="前言一个前端工程从开发到上线务必会运行在多种环境中，同时会对环境变量进行相应的配置，如果使用人力去对这些变量进行维护，那么必然会出现错误，所以这个功能交给 webpack 去做最为合适。">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23492006/55542770-563a8800-56fa-11e9-8ad5-9a0e87d95c9c.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/myBlogs/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zpblogs.com/2019/03/30/工程多环境配置方案/"/>
+
+
+
+
+
+  <title>前端工程多环境配置方案 | Richard Chou</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/myBlogs/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Richard Chou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Richard Chou's blogs</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/myBlogs/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/myBlogs/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zpblogs.com/myBlogs/2019/03/30/工程多环境配置方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/myBlogs/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">前端工程多环境配置方案</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-30T16:23:30+08:00">
+                2019-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>一个前端工程从开发到上线务必会运行在多种环境中，同时会对环境变量进行相应的配置，如果使用人力去对这些变量进行维护，那么必然会出现错误，所以这个功能交给 <strong>webpack</strong> 去做最为合适。</p>
+<a id="more"></a>
+<h1 id="webpack相关功能简介"><a href="#webpack相关功能简介" class="headerlink" title="webpack相关功能简介"></a>webpack相关功能简介</h1><p>webpack配置项中有一个mode选项，可配置的有 <strong>production</strong> <strong>development</strong> 两个选项，标识这次打包是用于什么模式，在项目代码中可使用如下代码进行读取：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'production'</span>) &#123;</span><br><span class="line">    BASE_URL = <span class="string">'https://host/production/api'</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'development'</span>) &#123;</span><br><span class="line">    BASE_URL = <span class="string">'https://host/development/api'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用此方式，可以分别对生产和开发模式的api分别进行配置，而不需要每次打包都进行修改，如果需要向进程中添加其它的变量，那么可以使用 <strong>webpack.DefinePlugin</strong> 来进行个性化定制，使用方式如下：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack.base.js</span></span><br><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>)</span><br><span class="line">webpackConfig = &#123;</span><br><span class="line">    plugins: [</span><br><span class="line">        <span class="keyword">new</span> webpack.DefinePlugin(&#123;</span><br><span class="line">            SOME_CONFIG: <span class="string">`"localhost"`</span></span><br><span class="line">        &#125;)</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中需要注意的一点是 <strong>‘“localhost”‘</strong>, 如果是定义一个字符串，那么需要双重引号包裹。</p>
+<h1 id="vue工程的环境变量配置"><a href="#vue工程的环境变量配置" class="headerlink" title="vue工程的环境变量配置"></a>vue工程的环境变量配置</h1><p>如果使用vue cli3进行项目初始化，也可以很方便的进行环境配置，具体说明请看官方说明<a href="https://cli.vuejs.org/zh/guide/mode-and-env.html#%E5%9C%A8%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BE%A7%E4%BB%A3%E7%A0%81%E4%B8%AD%E4%BD%BF%E7%94%A8%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F" target="_blank" rel="noopener">https://cli.vuejs.org/zh/guide/mode-and-env.html#在客户端侧代码中使用环境变量</a></p>
+<p>但是这种配置具有一定的局限性，按照文档来看最多只能支持到三种环境，一旦工程超出三种运行环境，那么 vue cli 就无法支持到了，所以自定义一套环境配置方案更利于扩展。</p>
+<h1 id="webpack-chain"><a href="#webpack-chain" class="headerlink" title="webpack-chain"></a>webpack-chain</h1><p>因为 vue cli3 对 webpack 进行了高度的封装，所以没办法像 vue cli2 一样随意的修改源配置文件，但是 cli3 抛出了 <a href="https://github.com/neutrinojs/webpack-chain" target="_blank" rel="noopener">webpack-chain</a> 来对默认配置进行个性化定制，用法示例如下：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vue.config.js</span></span><br><span class="line">chainWebpack: <span class="function"><span class="params">config</span> =&gt;</span> &#123;</span><br><span class="line">    config.module</span><br><span class="line">        .rule(<span class="string">'js'</span>)</span><br><span class="line">        .exclude</span><br><span class="line">        .add(<span class="regexp">/\.min\.js$/</span>)</span><br><span class="line">        .end()</span><br><span class="line"></span><br><span class="line">    config</span><br><span class="line">        .output</span><br><span class="line">        .set(<span class="string">'filename'</span>, <span class="string">`js/[name].[hash:8]-v<span class="subst">$&#123;__VERSION__&#125;</span>.js`</span>)</span><br><span class="line">        .set(<span class="string">'chunkFilename'</span>, <span class="string">`js/[id].[hash:8]-v<span class="subst">$&#123;__VERSION__&#125;</span>.js`</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在进行配置之前，先看看 vue cli 对于环境变量这一块是如何配置的, 在工程根目录运行：</p>
+<blockquote>
+<p>vue inspect &gt; output.js</p>
+</blockquote>
+<p>会生成一个output.js文件，打开后滚动到最底部，在1080行左右可以看到这样一个配置：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* config.plugin('define') */</span></span><br><span class="line"><span class="keyword">new</span> DefinePlugin(&#123;</span><br><span class="line">    <span class="string">'process.env'</span>: &#123;</span><br><span class="line">        NODE_ENV: <span class="string">'"development"'</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<p>修改这个配置，就能向进程中添加其它的环境变量。</p>
+<h1 id="egg-js的环境变量配置"><a href="#egg-js的环境变量配置" class="headerlink" title="egg.js的环境变量配置"></a>egg.js的环境变量配置</h1><p>最近在使用 egg.js 时感受到了 egg 环境变量配置带来的便利，具体<a href="https://eggjs.org/zh-cn/basics/config.html" target="_blank" rel="noopener">看这里</a>，于是决定模仿egg的做法，将此方案集成到 vue cli3 中。</p>
+<h1 id="环境的区分"><a href="#环境的区分" class="headerlink" title="环境的区分"></a>环境的区分</h1><p>对于配置的修改后面再进行讲解，先讲解如何区分不同的环境。对于环境的区分，可以在运行打包命令时预先设定一个标签，这里可以使用 <a href="https://www.npmjs.com/package/cross-env" target="_blank" rel="noopener">cross-env</a> 来进行设置 vue cli 的环境变量，代码示例如下：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">        <span class="attr">"serve"</span>: <span class="string">"cross-env run_server=development vue-cli-service serve -mode development"</span>,</span><br><span class="line">        <span class="attr">"build"</span>: <span class="string">"npm run build:dll &amp;&amp; cross-env run_server=production vue-cli-service build --no-clean"</span>,</span><br><span class="line">        <span class="attr">"build:UAT"</span>: <span class="string">"npm run build:dll &amp;&amp; cross-env run_server=uat vue-cli-service build --no-clean"</span>,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里为 run_server 定义了三种不同的值 <strong>development</strong>、 <strong>production</strong>、 <strong>uat</strong>，分别对应不同的服务环境，那么在打包时，只要运行不同的 script 脚本就能获取到相关的环境变量并添加到构建进程中。</p>
+<h1 id="环境变量的配置"><a href="#环境变量的配置" class="headerlink" title="环境变量的配置"></a>环境变量的配置</h1><p>在工程根目录建立如下文件：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/55542770-563a8800-56fa-11e9-8ad5-9a0e87d95c9c.png" alt="image"></p>
+<p>简单的配置示例：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// development_server.json</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"VUE_APP_RUN_ENV"</span>: <span class="string">"DevelopmentServer"</span>,</span><br><span class="line">    <span class="attr">"SERVER_IP"</span>: <span class="string">"/api"</span>,</span><br><span class="line">    <span class="attr">"DEV_PORT"</span>: <span class="number">80</span>,</span><br><span class="line">    <span class="attr">"SERVER_DOMAIN"</span>: <span class="string">"www.google.com"</span>,</span><br><span class="line">    <span class="attr">"PROXY_TARGET_IP"</span>: <span class="string">"http://192.168.2.236:8989"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在 vue.config.js 中添加如下代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RUN_SERVER = process.env.run_server || <span class="string">'development'</span></span><br><span class="line"><span class="keyword">const</span> DefaultENVConfig = <span class="built_in">require</span>(<span class="string">'./env_config/default.json'</span>)</span><br><span class="line"><span class="keyword">const</span> serverEnvConfig = <span class="built_in">Object</span>.assign(&#123;&#125;, DefaultENVConfig, <span class="built_in">require</span>(<span class="string">'./env_config/'</span> + RUN_SERVER + <span class="string">'_server.json'</span>))</span><br></pre></td></tr></table></figure>
+<p>通过传入的目标环境，获取到对应的配置文件。同时使用 Object.assign 函数，将目标环境配置与默认环境配置合并得到最终的环境变量配置，再使用 <strong>webpack-chain</strong> 将之写入webpack打包配置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vue.config.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    chainWebpack: <span class="function"><span class="params">config</span> =&gt;</span> &#123;</span><br><span class="line">        config.plugin(<span class="string">'define'</span>).tap(<span class="function"><span class="params">args</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">in</span> serverEnvConfig) &#123;</span><br><span class="line">                args[<span class="number">0</span>][<span class="string">'process.env'</span>][i] = <span class="string">`"<span class="subst">$&#123;serverEnvConfig[i]&#125;</span>"`</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> args</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就这样，很简单的代码实现了多环境配置，如果需要添加一个全新的环境，那么只需要添加一个配置文件，同时将配置文件名设置到打包命令中就行了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/myBlogs/tags/webpack/" rel="tag"># webpack</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/myBlogs/2019/03/11/善用vue指令/" rel="next" title="巧用vue指令应对刁钻需求">
+                <i class="fa fa-chevron-left"></i> 巧用vue指令应对刁钻需求
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/myBlogs/2019/06/14/黄毅简历/" rel="prev" title="黄毅简历">
+                黄毅简历 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Richard Chou</p>
+              <p class="site-description motion-element" itemprop="description">Blogs for Richard Chou</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/myBlogs/archives/">
+              
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#webpack相关功能简介"><span class="nav-number">2.</span> <span class="nav-text">webpack相关功能简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vue工程的环境变量配置"><span class="nav-number">3.</span> <span class="nav-text">vue工程的环境变量配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#webpack-chain"><span class="nav-number">4.</span> <span class="nav-text">webpack-chain</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#egg-js的环境变量配置"><span class="nav-number">5.</span> <span class="nav-text">egg.js的环境变量配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#环境的区分"><span class="nav-number">6.</span> <span class="nav-text">环境的区分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#环境变量的配置"><span class="nav-number">7.</span> <span class="nav-text">环境变量的配置</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/myBlogs/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/myBlogs/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/myBlogs/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

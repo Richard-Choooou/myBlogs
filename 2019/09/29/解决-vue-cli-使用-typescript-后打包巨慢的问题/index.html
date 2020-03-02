@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/myBlogs/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/myBlogs/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/myBlogs/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/myBlogs/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/myBlogs/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/myBlogs/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/myBlogs/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="webpack vue," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言最近新开了一个项目，虽然用的是 vue 技术栈，但是为了项目的健壮性，还是强上了 typescript, 于是引出了下面的问题。">
+<meta name="keywords" content="webpack vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解决 vue cli 使用 typescript 后打包巨慢的问题">
+<meta property="og:url" content="http://www.zpblogs.com/2019/09/29/解决-vue-cli-使用-typescript-后打包巨慢的问题/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言最近新开了一个项目，虽然用的是 vue 技术栈，但是为了项目的健壮性，还是强上了 typescript, 于是引出了下面的问题。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-02T10:11:53.930Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="解决 vue cli 使用 typescript 后打包巨慢的问题">
+<meta name="twitter:description" content="前言最近新开了一个项目，虽然用的是 vue 技术栈，但是为了项目的健壮性，还是强上了 typescript, 于是引出了下面的问题。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/myBlogs/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zpblogs.com/2019/09/29/解决-vue-cli-使用-typescript-后打包巨慢的问题/"/>
+
+
+
+
+
+  <title>解决 vue cli 使用 typescript 后打包巨慢的问题 | Richard Chou</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/myBlogs/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Richard Chou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Richard Chou's blogs</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/myBlogs/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/myBlogs/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zpblogs.com/myBlogs/2019/09/29/解决-vue-cli-使用-typescript-后打包巨慢的问题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/myBlogs/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">解决 vue cli 使用 typescript 后打包巨慢的问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-29T16:42:20+08:00">
+                2019-09-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近新开了一个项目，虽然用的是 vue 技术栈，但是为了项目的健壮性，还是强上了 typescript, 于是引出了下面的问题。</p>
+<a id="more"></a>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>之前使用过 ts-loader 打包 react 项目，给我的感觉就是巨慢，开发环境下，每次保存后，需要等10秒钟左右才能构建完成，当时为了解决这个问题，把 ts-loader 替换成了 babel 的 typescript 插件，结果是非常的快，每次保存一秒中之内就能完成构建。这次在 vue 中使用 typescript，开发环境下还算快，但是构建生产包时，进程都能够被卡死，体验非常糟糕，接下来讲解如何替换 typescript 构建工具。</p>
+<h1 id="替换-ts-loader"><a href="#替换-ts-loader" class="headerlink" title="替换 ts-loader"></a>替换 ts-loader</h1><p>修改 vue webpack 配置之前，我们需要知道 vue 是如何配置 ts-loader的，运行如下代码，输出 webpack 配置文件：</p>
+<blockquote>
+<p>vue inspect &gt; output.js</p>
+</blockquote>
+<p>打开 output.js 搜索 ts-loader,可以看到如下配置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* config.module.rule('ts') */</span></span><br><span class="line">&#123;</span><br><span class="line">    test: <span class="regexp">/\.ts$/</span>,</span><br><span class="line">    use: [</span><br><span class="line">    <span class="comment">/* config.module.rule('ts').use('cache-loader') */</span></span><br><span class="line">    &#123;</span><br><span class="line">        loader: <span class="string">'cache-loader'</span>,</span><br><span class="line">        options: &#123;</span><br><span class="line">        cacheDirectory: <span class="string">'/Users/edz/Desktop/project/senguo/cashier-admin/node_modules/.cache/ts-loader'</span>,</span><br><span class="line">        cacheIdentifier: <span class="string">'aee3033a'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">/* config.module.rule('ts').use('babel-loader') */</span></span><br><span class="line">    &#123;</span><br><span class="line">        loader: <span class="string">'babel-loader'</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">/* config.module.rule('ts').use('ts-loader') */</span></span><br><span class="line">    &#123;</span><br><span class="line">        loader: <span class="string">'ts-loader'</span>,</span><br><span class="line">        options: &#123;</span><br><span class="line">        transpileOnly: <span class="literal">true</span>,</span><br><span class="line">        appendTsSuffixTo: [</span><br><span class="line">            <span class="string">'\\.vue$'</span></span><br><span class="line">        ],</span><br><span class="line">        happyPackMode: <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;,</span><br><span class="line"><span class="comment">/* config.module.rule('tsx') */</span></span><br><span class="line">&#123;</span><br><span class="line">    test: <span class="regexp">/\.tsx$/</span>,</span><br><span class="line">    use: [</span><br><span class="line">    <span class="comment">/* config.module.rule('tsx').use('cache-loader') */</span></span><br><span class="line">    &#123;</span><br><span class="line">        loader: <span class="string">'cache-loader'</span>,</span><br><span class="line">        options: &#123;</span><br><span class="line">        cacheDirectory: <span class="string">'/Users/edz/Desktop/project/senguo/cashier-admin/node_modules/.cache/ts-loader'</span>,</span><br><span class="line">        cacheIdentifier: <span class="string">'aee3033a'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">/* config.module.rule('tsx').use('babel-loader') */</span></span><br><span class="line">    &#123;</span><br><span class="line">        loader: <span class="string">'babel-loader'</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">/* config.module.rule('tsx').use('ts-loader') */</span></span><br><span class="line">    &#123;</span><br><span class="line">        loader: <span class="string">'ts-loader'</span>,</span><br><span class="line">        options: &#123;</span><br><span class="line">        transpileOnly: <span class="literal">true</span>,</span><br><span class="line">        happyPackMode: <span class="literal">false</span>,</span><br><span class="line">        appendTsxSuffixTo: [</span><br><span class="line">            <span class="string">'\\.vue$'</span></span><br><span class="line">        ]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到使用到了 ts-loader, 同时还使用到了 babel, 这倒是为我们后期的配置提供了不少方便。</p>
+<p>首先删除 ts-loader 的配置，因为 vue webpack 的配置使用的是 webpack-chain，所以这里也需要用到这个工具才能进行修改，代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vue.config.js</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    chainWebpack: <span class="function"><span class="params">config</span> =&gt;</span> &#123;</span><br><span class="line">        config.module.rule(<span class="string">'ts'</span>).uses.delete(<span class="string">'ts-loader'</span>)</span><br><span class="line">        config.module.rule(<span class="string">'tsx'</span>).uses.delete(<span class="string">'ts-loader'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着安装 babel 的 typescript 插件</p>
+<blockquote>
+<p>yarn add @babel/preset-typescript @babel/plugin-transform-typescript</p>
+</blockquote>
+<p>然后修改 babel.config.js 如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    presets: [</span><br><span class="line">        <span class="string">'@vue/app'</span>,</span><br><span class="line">        <span class="string">"@babel/preset-typescript"</span></span><br><span class="line">    ],</span><br><span class="line">    plugins: [</span><br><span class="line">        <span class="string">"@babel/plugin-transform-typescript"</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果你在代码中使用到了 jsx， 那么可能还需要添加如下配置项，反正我是遇到了解析 jsx 出错的问题。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    presets: [</span><br><span class="line">        <span class="string">'@vue/app'</span>,</span><br><span class="line">        [<span class="string">"@babel/preset-typescript"</span>, &#123;</span><br><span class="line">            <span class="string">"allExtensions"</span>: <span class="literal">true</span>,</span><br><span class="line">            <span class="string">"isTSX"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;],</span><br><span class="line">    ],</span><br><span class="line">    plugins: [</span><br><span class="line">        <span class="string">"@babel/plugin-transform-typescript"</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后再打包，嗯～ 比之前快多了！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/myBlogs/tags/webpack-vue/" rel="tag"># webpack vue</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/myBlogs/2019/09/11/flutter-使用-ClipPath-绘制特殊图形/" rel="next" title="flutter 使用 ClipPath 裁剪元素">
+                <i class="fa fa-chevron-left"></i> flutter 使用 ClipPath 裁剪元素
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/myBlogs/2019/11/25/react环境变量配置/" rel="prev" title="react环境变量配置">
+                react环境变量配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Richard Chou</p>
+              <p class="site-description motion-element" itemprop="description">Blogs for Richard Chou</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/myBlogs/archives/">
+              
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问题"><span class="nav-number">2.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#替换-ts-loader"><span class="nav-number">3.</span> <span class="nav-text">替换 ts-loader</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/myBlogs/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/myBlogs/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/myBlogs/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

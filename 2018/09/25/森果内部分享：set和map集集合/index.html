@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/myBlogs/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/myBlogs/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/myBlogs/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/myBlogs/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/myBlogs/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/myBlogs/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/myBlogs/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言es6新增了两种数据结构，set以及map结构，本文主要介绍其中的api以及业务场景">
+<meta property="og:type" content="article">
+<meta property="og:title" content="森果技术分享：set和map集集合">
+<meta property="og:url" content="http://www.zpblogs.com/2018/09/25/森果内部分享：set和map集集合/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言es6新增了两种数据结构，set以及map结构，本文主要介绍其中的api以及业务场景">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-01T01:48:59.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="森果技术分享：set和map集集合">
+<meta name="twitter:description" content="前言es6新增了两种数据结构，set以及map结构，本文主要介绍其中的api以及业务场景">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/myBlogs/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zpblogs.com/2018/09/25/森果内部分享：set和map集集合/"/>
+
+
+
+
+
+  <title>森果技术分享：set和map集集合 | Richard Chou</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/myBlogs/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Richard Chou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Richard Chou's blogs</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/myBlogs/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/myBlogs/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zpblogs.com/myBlogs/2018/09/25/森果内部分享：set和map集集合/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/myBlogs/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">森果技术分享：set和map集集合</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-25T20:07:06+08:00">
+                2018-09-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>es6新增了两种数据结构，set以及map结构，本文主要介绍其中的api以及业务场景</p>
+<a id="more"></a>
+<h1 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h1><h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><p>set集合类似于数组，但是内部的成员都是唯一的，例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="built_in">Set</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">// Set(5) &#123;1, 2, 3, 4, 5&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="主要的API"><a href="#主要的API" class="headerlink" title="主要的API"></a>主要的API</h2><h3 id="add"><a href="#add" class="headerlink" title="add"></a>add</h3><p>向set集合中添加一个元素<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> set = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">set.add(<span class="number">5</span>).add(<span class="number">4</span>).add(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Set(2) &#123;5, 4&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>由于 set集合中数据的唯一性，所以只添加了5和4两个对象</p>
+<h3 id="has"><a href="#has" class="headerlink" title="has"></a>has</h3><p>用于检测set集合中是否有某个元素<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> set = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">set.add(<span class="number">5</span>).add(<span class="number">4</span>).add(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">set.has(<span class="number">4</span>)</span><br><span class="line"><span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">set.has(<span class="number">6</span>)</span><br><span class="line"><span class="comment">//false</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="delete"><a href="#delete" class="headerlink" title="delete"></a>delete</h3><p>删除set集合中的某个元素<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> set = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">set.add(<span class="number">5</span>).add(<span class="number">4</span>).add(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">set.delete(<span class="number">4</span>)</span><br><span class="line"><span class="comment">//返回true，代表删除成功</span></span><br><span class="line"><span class="comment">//如果删除某个不存在的值则返回false</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="clear"><a href="#clear" class="headerlink" title="clear"></a>clear</h3><p>用于清空set集合<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> set = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">set.add(<span class="number">5</span>).add(<span class="number">4</span>).add(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">set.clear()</span><br></pre></td></tr></table></figure></p>
+<h2 id="可用于的业务场景"><a href="#可用于的业务场景" class="headerlink" title="可用于的业务场景"></a>可用于的业务场景</h2><p>由于内部元素不可重复，所以可以用于数组去重，例如</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[...new <span class="built_in">Set</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])]  <span class="comment">//利用扩展运算符将set集合转换为数组</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// [1, 2, 3, 4]</span></span><br></pre></td></tr></table></figure>
+<p>对于一些需要进行数据判断以及筛选的应用场景，使用set是一个很好的选择，因为set集合的API可以很方便支撑业务逻辑。</p>
+<p>例如一个对象的深拷贝时，对于循环引用的判断，使用Set集合的api就很方便的进行了判断，如下：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">typeCheck</span>(<span class="params">type</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(obj) === <span class="string">'[object '</span> + type + <span class="string">']'</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> isArray = typeCheck(<span class="string">'Array'</span>)</span><br><span class="line"><span class="keyword">const</span> isObject = typeCheck(<span class="string">'Object'</span>)</span><br><span class="line"><span class="keyword">const</span> set = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">deepCopy</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (set.has(obj)) <span class="keyword">return</span> <span class="string">''</span></span><br><span class="line">	set.add(obj)</span><br><span class="line">	<span class="keyword">if</span> (isArray(obj)) &#123;</span><br><span class="line">		<span class="keyword">let</span> newArray = []</span><br><span class="line">		obj.forEach(<span class="function"><span class="params">value</span> =&gt;</span> newArray.push(deepCopy(value)))</span><br><span class="line">		<span class="keyword">return</span> newArray</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> (isObject(obj)) &#123;</span><br><span class="line">		<span class="keyword">let</span> newObj = &#123;&#125;</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">let</span> i <span class="keyword">in</span> obj) &#123;</span><br><span class="line">			newObj[i] = deepCopy(obj[i])</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> newObj</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> obj	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="Weakset"><a href="#Weakset" class="headerlink" title="Weakset"></a>Weakset</h1><p>只允许存储object类型的数据，根据内存地址判断元素是否是同一个，因为是弱引用，以引用计数算法为基础的垃圾回收机制不会判断这次引用是一次有效的引用。所以可以对于一些与内存泄露相关联的对象进行存储，例如dom节点，不过并没有啥用，因为只能存，不能取，业务场景极少。</p>
+<p>阮一峰的es6教程上有这样一个例子<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> foos = <span class="keyword">new</span> <span class="built_in">WeakSet</span>()</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    foos.add(<span class="keyword">this</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  method () &#123;</span><br><span class="line">    <span class="keyword">if</span> (!foos.has(<span class="keyword">this</span>)) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">'Foo.prototype.method 只能在Foo的实例上调用！'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可用于判断函数this是否被改变，以及对象销毁后缓存实例可以被垃圾回收。</p>
+<h1 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h1><p>map与object结构相似，都是key-value形式，但是map集合的key可以是一个对象, 这一点我向用java的朋友求证过，在java中经常会用到map结构，因为java语言的特性，并没有像js这样方便，但是，在key中存储对象的行为也是极少的，所以不用过多的纠结使用object还是使用map集合，接下来简单的讲解map集合的api，后面会讲到业务场景</p>
+<h2 id="API"><a href="#API" class="headerlink" title="API"></a>API</h2><h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>用于向Map集合中添加一个键值对</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="number">1</span>, &#123;<span class="attr">name</span>: <span class="string">'a'</span>&#125;)     <span class="comment">// Map(1) &#123;1 =&gt; &#123;…&#125;&#125;</span></span><br><span class="line">map.set(<span class="number">1</span>, &#123;<span class="attr">name</span>: <span class="string">'b'</span>&#125;)     <span class="comment">// Map(1) &#123;1 =&gt; &#123;…&#125;&#125;  //键名相同覆盖</span></span><br><span class="line">map.set([<span class="number">1</span>], &#123;<span class="attr">name</span>: <span class="string">'b'</span>&#125;)   <span class="comment">// Map(2) &#123;1 =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;&#125;</span></span><br><span class="line">map.set([<span class="number">1</span>], &#123;<span class="attr">name</span>: <span class="string">'b'</span>&#125;)   <span class="comment">// Map(3) &#123;1 =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;&#125;  //因为是复杂数据类型，所以是根据内存地址判断，内存地址不一致，所以添加进了map集合</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>]    </span><br><span class="line">map.set(arr, &#123;<span class="attr">name</span>: <span class="string">'b'</span>&#125;) <span class="comment">//Map(4) &#123;1 =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;&#125;</span></span><br><span class="line">map.set(arr, &#123;<span class="attr">name</span>: <span class="string">'b'</span>&#125;) <span class="comment">//Map(4) &#123;1 =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;, Array(1) =&gt; &#123;…&#125;&#125;</span></span><br><span class="line"><span class="comment">//内存地址一致，所以覆盖</span></span><br></pre></td></tr></table></figure>
+<h3 id="get"><a href="#get" class="headerlink" title="get"></a>get</h3><p>从map集合读取数据</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="number">1</span>, &#123;<span class="attr">name</span>: <span class="string">'a'</span>&#125;)     <span class="comment">// Map(1) &#123;1 =&gt; &#123;…&#125;&#125;</span></span><br><span class="line">map.get(<span class="number">1</span>)  <span class="comment">// &#123;name: 'a'&#125;</span></span><br></pre></td></tr></table></figure>
+<p>读取的key要么是一个基本类型（String, Number, Boolean, Null, NaN, Symbol)，要么是复杂类型的引用(Object)，如果没有保留存储进map集合的复杂类型数据的引用，那么只能用迭代循环来读取到map集合中的数据</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="number">1</span>, &#123;<span class="attr">name</span>: <span class="string">'a'</span>&#125;) </span><br><span class="line">map.set([<span class="number">1</span>], &#123;<span class="attr">name</span>: <span class="string">'b'</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> [key, value] <span class="keyword">of</span> map.entries()) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(key, value)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//1 &#123;name: "a"&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//[1] &#123;name: "b"&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="has-1"><a href="#has-1" class="headerlink" title="has"></a>has</h3><p>判断map集合中是否有某个元素，同上所述，判断元素的类型要么是基本类型，要么是复杂类型的引用</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="number">1</span>, &#123;<span class="attr">name</span>: <span class="string">'a'</span>&#125;) </span><br><span class="line">map.set([<span class="number">1</span>], &#123;<span class="attr">name</span>: <span class="string">'b'</span>&#125;)</span><br><span class="line"></span><br><span class="line">map.has(<span class="number">1</span>)      <span class="comment">// true</span></span><br><span class="line">map.has([<span class="number">1</span>])    <span class="comment">// false</span></span><br><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">map.set(arr, &#123;<span class="attr">a</span>: <span class="string">'1'</span>&#125;)</span><br><span class="line">map.has(arr)    <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<h3 id="delete-1"><a href="#delete-1" class="headerlink" title="delete"></a>delete</h3><p>删除map集合中的某个元素，判断类型依据如上所述</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="number">1</span>, &#123;<span class="attr">name</span>: <span class="string">'a'</span>&#125;) </span><br><span class="line">map.delete(<span class="number">1</span>)       <span class="comment">// true 删除成功返回true，删除失败返回false</span></span><br></pre></td></tr></table></figure>
+<h3 id="clear-1"><a href="#clear-1" class="headerlink" title="clear"></a>clear</h3><p>清除map集合中所有的数据</p>
+<h3 id="forEach"><a href="#forEach" class="headerlink" title="forEach"></a>forEach</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">map.forEach(<span class="function">(<span class="params">value, key, map</span>) =&gt;</span> &#123;</span><br><span class="line">	<span class="built_in">console</span>.log(value, key, map)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">//也可以用for of进行迭代操作</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> [key,value] <span class="keyword">of</span> map.entries()) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(key, value)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h3><p>因为key可以作为一个对象，所以存储需要有自定义信息的dom结构时可以使用到，找出了以前写的一段代码，用es6的手段来优化。</p>
+<p>这是一个订单需要在30分钟内结算的业务，在订单列表页面，每一个订单都有一个倒计时，因为是传统的开发模式，所以需要对每一个dom节点手动进行操作，对于每个dom添加完倒计时功能后，需要缓存起计时器，以供特殊情况调用，可以看见，没有使用map集合时，用一个对象进行计时器的存储，使用了map集合后，一个dom节点对应一个计时器，这样代码结构就清晰很多，对于dom以及计时器的操作也方便很多。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//优化前</span></span><br><span class="line"><span class="keyword">var</span> countDowns = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">startCountDown</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> countdownsDom = $(<span class="string">'.count-down-container'</span>)</span><br><span class="line">    countdownsDom.each(<span class="function"><span class="keyword">function</span>(<span class="params">index, value</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> that = <span class="keyword">this</span></span><br><span class="line">        <span class="keyword">var</span> countDownIndex = $(<span class="keyword">this</span>).attr(<span class="string">'data-index'</span>)</span><br><span class="line">        <span class="keyword">var</span> targetTime = <span class="keyword">new</span> <span class="built_in">Date</span>(+$(<span class="keyword">this</span>).attr(<span class="string">'data-createdTime'</span>) + <span class="number">1000</span> * <span class="number">60</span> * <span class="number">30</span>)</span><br><span class="line">        countDowns[countDownIndex] = <span class="keyword">new</span> BTime.CountDown(targetTime, <span class="keyword">new</span> <span class="built_in">Date</span>())</span><br><span class="line">        countDowns[countDownIndex].on(<span class="string">'timing'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">data</span>) </span>&#123;</span><br><span class="line">            $(that).html(<span class="string">'还有&lt;span style="color:#00c9a7;"&gt;'</span> + data.hours + <span class="string">':'</span> + data.minute + <span class="string">':'</span> + data.second + <span class="string">'&lt;/span&gt;订单自动失效'</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">        </span><br><span class="line">        countDowns[countDownIndex].on(<span class="string">'timend'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            $(that).html(<span class="string">'订单超时，已关闭'</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">        </span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//优化后</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">startCountDown</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> countdownsDom = <span class="built_in">document</span>.getElementsByClassName(<span class="string">'count-down-container'</span>)</span><br><span class="line">    <span class="keyword">const</span> domMap = <span class="keyword">new</span> <span class="built_in">Map</span>([...countdownsDom].map(<span class="function"><span class="params">value</span> =&gt;</span> [value, <span class="string">''</span>])) <span class="comment">// 进行map集合的初始化，将dom元素作为key，倒计时对象作为value，形成一个一一对应的关系</span></span><br><span class="line"></span><br><span class="line">    domMap.forEach(<span class="function">(<span class="params">timer, dom</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> targetTime = <span class="keyword">new</span> <span class="built_in">Date</span>(+dom.dataset.createdTime + <span class="number">1000</span> * <span class="number">60</span> * <span class="number">30</span>)</span><br><span class="line">        timer = <span class="keyword">new</span> BTime.CountDown(targetTime, <span class="keyword">new</span> <span class="built_in">Date</span>())</span><br><span class="line">        </span><br><span class="line">        timer.on(<span class="string">'timing'</span>, data =&gt; &#123;</span><br><span class="line">           dom.innerHTML = <span class="string">`还有&lt;span style="color:#00c9a7;"&gt; <span class="subst">$&#123;data.hours&#125;</span> : <span class="subst">$&#123;data.minute&#125;</span> : <span class="subst">$&#123;data.second&#125;</span>&lt;/span&gt;订单自动失效`</span></span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">        timer.on(<span class="string">'timend'</span>, () =&gt; &#123;</span><br><span class="line">            dom.innerHTML = <span class="string">'订单超时，已关闭'</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> domMap</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="WeakMap"><a href="#WeakMap" class="headerlink" title="WeakMap"></a>WeakMap</h1><p>于map相似，但是其中元素的key只能是object，且对于对象的引用是弱引用，所以不计入垃圾回收。API与Map相似，但是不能迭代遍历，只能使用 get()、set()、has()、delete() 四个方法。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/myBlogs/2018/09/21/不懂圣杯布局？5种方式包教包会/" rel="next" title="不懂圣杯布局？5种方式包教包会">
+                <i class="fa fa-chevron-left"></i> 不懂圣杯布局？5种方式包教包会
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/myBlogs/2018/09/26/森果内部分享：promise与async/" rel="prev" title="森果技术分享：promise与async">
+                森果技术分享：promise与async <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Richard Chou</p>
+              <p class="site-description motion-element" itemprop="description">Blogs for Richard Chou</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/myBlogs/archives/">
+              
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Set"><span class="nav-number">2.</span> <span class="nav-text">Set</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#特性"><span class="nav-number">2.1.</span> <span class="nav-text">特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主要的API"><span class="nav-number">2.2.</span> <span class="nav-text">主要的API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#add"><span class="nav-number">2.2.1.</span> <span class="nav-text">add</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#has"><span class="nav-number">2.2.2.</span> <span class="nav-text">has</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#delete"><span class="nav-number">2.2.3.</span> <span class="nav-text">delete</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clear"><span class="nav-number">2.2.4.</span> <span class="nav-text">clear</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可用于的业务场景"><span class="nav-number">2.3.</span> <span class="nav-text">可用于的业务场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Weakset"><span class="nav-number">3.</span> <span class="nav-text">Weakset</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Map"><span class="nav-number">4.</span> <span class="nav-text">Map</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#API"><span class="nav-number">4.1.</span> <span class="nav-text">API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#set"><span class="nav-number">4.1.1.</span> <span class="nav-text">set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get"><span class="nav-number">4.1.2.</span> <span class="nav-text">get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#has-1"><span class="nav-number">4.1.3.</span> <span class="nav-text">has</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#delete-1"><span class="nav-number">4.1.4.</span> <span class="nav-text">delete</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clear-1"><span class="nav-number">4.1.5.</span> <span class="nav-text">clear</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#forEach"><span class="nav-number">4.1.6.</span> <span class="nav-text">forEach</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#业务场景"><span class="nav-number">4.1.7.</span> <span class="nav-text">业务场景</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#WeakMap"><span class="nav-number">5.</span> <span class="nav-text">WeakMap</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/myBlogs/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/myBlogs/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/myBlogs/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/myBlogs/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/myBlogs/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/myBlogs/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/myBlogs/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/myBlogs/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/myBlogs/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/myBlogs/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言最近在开发管理系统时遇到了任何管理系统都会有的需求—权限控制，之前也经历过这种需求，但是架构不完善导致的各种问题使得后期维护非常麻烦，这一次的方案解决了之前的种种问题，现做一次记录，当然这个架构后期可能会有坑，不过得一步一步的尝试才能发现并解决问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vue后台管理系统权限控制思考与实践">
+<meta property="og:url" content="http://www.zpblogs.com/2018/12/17/vue后台管理系统权限控制思考与实践/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言最近在开发管理系统时遇到了任何管理系统都会有的需求—权限控制，之前也经历过这种需求，但是架构不完善导致的各种问题使得后期维护非常麻烦，这一次的方案解决了之前的种种问题，现做一次记录，当然这个架构后期可能会有坑，不过得一步一步的尝试才能发现并解决问题。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-12-28T01:57:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="vue后台管理系统权限控制思考与实践">
+<meta name="twitter:description" content="前言最近在开发管理系统时遇到了任何管理系统都会有的需求—权限控制，之前也经历过这种需求，但是架构不完善导致的各种问题使得后期维护非常麻烦，这一次的方案解决了之前的种种问题，现做一次记录，当然这个架构后期可能会有坑，不过得一步一步的尝试才能发现并解决问题。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/myBlogs/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zpblogs.com/2018/12/17/vue后台管理系统权限控制思考与实践/"/>
+
+
+
+
+
+  <title>vue后台管理系统权限控制思考与实践 | Richard Chou</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/myBlogs/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Richard Chou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Richard Chou's blogs</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/myBlogs/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/myBlogs/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zpblogs.com/myBlogs/2018/12/17/vue后台管理系统权限控制思考与实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/myBlogs/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">vue后台管理系统权限控制思考与实践</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-12-17T17:17:51+08:00">
+                2018-12-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近在开发管理系统时遇到了任何管理系统都会有的需求—权限控制，之前也经历过这种需求，但是架构不完善导致的各种问题使得后期维护非常麻烦，这一次的方案解决了之前的种种问题，现做一次记录，当然这个架构后期可能会有坑，不过得一步一步的尝试才能发现并解决问题。</p>
+<a id="more"></a>
+<h1 id="权限控制需求"><a href="#权限控制需求" class="headerlink" title="权限控制需求"></a>权限控制需求</h1><p>因为是单页面应用，路由交给前端来控制，对于一些需要特定权限才能查看的信息的保护变得尤为重要，如果前端不做好权限校验，后端也一时疏忽，就可能就会导致数据泄露。</p>
+<p>对于权限控制，需求大致为如下：</p>
+<ol>
+<li>对于大模块的限制，比如需要通过路由跳转的模块，这时需要进行路由拦截</li>
+<li>对于小功能的限制，比如一个按钮，如果没有特定权限，那么这个按钮就不显示</li>
+</ol>
+<h1 id="安全层面的思考"><a href="#安全层面的思考" class="headerlink" title="安全层面的思考"></a>安全层面的思考</h1><p>之前接手了一个管理系统，前端是将权限列表存储在storage中来实现长久储存，这种实现方式是很不可取的，因为hacker可以通过手动更改存储的信息来实现获取特定权限，甚至系统都没有做路由拦截，如果知道模块的路由，可以直接通过输入路由信息来直接跳转到特定模块。对于一些模块的权限，权限被管理员修改后也无法立即生效，所以对于这几种情况做了如下思考与实践。</p>
+<h2 id="权限被管理员修改后立即生效"><a href="#权限被管理员修改后立即生效" class="headerlink" title="权限被管理员修改后立即生效"></a>权限被管理员修改后立即生效</h2><p>对于这个需求，我的做法是，获取到权限列表后，将权限信息存储在 <strong>vuex store</strong> 中，并且使用getter函数，对于是否可以使用该权限进行判断，这样一旦权限数据更新，前端权限限制功能点会自动修改，从而做到权限的实时性，大致实现如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vuex state.js</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    userPrivileges: &#123;</span><br><span class="line">        admin: [],</span><br><span class="line">        purchaser: []</span><br><span class="line">    &#125;, <span class="comment">// 用户权限信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// vuex getters.js</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    canIUse: <span class="function"><span class="params">state</span> =&gt;</span> (role, id) =&gt; state.userPrivileges[role].includes(id)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 页面具体小功能，通过 mapGetters 引入 canIUse 函数</span></span><br><span class="line">&lt;span v-<span class="keyword">if</span>=<span class="string">"canIUse('admin', 9)"</span>&gt;&#123;&#123;scope.row.allocation_subtotal&#125;&#125;&lt;<span class="regexp">/span&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样一来，数据存储在内存中，那么权限信息就无法轻易的被修改，同时对于权限的判断也非常简单，只需要在特定功能点传入功能点的权限id就能判断是否可以使用这个权限了。</p>
+<p>但是将数据存储在了内存中也会遇到一个问题，页面刷新怎么办？接下来就是讲解这种情况。</p>
+<h2 id="刷新页面也可以进行权限判断"><a href="#刷新页面也可以进行权限判断" class="headerlink" title="刷新页面也可以进行权限判断"></a>刷新页面也可以进行权限判断</h2><p>对于大模块的权限拦截，肯定是通过路由钩子来进行拦截的（这种实现有很多文章讲解过，这里不具体讲解），但是通过路由钩子进行拦截的前提是，权限信息得提前存在。</p>
+<p>刷新页面会存在这种情况，页面刷新时，先执行的路由钩子，再执行的组件生命周期钩子来请求权限的列表，此时权限信息不存在，那么页面跳转到登陆页的话，体验就不够好。</p>
+<p>所以我的做法是，建立一个中间页，如果权限校验不通过，那么跳转至中间页，中间页进行权限的请求，请求到权限后，再判断是否可以跳转，这样的话，刷新页面体验就比较好。大致代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vuex actions.js</span></span><br><span class="line"><span class="comment">// 通过返回一个promise，使得store更新与后续代码变为“同步”执行</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    getUserPrivileges(&#123; commit &#125;) &#123;</span><br><span class="line">        <span class="keyword">return</span> fetch.get(&#123;</span><br><span class="line">            url: <span class="string">'/currentstaff'</span></span><br><span class="line">        &#125;).then(<span class="function"><span class="params">data</span> =&gt;</span> &#123;</span><br><span class="line">            commit(<span class="string">'SET_USER_PRIVILEGES_INFO'</span>, data.data)</span><br><span class="line">            <span class="keyword">return</span> data.data</span><br><span class="line">        &#125;).catch(<span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line"></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// router.js</span></span><br><span class="line"><span class="comment">// 需要验证权限的路由</span></span><br><span class="line">&#123;</span><br><span class="line">    path: <span class="string">'suppliers'</span>,</span><br><span class="line">    component: Suppliers,</span><br><span class="line">    meta: &#123;</span><br><span class="line">        role: <span class="string">'admin'</span>,</span><br><span class="line">        privilegeId: <span class="number">5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isCanUseThisModule</span>(<span class="params">to, from</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> to.matched.every(<span class="function"><span class="params">record</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 利用路由meta存储相应权限信息</span></span><br><span class="line">        <span class="keyword">if</span> (record.meta.role) &#123;</span><br><span class="line">            <span class="keyword">return</span> store.getters.canIUse(record.meta.role, record.meta.privilegeId)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span> <span class="comment">// 如果不需要权限，直接返回true</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">router.beforeEach(<span class="function">(<span class="params">to, <span class="keyword">from</span>, next</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isCanUseThisModule(to, <span class="keyword">from</span>)) &#123;</span><br><span class="line">        next() <span class="comment">// 权限验证通过，跳转下一路由</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        next(&#123;</span><br><span class="line">            path: <span class="string">'/main/privilegeValidator'</span> <span class="comment">// 权限验证不通过时的中间页</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 权限校验中间页代码示例</span></span><br><span class="line">created() &#123;</span><br><span class="line">    <span class="keyword">this</span>.$store.dispatch(<span class="string">'getUserPrivileges'</span>).then(<span class="function"><span class="params">data</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; data.admin_permissions.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.canIUse(<span class="string">'admin'</span>, data.admin_permissions[i])) &#123;</span><br><span class="line">                <span class="keyword">this</span>.$router.push(&#123;</span><br><span class="line">                    path: <span class="keyword">this</span>.routerList.find(<span class="function"><span class="params">value</span> =&gt;</span> value.privilegeId === data.admin_permissions[i]).linkHref</span><br><span class="line">                &#125;)</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.$router.push(<span class="string">'/login'</span>) <span class="comment">// 如果没有任何权限，则跳转登陆页面</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用户在登陆后也可以跳转到这个权限中间页，进行权限判断后再跳转到对应模块。</p>
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>大致的实现过程就是这样，希望对大家有所帮助，如果有暗坑还请指出。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/myBlogs/2018/11/05/使用reduce完成深拷贝/" rel="next" title="使用reduce完成对象的深拷贝">
+                <i class="fa fa-chevron-left"></i> 使用reduce完成对象的深拷贝
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/myBlogs/2019/01/09/一套为简历而生的构建方案/" rel="prev" title="一套为简历而生的构建方案">
+                一套为简历而生的构建方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Richard Chou</p>
+              <p class="site-description motion-element" itemprop="description">Blogs for Richard Chou</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/myBlogs/archives/">
+              
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#权限控制需求"><span class="nav-number">2.</span> <span class="nav-text">权限控制需求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安全层面的思考"><span class="nav-number">3.</span> <span class="nav-text">安全层面的思考</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#权限被管理员修改后立即生效"><span class="nav-number">3.1.</span> <span class="nav-text">权限被管理员修改后立即生效</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#刷新页面也可以进行权限判断"><span class="nav-number">3.2.</span> <span class="nav-text">刷新页面也可以进行权限判断</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#尾声"><span class="nav-number">4.</span> <span class="nav-text">尾声</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/myBlogs/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/myBlogs/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/myBlogs/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

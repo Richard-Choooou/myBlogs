@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/myBlogs/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/myBlogs/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/myBlogs/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/myBlogs/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/myBlogs/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/myBlogs/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/myBlogs/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react webpack," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言本文面向有 webpack 经验以及服务端经验的同学编写，其中省略了部分细节的讲解，初学者建议先学习 webpack 以及服务端相关知识再阅读此文，文末有此配置的 git 仓库，可以直接使用。 附上 webpack 入门讲解   以下示例中的代码有部分删减，具体以 git 仓库中的代码为准">
+<meta name="keywords" content="react webpack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="react服务端渲染实践1: 工程化配置">
+<meta property="og:url" content="http://www.zpblogs.com/2019/06/25/react服务端渲染实践1-工程化配置/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言本文面向有 webpack 经验以及服务端经验的同学编写，其中省略了部分细节的讲解，初学者建议先学习 webpack 以及服务端相关知识再阅读此文，文末有此配置的 git 仓库，可以直接使用。 附上 webpack 入门讲解   以下示例中的代码有部分删减，具体以 git 仓库中的代码为准">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/58744768-8a6fc200-8479-11e9-98d4-b6ce6b10e5d8.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/58745320-20a7e600-8482-11e9-954b-b160f775445d.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/58745797-73849c00-8488-11e9-9145-da31ed5f6b7f.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/58745885-a7ac8c80-8489-11e9-80a9-0c05ff5d4510.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/60160860-e2a3a500-9828-11e9-8a3d-0a0aa1f8f42f.png">
+<meta property="og:updated_time" content="2019-09-11T08:30:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="react服务端渲染实践1: 工程化配置">
+<meta name="twitter:description" content="前言本文面向有 webpack 经验以及服务端经验的同学编写，其中省略了部分细节的讲解，初学者建议先学习 webpack 以及服务端相关知识再阅读此文，文末有此配置的 git 仓库，可以直接使用。 附上 webpack 入门讲解   以下示例中的代码有部分删减，具体以 git 仓库中的代码为准">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23492006/58744768-8a6fc200-8479-11e9-98d4-b6ce6b10e5d8.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/myBlogs/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zpblogs.com/2019/06/25/react服务端渲染实践1-工程化配置/"/>
+
+
+
+
+
+  <title>react服务端渲染实践1: 工程化配置 | Richard Chou</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/myBlogs/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Richard Chou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Richard Chou's blogs</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/myBlogs/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/myBlogs/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zpblogs.com/myBlogs/2019/06/25/react服务端渲染实践1-工程化配置/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/myBlogs/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">react服务端渲染实践1: 工程化配置</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-25T10:45:05+08:00">
+                2019-06-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文面向有 webpack 经验以及服务端经验的同学编写，其中省略了部分细节的讲解，初学者建议先学习 webpack 以及服务端相关知识再阅读此文，文末有此配置的 git 仓库，可以直接使用。</p>
+<p>附上 <a href="http://www.zpblogs.com/myBlogs/2018/10/08/%E6%A3%AE%E6%9E%9C%E5%86%85%E9%83%A8%E5%88%86%E4%BA%AB%EF%BC%9Awebpack%E9%85%8D%E7%BD%AE%E4%BB%8E0%E5%88%B01/">webpack 入门讲解 </a></p>
+<blockquote>
+<p>以下示例中的代码有部分删减，具体以 git 仓库中的代码为准</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="为什么要服务端渲染"><a href="#为什么要服务端渲染" class="headerlink" title="为什么要服务端渲染"></a>为什么要服务端渲染</h2><p>为什么需要服务端渲染，这个问题社区中很多关于为什么使用服务端渲染的文章，这里不细说。服务端渲染给我最直观的感受就是快！下面是两种渲染模式的流程图：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/58744768-8a6fc200-8479-11e9-98d4-b6ce6b10e5d8.png" alt="image"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/58745320-20a7e600-8482-11e9-954b-b160f775445d.png" alt="image"></p>
+<p>可以很直观的看见，服务端渲染（上图）比客户端渲染（下图）少了很多步骤，一次http请求，就能获取到页面的数据，而不用像客户端那样再三的请求。</p>
+<h2 id="服务端渲染弊端"><a href="#服务端渲染弊端" class="headerlink" title="服务端渲染弊端"></a>服务端渲染弊端</h2><p>如果非要说服务端渲染有什么弊端，那么就是工程化配置较为麻烦，但是目前 react 有 <strong>nextjs</strong>, vue 有 <strong>nuxtjs</strong> 对应的两个服务端渲染框架，对于不是很懂工程配置的同学可以开箱即用。这里我没有选择 nextjs 的原因在于，一是这些框架在框架的基础上继续封装，没有精力再去学哪些并没有太大帮助的api, 二是想挑战一下自己的知识盲区，加强对于 react 以及 webpack 的实践（之前没有react大型项目的经历）。</p>
+<h2 id="实现目标"><a href="#实现目标" class="headerlink" title="实现目标"></a>实现目标</h2><p>接下来说说实现目标：</p>
+<h3 id="开发阶段也使用服务端渲染，模拟线上真实情况"><a href="#开发阶段也使用服务端渲染，模拟线上真实情况" class="headerlink" title="开发阶段也使用服务端渲染，模拟线上真实情况"></a>开发阶段也使用服务端渲染，模拟线上真实情况</h3><p>单独提出这个问题的原因在于，在搭建这套服务端渲染的脚手架之前，看过不少网上相关的文章，其中大部分文章，对于细节讲述的很浅，服务端直接使用renderToString渲染jsx就完事了，实际上这样根本不可能跑在生产环境中，真正这样尝试过就会发现很多坑。对于项目中的静态资源，如图片资源，样式资源的引用，nodejs会报错，即使项目中用不到这些资源，那么每次请求的渲染jsx都会耗费大量cpu资源。</p>
+<h3 id="开发时热更新进行调试"><a href="#开发时热更新进行调试" class="headerlink" title="开发时热更新进行调试"></a>开发时热更新进行调试</h3><p>之前看过的相关文章中，也很少提到这一点，所以这一点也单独提出来，不过有坑待解决。</p>
+<h3 id="区分开发和生产环境，并能方便的切换及部署"><a href="#区分开发和生产环境，并能方便的切换及部署" class="headerlink" title="区分开发和生产环境，并能方便的切换及部署"></a>区分开发和生产环境，并能方便的切换及部署</h3><p>毕竟要做的是一个项目，而不是个demo。</p>
+<h2 id="工程化配置"><a href="#工程化配置" class="headerlink" title="工程化配置"></a>工程化配置</h2><p>接下来开始工程化配置，这里假设你有一定的webpack配置基础，所以不细讲webpack。</p>
+<h3 id="开发环境"><a href="#开发环境" class="headerlink" title="开发环境"></a>开发环境</h3><h4 id="两个入口"><a href="#两个入口" class="headerlink" title="两个入口"></a>两个入口</h4><p>分别是客户端入口，以及服务端入口，在不懂服务端渲染之前，我很难理解为什么要有两个入口。理解后发现很其实简单，服务端入口，处理路由，将对应的页面至渲染成html字符串，那么客户端的作用呢？</p>
+<p>要知道，前端页面事件的绑定是需要js代码来完成的，所以客户端的代码作用其一就是绑定相关事件，以及提供一个客户端渲染的能力。（第一次请求得到的是服务端渲染的数据，之后每次进行跳转都是客户端进行渲染）</p>
+<p>ok，先创建目录以及文件，如下：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/58745797-73849c00-8488-11e9-9145-da31ed5f6b7f.png" alt="image"></p>
+<p>其中 client.entry.tsx 内容如下<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; hydrate &#125; <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"><span class="keyword">import</span> &#123; BrowserRouter &#125; <span class="keyword">from</span> <span class="string">'react-router-dom'</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./app'</span></span><br><span class="line"></span><br><span class="line">hydrate(&lt;BrowserRouter&gt;</span><br><span class="line">            &lt;App/&gt;</span><br><span class="line">        &lt;/BrowserRouter&gt;, <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>))</span><br></pre></td></tr></table></figure></p>
+<p>这里使用 <strong>hydrate</strong> 函数，而不是 <strong>render</strong> 函数，其次路由使用的是 <strong>BrowserRouter</strong></p>
+<p>server.entry.tsx代码如下<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">const</span> &#123; renderToString &#125; = <span class="built_in">require</span>(<span class="string">"react-dom/server"</span>)</span><br><span class="line"><span class="keyword">import</span> &#123; StaticRouter &#125; <span class="keyword">from</span> <span class="string">"react-router"</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./app'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">async</span> (req, context = &#123;&#125;) =&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        html: renderToString(</span><br><span class="line">            &lt;StaticRouter location=&#123;req.url&#125; context=&#123;context&#125;&gt;</span><br><span class="line">                &lt;App/&gt;</span><br><span class="line">            &lt;<span class="regexp">/StaticRouter&gt;)</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>于client的区别在于，这里 export 了一个函数，其次路由使用的是用于服务端渲染的 <strong>StaticRouter</strong></p>
+<p>再看看 app.tsx</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; Switch &#125; <span class="keyword">from</span> <span class="string">'react-router-dom'</span></span><br><span class="line"><span class="keyword">import</span> &#123; renderRoutes &#125; <span class="keyword">from</span> <span class="string">'react-router-config'</span></span><br><span class="line"><span class="keyword">import</span> Login <span class="keyword">from</span> <span class="string">'./src/view/login'</span></span><br><span class="line"><span class="keyword">import</span> Main <span class="keyword">from</span> <span class="string">'./src/view/main/router'</span></span><br><span class="line"><span class="keyword">import</span> NotFoundPage <span class="keyword">from</span> <span class="string">'./src/view/404/404'</span></span><br><span class="line"></span><br><span class="line">interface componentProps &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface componentStates &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span>&lt;<span class="title">componentProps</span>, <span class="title">componentStates</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(props) &#123;</span><br><span class="line">        <span class="keyword">super</span>(props)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    render() &#123;</span><br><span class="line">        <span class="keyword">const</span> routes = [</span><br><span class="line">            Main, </span><br><span class="line">        &#123;</span><br><span class="line">            path: <span class="string">'/app/login'</span>,</span><br><span class="line">            component: Login,</span><br><span class="line">            exact: <span class="literal">true</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            component: NotFoundPage</span><br><span class="line">        &#125;]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">            &lt;Switch&gt;</span><br><span class="line">                &#123;renderRoutes(routes)&#125;</span><br><span class="line">            &lt;<span class="regexp">/Switch&gt;</span></span><br><span class="line"><span class="regexp">        )</span></span><br><span class="line"><span class="regexp">    &#125; </span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">export default App</span></span><br></pre></td></tr></table></figure>
+<p>与客户端渲染不同的是，服务端渲染需要用到静态路由 <strong>react-router-config</strong> 提供的 <strong>renderRoutes</strong> 函数进行渲染 ，而不是客户端的动态路由，因为这涉及到服务端数据预渲染，在下一章节会详细讲解这一点。</p>
+<h4 id="webpack配置"><a href="#webpack配置" class="headerlink" title="webpack配置"></a>webpack配置</h4><p>创建完文件后，接下来进行webpack的配置，具体文件如下图所示：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/58745885-a7ac8c80-8489-11e9-80a9-0c05ff5d4510.png" alt="image"></p>
+<p>拆分的比较细，先看公共的配置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack.common.js</span></span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">'./config/index'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"><span class="keyword">const</span> MiniCssExtractPlugin = <span class="built_in">require</span>(<span class="string">'mini-css-extract-plugin'</span>)</span><br><span class="line"><span class="keyword">const</span> ModuleConcatenationPlugin = <span class="built_in">require</span>(<span class="string">'webpack/lib/optimize/ModuleConcatenationPlugin'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    resolve: &#123;</span><br><span class="line">        <span class="comment">// Add `.ts` and `.tsx` as a resolvable extension.</span></span><br><span class="line">        extensions: [<span class="string">".ts"</span>, <span class="string">".tsx"</span>, <span class="string">".js"</span>],</span><br><span class="line">        alias: &#123;</span><br><span class="line">            <span class="string">"@src"</span>:path.resolve(config.root, <span class="string">"./app/client/src"</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="built_in">module</span>: &#123;</span><br><span class="line">        rules: [</span><br><span class="line">            &#123;</span><br><span class="line">                test: <span class="regexp">/\.(tsx|ts|js)$/</span>,</span><br><span class="line">                use: [<span class="string">'babel-loader'</span>],</span><br><span class="line">                exclude: <span class="regexp">/node_modules/</span>,</span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>主要处理了typescript文件，以及文件别名啥的。</p>
+<p>再看看客户端相关配置<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// client.base.js</span></span><br><span class="line"><span class="keyword">const</span> merge = <span class="built_in">require</span>(<span class="string">'webpack-merge'</span>)</span><br><span class="line"><span class="keyword">const</span> commonConfig = <span class="built_in">require</span>(<span class="string">'./webpack.common'</span>)</span><br><span class="line"><span class="keyword">const</span> MiniCssExtractPlugin = <span class="built_in">require</span>(<span class="string">'mini-css-extract-plugin'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = merge(commonConfig, &#123;</span><br><span class="line">    optimization: &#123;</span><br><span class="line">        splitChunks: &#123;</span><br><span class="line">            chunks: <span class="string">'all'</span>,</span><br><span class="line">            name: <span class="string">'commons'</span>,</span><br><span class="line">            filename: <span class="string">'[name].[chunkhash].js'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="built_in">module</span>: &#123;</span><br><span class="line">        rules: [</span><br><span class="line">            &#123;</span><br><span class="line">                test: <span class="regexp">/\.s?css$/</span>,</span><br><span class="line">                use: [&#123;</span><br><span class="line">                    loader: MiniCssExtractPlugin.loader,</span><br><span class="line">                    options: &#123;</span><br><span class="line">                      hmr: process.env.NODE_ENV === <span class="string">'development'</span>,</span><br><span class="line">                    &#125;,</span><br><span class="line">                  &#125;, <span class="string">'css-loader'</span>, <span class="string">'sass-loader'</span>]</span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    plugins: [</span><br><span class="line">        <span class="keyword">new</span> MiniCssExtractPlugin(&#123;</span><br><span class="line">            filename: <span class="string">'[name].[hash].css'</span>,</span><br><span class="line">            chunkFilename: <span class="string">'[id].css'</span>,</span><br><span class="line">        &#125;)</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<p>主要处理样式文件，以及公共模块提取，接下来是服务端配置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// server.base.js</span></span><br><span class="line"><span class="keyword">const</span> merge = <span class="built_in">require</span>(<span class="string">'webpack-merge'</span>)</span><br><span class="line"><span class="keyword">const</span> commonConfig = <span class="built_in">require</span>(<span class="string">'./webpack.common'</span>)</span><br><span class="line"><span class="keyword">const</span> nodeExternals = <span class="built_in">require</span>(<span class="string">'webpack-node-externals'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = merge(commonConfig, &#123;</span><br><span class="line">    externals: [nodeExternals()],</span><br><span class="line">    <span class="built_in">module</span>: &#123;</span><br><span class="line">        rules: [</span><br><span class="line">            &#123;<span class="attr">test</span>: <span class="regexp">/\.s?css$/</span>, <span class="attr">use</span>: [<span class="string">'ignore-loader'</span>]&#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>可以看见使用了 <strong>ignore-loader</strong> 忽略了样式文件，以及有一个关键的 <strong>webpack-node-externals</strong> 处理，这个模块可以在打包时将服务端nodejs依赖的文件排除，因为服务端直接 require 就好了，不需要将代码打包 bundle 中，毕竟一个 bundle 都快 1MB 了，去掉这些的话，打包后的 bundle 只有 几十 kb。</p>
+<p>最后再看看开发阶段的配置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// const baseConfig = require('./webpack.common')</span></span><br><span class="line"><span class="keyword">const</span> clientBaseConfig = <span class="built_in">require</span>(<span class="string">'./webpack.client.base'</span>)</span><br><span class="line"><span class="keyword">const</span> serverBaseConfig = <span class="built_in">require</span>(<span class="string">'./webpack.server.base'</span>)</span><br><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>)</span><br><span class="line"><span class="keyword">const</span> merge = <span class="built_in">require</span>(<span class="string">'webpack-merge'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = [merge(clientBaseConfig, &#123;</span><br><span class="line">    entry: &#123;</span><br><span class="line">        client: [path.resolve(__dirname, <span class="string">'../app/client/client.entry.tsx'</span>), <span class="string">'webpack-hot-middleware/client?name=client'</span>]</span><br><span class="line">    &#125;,</span><br><span class="line">    devtool: <span class="string">"inline-source-map"</span>,</span><br><span class="line">    output: &#123;</span><br><span class="line">        publicPath: <span class="string">'/'</span>,</span><br><span class="line">        filename: <span class="string">'[name].index.[hash].js'</span>,</span><br><span class="line">        path: path.resolve(__dirname, <span class="string">'../app/server/static/dist'</span>)</span><br><span class="line">    &#125;,</span><br><span class="line">    mode: <span class="string">"development"</span>,</span><br><span class="line">    plugins: [</span><br><span class="line">        <span class="keyword">new</span> webpack.HotModuleReplacementPlugin()</span><br><span class="line">    ]</span><br><span class="line">&#125;), merge(serverBaseConfig, &#123;</span><br><span class="line">    target: <span class="string">'node'</span>,</span><br><span class="line">    entry: &#123;</span><br><span class="line">        server: [path.resolve(__dirname, <span class="string">'../app/client/server.entry.tsx'</span>)]</span><br><span class="line">    &#125;,</span><br><span class="line">    devtool: <span class="string">"inline-source-map"</span>,</span><br><span class="line">    output: &#123;</span><br><span class="line">        publicPath: <span class="string">'./'</span>,</span><br><span class="line">        filename: <span class="string">'[name].index.js'</span>,</span><br><span class="line">        path: path.resolve(__dirname, <span class="string">'../app/dist'</span>),</span><br><span class="line">        libraryTarget: <span class="string">'commonjs2'</span></span><br><span class="line">    &#125;,</span><br><span class="line">    mode: <span class="string">"development"</span></span><br><span class="line">&#125;)]</span><br></pre></td></tr></table></figure>
+<p>这里 export 的是一个列表，告诉 webpack 使用多配置打包，同时打包服务端和客户端代码。</p>
+<p>客户端入口文件添加了 <strong>webpack-hot-middleware/client?name=client</strong>，这个文件是用于模块热更新，不过有坑待解决。</p>
+<p>服务端入口打包的目标是 <strong>node</strong>，因为是需要跑在nodejs平台的，libraryTarget 为 <strong>commonjs2</strong> commonjs 模块的规范。</p>
+<p>可能有同学发现了，这没配置 devServer 啊，怎么在开发阶段预览。</p>
+<p>稍安勿躁，咱们这是服务端渲染，玩法当然不一样，接下来开始讲解服务端相关的代码。</p>
+<p>目录结构如下：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/60160860-e2a3a500-9828-11e9-8a3d-0a0aa1f8f42f.png" alt="image"></p>
+<p>其中 <strong>dist</strong> <strong>static</strong> 目录用于存放打包后的文件。</p>
+<p>先看看 index.js 文件<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"><span class="keyword">const</span> app = express()</span><br><span class="line"><span class="keyword">const</span> dev = <span class="built_in">require</span>(<span class="string">'./dev'</span>)</span><br><span class="line"><span class="keyword">const</span> pro = <span class="built_in">require</span>(<span class="string">'./pro'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'server running for '</span> + process.env.NODE_ENV)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'development'</span>) &#123;</span><br><span class="line">    dev(app)</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (process.env.NODE_ENV === <span class="string">'production'</span>) &#123;</span><br><span class="line">    pro(app)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.listen(<span class="number">8080</span>, () =&gt; <span class="built_in">console</span>.log(<span class="string">'Example app listening on port 8080!'</span>));</span><br></pre></td></tr></table></figure></p>
+<p>这里启动了一个 express 服务，使用 <strong>cross-env</strong> 区分了开发模式以及生产模式，通过不同命令来启动。<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// package.json</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">        <span class="attr">"test"</span>: <span class="string">"echo \"Error: no test specified\" &amp;&amp; exit 1"</span>,</span><br><span class="line">        <span class="attr">"nodemon:dev"</span>: <span class="string">"cross-env NODE_ENV=development node app/server/index.js"</span>,</span><br><span class="line">        <span class="attr">"dev"</span>: <span class="string">"nodemon"</span>,</span><br><span class="line">        <span class="attr">"start"</span>: <span class="string">"cross-env NODE_ENV=production pm2-runtime start app/server/index.js --watch"</span>,</span><br><span class="line">        <span class="attr">"build:server"</span>: <span class="string">"webpack --config ./build/webpack.server.js"</span>,</span><br><span class="line">        <span class="attr">"build:client"</span>: <span class="string">"webpack --config ./build/webpack.client.js"</span>,</span><br><span class="line">        <span class="attr">"build"</span>: <span class="string">"npm run build:server &amp; npm run build:client"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// nodemon.json</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"ignore"</span>: [<span class="string">"./app/client/**"</span>, <span class="string">"**/*.test.ts"</span>, <span class="string">"**/*.spec.ts"</span>, <span class="string">".git"</span>, <span class="string">"node_modules"</span>],</span><br><span class="line">    <span class="attr">"watch"</span>: [<span class="string">"./app/server/**"</span>],</span><br><span class="line">    <span class="attr">"exec"</span>: <span class="string">"npm run nodemon:dev"</span>,</span><br><span class="line">    <span class="attr">"ext"</span>: <span class="string">"js"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>dev.js 内容如下：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>)</span><br><span class="line"><span class="keyword">const</span> requireFromString = <span class="built_in">require</span>(<span class="string">'require-from-string'</span>);</span><br><span class="line"><span class="keyword">const</span> webpackMiddleWare = <span class="built_in">require</span>(<span class="string">'webpack-dev-middleware'</span>)</span><br><span class="line"><span class="keyword">const</span> webpackDevConfig = <span class="built_in">require</span>(<span class="string">'../../build/webpack.dev.js'</span>)</span><br><span class="line"><span class="keyword">const</span> compiler = webpack(webpackDevConfig)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">normalizeAssets</span>(<span class="params">assets</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Object</span>.prototype.toString.call(assets) === <span class="string">"[object Object]"</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Object</span>.values(assets)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Array</span>.isArray(assets) ? assets : [assets];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">app</span>) </span>&#123;</span><br><span class="line">    app.use(webpackMiddleWare(compiler, &#123; <span class="attr">serverSideRender</span>: <span class="literal">true</span>, <span class="attr">publicPath</span>: webpackDevConfig[<span class="number">0</span>].output.publicPath &#125;));</span><br><span class="line">    app.use(<span class="built_in">require</span>(<span class="string">"webpack-hot-middleware"</span>)(compiler));</span><br><span class="line"></span><br><span class="line">    app.get(<span class="regexp">/\/app\/.+/</span>, <span class="keyword">async</span> (req, res, next) =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> clientCompilerResult = res.locals.webpackStats.toJson().children[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">const</span> serverCompilerResult = res.locals.webpackStats.toJson().children[<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">const</span> clientAssetsByChunkName = clientCompilerResult.assetsByChunkName</span><br><span class="line">        <span class="keyword">const</span> serverAssetsByChunkName = serverCompilerResult.assetsByChunkName</span><br><span class="line">        <span class="keyword">const</span> fs = res.locals.fs</span><br><span class="line">        <span class="keyword">const</span> clientOutputPath = clientCompilerResult.outputPath</span><br><span class="line">        <span class="keyword">const</span> serverOutputPath = serverCompilerResult.outputPath</span><br><span class="line">        <span class="keyword">const</span> renderResult = <span class="keyword">await</span> requireFromString(</span><br><span class="line">                fs.readFileSync(</span><br><span class="line">                    path.resolve(serverOutputPath, serverAssetsByChunkName.server), <span class="string">'utf8'</span></span><br><span class="line">                ),</span><br><span class="line">                serverAssetsByChunkName.server</span><br><span class="line">            ).default(req)</span><br><span class="line">        </span><br><span class="line">        res.send(<span class="string">`</span></span><br><span class="line"><span class="string">            &lt;html&gt;</span></span><br><span class="line"><span class="string">                &lt;head&gt;</span></span><br><span class="line"><span class="string">                    &lt;title&gt;My App&lt;/title&gt;</span></span><br><span class="line"><span class="string">                    &lt;meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"&gt;</span></span><br><span class="line"><span class="string">                    &lt;style&gt;<span class="subst">$&#123;normalizeAssets(clientAssetsByChunkName.client)</span></span></span><br><span class="line"><span class="string"><span class="subst">                            .filter((path) =&gt; path.endsWith(<span class="string">'.css'</span>))</span></span></span><br><span class="line"><span class="string"><span class="subst">                            .map((path) =&gt; fs.readFileSync(clientOutputPath + <span class="string">'/'</span> + path))</span></span></span><br><span class="line"><span class="string"><span class="subst">                            .join(<span class="string">'\n'</span>)&#125;</span>&lt;/style&gt;</span></span><br><span class="line"><span class="string">                &lt;/head&gt;</span></span><br><span class="line"><span class="string">                &lt;body&gt;</span></span><br><span class="line"><span class="string">                &lt;div id="root"&gt;<span class="subst">$&#123;renderResult.html&#125;</span>&lt;/div&gt;</span></span><br><span class="line"><span class="string">                <span class="subst">$&#123;normalizeAssets(clientAssetsByChunkName.commons)</span></span></span><br><span class="line"><span class="string"><span class="subst">                    .filter((path) =&gt; path.endsWith(<span class="string">'.js'</span>))</span></span></span><br><span class="line"><span class="string"><span class="subst">                    .map((path) =&gt; <span class="string">`&lt;script src="/<span class="subst">$&#123;path&#125;</span>"&gt;&lt;/script&gt;`</span>)</span></span></span><br><span class="line"><span class="string"><span class="subst">                    .join(<span class="string">'\n'</span>)&#125;</span></span></span><br><span class="line"><span class="string">                <span class="subst">$&#123;normalizeAssets(clientAssetsByChunkName.client)</span></span></span><br><span class="line"><span class="string"><span class="subst">                    .filter((path) =&gt; path.endsWith(<span class="string">'.js'</span>))</span></span></span><br><span class="line"><span class="string"><span class="subst">                    .map((path) =&gt; <span class="string">`&lt;script src="/<span class="subst">$&#123;path&#125;</span>"&gt;&lt;/script&gt;`</span>)</span></span></span><br><span class="line"><span class="string"><span class="subst">                    .join(<span class="string">'\n'</span>)&#125;</span></span></span><br><span class="line"><span class="string">                &lt;/body&gt;</span></span><br><span class="line"><span class="string">            &lt;/html&gt;</span></span><br><span class="line"><span class="string">        `</span>);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    app.use(<span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">        res.status(<span class="number">404</span>).send(<span class="string">'Not found'</span>);</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>先看看开发环境干了啥，先提取关键的几行代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>)</span><br><span class="line"><span class="keyword">const</span> webpackMiddleWare = <span class="built_in">require</span>(<span class="string">'webpack-dev-middleware'</span>)</span><br><span class="line"><span class="keyword">const</span> webpackDevConfig = <span class="built_in">require</span>(<span class="string">'../../build/webpack.dev.js'</span>)</span><br><span class="line"><span class="keyword">const</span> compiler = webpack(webpackDevConfig)</span><br><span class="line"></span><br><span class="line"><span class="comment">// app.use(express.static(path.resolve(__dirname, './static')));</span></span><br><span class="line">app.use(webpackMiddleWare(compiler, &#123; <span class="attr">serverSideRender</span>: <span class="literal">true</span>, <span class="attr">publicPath</span>: webpackDevConfig[<span class="number">0</span>].output.publicPath &#125;));</span><br><span class="line">app.use(<span class="built_in">require</span>(<span class="string">"webpack-hot-middleware"</span>)(compiler));</span><br></pre></td></tr></table></figure></p>
+<p>首先引入了 <strong>webpack</strong> 以及 webpack 开发环境配置文件，并且实例化了一个 <strong>compiler</strong> 用于构建。</p>
+<p>其次使用了 <strong>webpack-dev-middleware</strong>、 <strong>webpack-hot-middleware</strong> 两个中间件对该 <strong>compiler</strong> 进行了加工。</p>
+<p><strong>webpack-dev-middleware</strong> 中间件用于webpack开发模式下文件改动监听，以及触发相应构建。</p>
+<p><strong>webpack-hot-middleware</strong> 中间件用于模块热更新，不过这里貌似有点问题待解决。</p>
+<p>当用户访问以 <strong>/app</strong> 开头的url时，可通过 res.locals.webpackStats 获取到 webpack 构建的结果，通过模版语法拼接，将最终的html字符串返回给客户端，就完成了一次服务端渲染。</p>
+<p>其中需要单独讲解的代码是下面这一段：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> renderResult = <span class="keyword">await</span> requireFromString(</span><br><span class="line">        fs.readFileSync(</span><br><span class="line">            path.resolve(serverOutputPath, serverAssetsByChunkName.server), <span class="string">'utf8'</span></span><br><span class="line">        ),</span><br><span class="line">        serverAssetsByChunkName.server</span><br><span class="line">    ).default(req)</span><br></pre></td></tr></table></figure>
+<p>还记得服务端渲染入口文件export了一个函数吗？就是在这里进行了调用。因为webpack打包后的文件是存储在内存中的，所以需要使用 <strong>memory-fs</strong>  去获取相应文件，<strong>memory-fs</strong> 可以通过如下代码得到引用：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = res.locals.fs</span><br></pre></td></tr></table></figure></p>
+<p>通过 <strong>memory-fs</strong> 获取到服务器打包后的文件后，因为读取的是一个文本，所以需要使用 <strong>require-from-string</strong> 模块，将文本转换为可执行的 js 代码，最终通过.default(req)执行服务端入口导出的函数得到服务端渲染后的html字符文本。</p>
+<p>到这一步开发环境下的服务端渲染配置基本结束，接下来是生产环境的配置</p>
+<h3 id="生产环境"><a href="#生产环境" class="headerlink" title="生产环境"></a>生产环境</h3><p>首先看看 webpack 配置：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack.server.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> baseConfig = <span class="built_in">require</span>(<span class="string">'./webpack.server.base'</span>)</span><br><span class="line"><span class="keyword">const</span> merge = <span class="built_in">require</span>(<span class="string">'webpack-merge'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = merge(baseConfig, &#123;</span><br><span class="line">    target: <span class="string">"node"</span>,</span><br><span class="line">    mode: <span class="string">'production'</span>,</span><br><span class="line">    entry: path.resolve(__dirname, <span class="string">'../app/client/server.entry.tsx'</span>),</span><br><span class="line">    output: &#123;</span><br><span class="line">        publicPath: <span class="string">'./'</span>,</span><br><span class="line">        filename: <span class="string">'server.entry.js'</span>,</span><br><span class="line">        path: path.resolve(__dirname, <span class="string">'../app/server/dist'</span>),</span><br><span class="line">        libraryTarget: <span class="string">"commonjs2"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack.client.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> baseConfig = <span class="built_in">require</span>(<span class="string">'./webpack.client.base'</span>)</span><br><span class="line"><span class="keyword">const</span> merge = <span class="built_in">require</span>(<span class="string">'webpack-merge'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"><span class="keyword">const</span> BundleAnalyzerPlugin = <span class="built_in">require</span>(<span class="string">'webpack-bundle-analyzer'</span>).BundleAnalyzerPlugin</span><br><span class="line"><span class="keyword">const</span> HtmlWebpackPlugin = <span class="built_in">require</span>(<span class="string">'html-webpack-plugin'</span>)</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">'./config'</span>)</span><br><span class="line"><span class="keyword">const</span> &#123; CleanWebpackPlugin &#125; = <span class="built_in">require</span>(<span class="string">'clean-webpack-plugin'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = merge(baseConfig, &#123;</span><br><span class="line">    mode: <span class="string">'production'</span>,</span><br><span class="line">    entry: path.resolve(__dirname, <span class="string">'../app/client/client.entry.tsx'</span>),</span><br><span class="line">    output: &#123;</span><br><span class="line">        publicPath: <span class="string">'/'</span>,</span><br><span class="line">        filename: <span class="string">'bundle.[hash].js'</span>,</span><br><span class="line">        path: path.resolve(__dirname, <span class="string">'../app/server/static/dist'</span>),</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    plugins: [</span><br><span class="line">        <span class="keyword">new</span> HtmlWebpackPlugin(&#123;</span><br><span class="line">            filename: path.resolve(config.root, <span class="string">'./app/server/dist/index.ejs'</span>),</span><br><span class="line">            template: path.resolve(config.root, <span class="string">'./public/index.ejs'</span>),</span><br><span class="line">            templateParameters: <span class="literal">false</span></span><br><span class="line">        &#125;),</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> CleanWebpackPlugin()</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>与开发环境大同小异，具体的区别在于打包后的文件目录，以及客户端使用了 <strong>html-webpack-plugin</strong> 将打包得到的文件名写入ejs模版中保存，而不是开发模式下的字符串拼接。原因在于，打包后的文件名因为存在 hash 值，导致不知道具体的文件名，所以这里将之写入 ejs 模版中保存起来，用于生产模式下的模版渲染。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> HtmlWebpackPlugin(&#123;</span><br><span class="line">    filename: path.resolve(config.root, <span class="string">'./app/server/dist/index.ejs'</span>),</span><br><span class="line">    template: path.resolve(config.root, <span class="string">'./public/index.ejs'</span>),</span><br><span class="line">    templateParameters: <span class="literal">false</span></span><br><span class="line">&#125;),</span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// index.ejs</span><br><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"zh"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">title</span>&gt;</span>My App<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"root"</span>&gt;</span>&lt;?- html ?&gt;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>再看看生产环境下的后台代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"><span class="keyword">const</span> serverEntryBuild = <span class="built_in">require</span>(<span class="string">'./dist/server.entry.js'</span>).default</span><br><span class="line"><span class="keyword">const</span> ejs = <span class="built_in">require</span>(<span class="string">'ejs'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">app</span>) </span>&#123;</span><br><span class="line">    app.use(express.static(path.resolve(__dirname, <span class="string">'./static'</span>)));</span><br><span class="line">    app.use(<span class="keyword">async</span> (req, res, next) =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> reactRenderResult = <span class="keyword">await</span> serverEntryBuild(req)</span><br><span class="line">        ejs.renderFile(path.resolve(process.cwd(), <span class="string">'./app/server/dist/index.ejs'</span>), &#123;</span><br><span class="line">            html: reactRenderResult.html</span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            delimiter: <span class="string">'?'</span>,</span><br><span class="line">            strict: <span class="literal">false</span></span><br><span class="line">        &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">err, str</span>)</span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(err)</span><br><span class="line">                res.status(<span class="number">500</span>)</span><br><span class="line">                res.send(<span class="string">'渲染错误'</span>)</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            &#125;</span><br><span class="line">            res.end(str, <span class="string">'utf-8'</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在接收到请求时执行 react 服务端入口打包后的文件，进行 react ssr 得到渲染后的文本。然后使用 ejs 模版引擎渲染打包后得到的 ejs 模版,将 react ssr 得到的文本填充进  html，返回给客户端，完成服务端渲染流程。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> serverEntryBuild = <span class="built_in">require</span>(<span class="string">'./dist/server.entry.js'</span>).default</span><br><span class="line"><span class="keyword">const</span> reactRenderResult = <span class="keyword">await</span> serverEntryBuild(req)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> htmlRenderResult = ejs.renderFile(path.resolve(process.cwd(), <span class="string">'./app/server/dist/index.ejs'</span>), &#123;</span><br><span class="line">    html: reactRenderResult.html</span><br><span class="line">&#125;, &#123;</span><br><span class="line">    delimiter: <span class="string">'?'</span>,</span><br><span class="line">    strict: <span class="literal">false</span></span><br><span class="line">&#125;, <span class="function"><span class="keyword">function</span>(<span class="params">err, str</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(err)</span><br><span class="line">        res.status(<span class="number">500</span>)</span><br><span class="line">        res.send(<span class="string">'渲染错误'</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    res.end(str, <span class="string">'utf-8'</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<p>到这里 react 服务端渲染工程配置基本结束。下一章节讲解，如何进行数据预渲染。</p>
+<p>仓库地址：<br><a href="https://github.com/Richard-Choooou/react-ssr" target="_blank" rel="noopener">https://github.com/Richard-Choooou/react-ssr</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/myBlogs/tags/react-webpack/" rel="tag"># react webpack</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/myBlogs/2019/06/14/黄毅简历/" rel="next" title="黄毅简历">
+                <i class="fa fa-chevron-left"></i> 黄毅简历
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/myBlogs/2019/06/26/react服务端渲染实践2-数据预渲染/" rel="prev" title="react服务端渲染实践2: 数据预渲染">
+                react服务端渲染实践2: 数据预渲染 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Richard Chou</p>
+              <p class="site-description motion-element" itemprop="description">Blogs for Richard Chou</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/myBlogs/archives/">
+              
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要服务端渲染"><span class="nav-number">2.</span> <span class="nav-text">为什么要服务端渲染</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务端渲染弊端"><span class="nav-number">3.</span> <span class="nav-text">服务端渲染弊端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现目标"><span class="nav-number">4.</span> <span class="nav-text">实现目标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#开发阶段也使用服务端渲染，模拟线上真实情况"><span class="nav-number">4.1.</span> <span class="nav-text">开发阶段也使用服务端渲染，模拟线上真实情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开发时热更新进行调试"><span class="nav-number">4.2.</span> <span class="nav-text">开发时热更新进行调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#区分开发和生产环境，并能方便的切换及部署"><span class="nav-number">4.3.</span> <span class="nav-text">区分开发和生产环境，并能方便的切换及部署</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工程化配置"><span class="nav-number">5.</span> <span class="nav-text">工程化配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#开发环境"><span class="nav-number">5.1.</span> <span class="nav-text">开发环境</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#两个入口"><span class="nav-number">5.1.1.</span> <span class="nav-text">两个入口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#webpack配置"><span class="nav-number">5.1.2.</span> <span class="nav-text">webpack配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生产环境"><span class="nav-number">5.2.</span> <span class="nav-text">生产环境</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/myBlogs/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/myBlogs/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/myBlogs/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

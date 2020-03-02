@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/myBlogs/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/myBlogs/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/myBlogs/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/myBlogs/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/myBlogs/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/myBlogs/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/myBlogs/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言最近对于工程的微信登录逻辑进行了重构，进行了如下思考。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微信全局登录设计与实现">
+<meta property="og:url" content="http://www.zpblogs.com/2019/02/21/微信全局登录设计/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言最近对于工程的微信登录逻辑进行了重构，进行了如下思考。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-02-21T07:47:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="微信全局登录设计与实现">
+<meta name="twitter:description" content="前言最近对于工程的微信登录逻辑进行了重构，进行了如下思考。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/myBlogs/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zpblogs.com/2019/02/21/微信全局登录设计/"/>
+
+
+
+
+
+  <title>微信全局登录设计与实现 | Richard Chou</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/myBlogs/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Richard Chou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Richard Chou's blogs</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/myBlogs/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/myBlogs/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zpblogs.com/myBlogs/2019/02/21/微信全局登录设计/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/myBlogs/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">微信全局登录设计与实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-02-21T14:39:48+08:00">
+                2019-02-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近对于工程的微信登录逻辑进行了重构，进行了如下思考。</p>
+<a id="more"></a>
+<h1 id="工程简介"><a href="#工程简介" class="headerlink" title="工程简介"></a>工程简介</h1><p>工程是一个后台管理系统，使用vue框架客户端渲染，其中有一个模块运行在手机端，并且涉及到微信登录，在早期的设计中，对于微信浏览器内的登录是这样处理的：</p>
+<ul>
+<li>微信浏览器或者普通浏览器打开分享的链接</li>
+<li>如果是非登录状态，那么在请求接口的过程中因为网络请求拦截器的作用会将页面重定向到登录页</li>
+<li>在登录页进行判断，如果是普通浏览器则手动登录，微信浏览器则自动登录</li>
+<li>登录成功后会重定向到之前的页面</li>
+</ul>
+<p>为什么之前会这样处理呢，原因在于，此工程的登录流程会设计到多个状态的查询与处理，例如：</p>
+<ul>
+<li>微信登录后检查用户信息，如果用户没有绑定手机号，那么弹出绑定手机号的模态框进行绑定手机号</li>
+<li>手机号码登录后，如果用户没有绑定微信，那么弹出微信绑定的模态框，要求用户绑定微信</li>
+</ul>
+<p>这样过于复杂的一系列需求，不太利于做成全局的处理，当时也没想到好的解决方案，但是这样来回的跳转，对于用户体验不够友好，近期对项目进行重构时，决心改善这一问题。</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><h2 id="提炼公共逻辑"><a href="#提炼公共逻辑" class="headerlink" title="提炼公共逻辑"></a>提炼公共逻辑</h2><p>对于微信登录，获取微信授权链接的跳转以及微信返回code的处理是一个通用的逻辑，对此做了如下封装<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">wxLogin</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> code = getQueryString(<span class="built_in">window</span>.location.href, <span class="string">'code'</span>)</span><br><span class="line">    <span class="keyword">if</span> (!code) &#123;</span><br><span class="line">        <span class="built_in">window</span>.location.href = <span class="string">`https://open.weixin.qq.com/connect/oauth2/authorize?appid=<span class="subst">$&#123;process.env.WX_APP_ID&#125;</span>&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=onfuckweixin&amp;redirect_uri=<span class="subst">$&#123;<span class="built_in">escape</span>(<span class="string">`<span class="subst">$&#123;<span class="built_in">window</span>.location.href&#125;</span>`</span>)&#125;</span>#wechat_redirect`</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        axios.post(IP + <span class="string">'/login/wxauth'</span>, &#123;</span><br><span class="line">            code: code</span><br><span class="line">        &#125;).then(<span class="function"><span class="params">data</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (!data.phone_bind) &#123;</span><br><span class="line">                bindPhone()</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                location.href = replaceQueryString(<span class="string">'code'</span>, <span class="string">''</span>)</span><br><span class="line">                callback()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).catch(<span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">            vue.$notify.error(&#123;</span><br><span class="line">                title: <span class="string">'错误'</span>,</span><br><span class="line">                message: <span class="string">'微信登陆失败'</span></span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">bindPhone</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">const</span> comp = <span class="keyword">new</span> BindComponent().$mount()</span><br><span class="line">        <span class="built_in">document</span>.body.appendChild(comp.$el)</span><br><span class="line">        comp.open(&#123;</span><br><span class="line">            type: <span class="string">'phone'</span>,</span><br><span class="line">            success: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">                location.href = replaceQueryString(<span class="string">'code'</span>, <span class="string">''</span>)</span><br><span class="line">                <span class="built_in">window</span>.location.reload()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>大致的意思是，进行微信登录时，先判断url是否已经有code，有code说明已经获得授权，那么直接将code发送给服务器进行登录就好，如果没有code信息，那么说明是未授权，则跳转微信授权地址，获取授权，值得一题的是这一段逻辑：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">'vue'</span></span><br><span class="line"><span class="keyword">import</span> Bind <span class="keyword">from</span> <span class="string">'@/components/bind/bind'</span></span><br><span class="line"><span class="keyword">const</span> BindComponent = Vue.extend(Bind)</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bindPhone</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> comp = <span class="keyword">new</span> BindComponent().$mount()</span><br><span class="line">    <span class="built_in">document</span>.body.appendChild(comp.$el)</span><br><span class="line">    comp.open(&#123;</span><br><span class="line">        type: <span class="string">'phone'</span>,</span><br><span class="line">        success: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            location.href = replaceQueryString(<span class="string">'code'</span>, <span class="string">''</span>)</span><br><span class="line">            <span class="built_in">window</span>.location.reload()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为之前在编写绑定相关逻辑时有先见之明，提前封装了绑定的组件，所以这里可以很方便的进行调用，当服务器返回该用户没有绑定手机的信息时，则实例化绑定组件并将dom渲染到页面（这种做法是UI组件库常用的逻辑）绑定成功后，删除url中的code字段，并且刷新页面，为什么要刷新页面呢？看如下代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//main.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> bootstrap = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">        router,</span><br><span class="line">        store,</span><br><span class="line">        render: <span class="function"><span class="params">h</span> =&gt;</span> h(App)</span><br><span class="line">    &#125;).$mount(<span class="string">'#app'</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (isWX() &amp;&amp; getQueryString(<span class="built_in">window</span>.location.href, <span class="string">'code'</span>)) &#123;</span><br><span class="line">    wxLogin(bootstrap)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    bootstrap()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在工程的入口页面对于根vue组件的实例化之前进行了一次判断：</p>
+<blockquote>
+<p>如果是微信浏览器，并且url中附带了code信息，那么进入微信登录的逻辑，否则进行页面渲染</p>
+</blockquote>
+<p>如果登录成功且已经绑定过手机，执行回调函数也就是实例化根vue：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    location.href = replaceQueryString(<span class="string">'code'</span>, <span class="string">''</span>)</span><br><span class="line">    callback()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其实这里有点递归的意思，需要各位自行理解，不做详细说明。</p>
+<p>既然入口文件只有在获取到code的前提下才进行微信登录，那么如果当前url没有code并且需要使用微信登录该怎么办？解决方案如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">repInterceptor: [<span class="function"><span class="keyword">function</span>(<span class="params">response</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (response.data.success) &#123;</span><br><span class="line">            <span class="keyword">return</span> response.data.data</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([<span class="number">401</span>, <span class="number">403</span>].includes(response.data.error_code)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">                clearTimeout(timer)</span><br><span class="line">            &#125;</span><br><span class="line">            timer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">                loginCheck(response.data.error_text)</span><br><span class="line">            &#125;, <span class="number">500</span>)</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(response.data)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(e)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// Do something with response error</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(&#123; <span class="attr">error_text</span>: <span class="string">'网络错误: '</span> + e &#125;)</span><br><span class="line">&#125;]</span><br></pre></td></tr></table></figure>
+<p>如上是此工程的网络拦截器，如果返回401或者403说明用户在未登录的前提下请求了限制接口，那么会执行 loginCheck,而在loginCheck函数中有这样一段逻辑：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (isWX()) &#123;</span><br><span class="line">    wxLogin()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一切又回到了宇宙的中心 wxLogin ==~</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/myBlogs/2019/01/30/webpack打包增量更新实践/" rel="next" title="webpack打包增量更新实践">
+                <i class="fa fa-chevron-left"></i> webpack打包增量更新实践
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/myBlogs/2019/03/01/好文系列：我如何从零基础转行成为一个自信的前端/" rel="prev" title="好文系列：我如何从零基础转行成为一个自信的前端">
+                好文系列：我如何从零基础转行成为一个自信的前端 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Richard Chou</p>
+              <p class="site-description motion-element" itemprop="description">Blogs for Richard Chou</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/myBlogs/archives/">
+              
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#工程简介"><span class="nav-number">2.</span> <span class="nav-text">工程简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决方案"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#提炼公共逻辑"><span class="nav-number">3.1.</span> <span class="nav-text">提炼公共逻辑</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/myBlogs/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/myBlogs/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/myBlogs/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
