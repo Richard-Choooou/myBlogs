@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/myBlogs/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/myBlogs/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/myBlogs/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/myBlogs/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/myBlogs/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/myBlogs/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/myBlogs/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言一个超市里常用的条码秤对接经历">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大华条码秤对接经验总结">
+<meta property="og:url" content="http://www.zpblogs.com/2020/06/28/大华条码秤对接总结/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言一个超市里常用的条码秤对接经历">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0628/182840_5a4c4672_1284034.png">
+<meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0628/194252_bcb252af_1284034.png">
+<meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0628/195939_648e1109_1284034.png">
+<meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0628/200012_51bf2907_1284034.png">
+<meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0629/101217_c4e72097_1284034.png">
+<meta property="og:updated_time" content="2020-07-31T03:07:31.020Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="大华条码秤对接经验总结">
+<meta name="twitter:description" content="前言一个超市里常用的条码秤对接经历">
+<meta name="twitter:image" content="https://images.gitee.com/uploads/images/2020/0628/182840_5a4c4672_1284034.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/myBlogs/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.zpblogs.com/2020/06/28/大华条码秤对接总结/"/>
+
+
+
+
+
+  <title>大华条码秤对接经验总结 | Richard Chou</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/myBlogs/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Richard Chou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Richard Chou's blogs</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/myBlogs/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/myBlogs/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.zpblogs.com/myBlogs/2020/06/28/大华条码秤对接总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://www.zpblogs.com/img/headportrait.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">大华条码秤对接经验总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-28T18:24:49+08:00">
+                2020-06-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>一个超市里常用的条码秤对接经历</p>
+<p><img src="https://images.gitee.com/uploads/images/2020/0628/182840_5a4c4672_1284034.png" alt="输入图片说明" title="屏幕截图.png"></p>
+<a id="more"></a>
+<h1 id="tcp-ip"><a href="#tcp-ip" class="headerlink" title="tcp/ip"></a>tcp/ip</h1><p>该条码秤使用 tcp/ip 协议进行通信，在 <strong>java</strong> 中，tcp/ip 通信被封装成了 Socket 类，所以使用起来还算简单。</p>
+<p>以下是一个简单的 socket 示例<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    socket = <span class="keyword">new</span> Socket();</span><br><span class="line">    InetSocketAddress socketAddress = <span class="keyword">new</span> InetSocketAddress(<span class="string">"192.168.3.150"</span>, <span class="number">4001</span>);</span><br><span class="line">    socket.connect(socketAddress, <span class="number">10</span> * <span class="number">1000</span>);</span><br><span class="line">    socket.setSoTimeout(<span class="number">5</span> * <span class="number">1000</span>);</span><br><span class="line">    <span class="keyword">if</span> (socket.isConnected()) &#123;</span><br><span class="line">        <span class="comment">// 向 socket 服务器写入数据</span></span><br><span class="line">        <span class="keyword">byte</span>[] bytes = &#123;<span class="number">0x21</span>, <span class="number">0x30</span>, <span class="number">0x49</span>, <span class="number">0x41</span>, <span class="number">0x0d</span>, <span class="number">0x0a</span>, <span class="number">0x03</span>&#125;;</span><br><span class="line">        socket.getOutputStream().write(bytes);</span><br><span class="line">        <span class="comment">// 接收 socket 服务器返回的数据</span></span><br><span class="line">        InputStreamReader ipr = <span class="keyword">new</span> InputStreamReader(socket.getInputStream());</span><br><span class="line">        bufferedReader = <span class="keyword">new</span> BufferedReader(ipr);</span><br><span class="line">        String str = bufferedReader.readLine();</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">catch</span> (IOException error) &#123;</span><br><span class="line">    error.printStackTrace();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>建议先实例化 socket 再进行连接，因为这样可以通过 <strong>setSoTimeout</strong> 函数设置超时时间，避免线程阻塞，同时 socket 的连接不能在主线程中进行，否则会报错。</p>
+<h1 id="发送数据到条码秤"><a href="#发送数据到条码秤" class="headerlink" title="发送数据到条码秤"></a>发送数据到条码秤</h1><p>大华条码秤 socket 服务器的端口为 4001，需要给大华秤盘设置一个固定的 ip 地址。</p>
+<p>设置方式如下：</p>
+<blockquote>
+<p>按下功能键 -&gt; 输入9002 -&gt; 按下确认 -&gt; 开始输入 ip 地址，输入 . 需要按下去皮键 -&gt; 在输入主机地址后按下去皮键完成设置</p>
+</blockquote>
+<p>在大华的文档中标明，每个指令都得以 <strong>0x0d</strong>, <strong>0x0a</strong>, <strong>0x03</strong> 为结束符，所以可以封装一个函数，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> String <span class="title">sendCommand</span><span class="params">(<span class="keyword">byte</span>[] bytes)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] suffix = &#123;<span class="number">0x0d</span>, <span class="number">0x0a</span>, <span class="number">0x03</span>&#125;;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (socket != <span class="keyword">null</span> &amp;&amp; socket.isConnected() &amp;&amp; socket.getOutputStream() != <span class="keyword">null</span>) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">byte</span>[] command = byteMerger(bytes, suffix);</span><br><span class="line">            socket.getOutputStream().write(command);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"SEND_SUCCESS"</span>;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"NOT_CONNECT"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"SEND_FAIL"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] byteMerger(<span class="keyword">byte</span>[] bt1, <span class="keyword">byte</span>[] bt2)&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] bt3 = <span class="keyword">new</span> <span class="keyword">byte</span>[bt1.length + bt2.length];</span><br><span class="line">    System.arraycopy(bt1, <span class="number">0</span>, bt3, <span class="number">0</span>, bt1.length);</span><br><span class="line">    System.arraycopy(bt2, <span class="number">0</span>, bt3, bt1.length, bt2.length);</span><br><span class="line">    <span class="keyword">return</span> bt3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>首先发送清除 plu 和报表指令到条码秤来初始化条码秤。</p>
+<p><img src="https://images.gitee.com/uploads/images/2020/0628/194252_bcb252af_1284034.png" alt="输入图片说明" title="屏幕截图.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">clearData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (socket != <span class="keyword">null</span> &amp;&amp; socket.isConnected()) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">byte</span>[] bytes = &#123;<span class="number">0x21</span>, <span class="number">0x30</span>, <span class="number">0x49</span>, <span class="number">0x41</span>&#125;;</span><br><span class="line">            sendCommand(bytes)</span><br><span class="line">            <span class="keyword">byte</span>[] bytes2 = &#123;<span class="number">0x21</span>, <span class="number">0x30</span>, <span class="number">0x48</span>, <span class="number">0x41</span>&#125;;</span><br><span class="line">            sendCommand(bytes2)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有一点需要注意，因为初始化报表会耗费一定的时间，所以不能在清除报表后立马同步商品数据，否则会导致同步失败。</p>
+<p>关于商品数据传入文档描述如下：</p>
+<p><img src="https://images.gitee.com/uploads/images/2020/0628/195939_648e1109_1284034.png" alt="输入图片说明" title="屏幕截图.png"></p>
+<p><img src="https://images.gitee.com/uploads/images/2020/0628/200012_51bf2907_1284034.png" alt="输入图片说明" title="屏幕截图.png"></p>
+<p>这里针对几个关键信息作出说明：</p>
+<ul>
+<li>plu 条码秤中货品的助记码，可在条码秤使用快捷键或录入 plu 码进行搜索</li>
+<li>code 商品代码，长度7位，用于条码秤打印条码标签后在系统数据库中进行匹配，第一位固定为店名号最后一位，意味着再怎样进行设置打印后都为店名号</li>
+<li>price 商品价格，单位为分，长度6位，不足需补位0</li>
+<li>goodsName 商品名，中文字符，需要转换成区位码转换函数如下</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">bytes2HexString</span><span class="params">(<span class="keyword">byte</span> b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> bytes2HexString(<span class="keyword">new</span> <span class="keyword">byte</span>[] &#123; b &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">bytes2HexString</span><span class="params">(<span class="keyword">byte</span>[] b)</span> </span>&#123;</span><br><span class="line">    String ret = <span class="string">""</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; b.length; i++) &#123;</span><br><span class="line">        String hex = Integer.toHexString(b[i] &amp; <span class="number">0xFF</span>);</span><br><span class="line">        <span class="keyword">if</span> (hex.length() == <span class="number">1</span>) &#123;</span><br><span class="line">            hex = <span class="string">'0'</span> + hex;</span><br><span class="line">        &#125;</span><br><span class="line">        ret += hex.toUpperCase();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> String <span class="title">StringToAreaByteCode</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">    String result = <span class="string">""</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++) &#123;</span><br><span class="line">        result += charToAreaByteCode(str.charAt(i));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> String <span class="title">charToAreaByteCode</span><span class="params">(<span class="keyword">char</span> str)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] bs = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">0</span>];</span><br><span class="line">    String singleStr = String.valueOf(str);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        bs = singleStr.getBytes(<span class="string">"GB2312"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (bs.length == <span class="number">2</span>) &#123; <span class="comment">// 正常区位码</span></span><br><span class="line">        String s = <span class="string">""</span>;</span><br><span class="line">        String t = <span class="string">""</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bs.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> a = Integer.parseInt(bytes2HexString(bs[i]), <span class="number">16</span>);</span><br><span class="line">            t = (a - <span class="number">0x80</span> - <span class="number">0x20</span>) + <span class="string">""</span>;</span><br><span class="line">            <span class="keyword">if</span>(t.length() == <span class="number">1</span>)&#123;</span><br><span class="line">                t = <span class="number">0</span> + t;</span><br><span class="line">            &#125;</span><br><span class="line">            s += t;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (bs.length == <span class="number">1</span>) &#123; <span class="comment">// ascii 码</span></span><br><span class="line">        String qw = Integer.parseInt(bytes2HexString(bs[<span class="number">0</span>]), <span class="number">16</span>) - <span class="number">0x21</span> + <span class="number">301</span> + <span class="string">""</span>;</span><br><span class="line">        <span class="keyword">while</span> (qw.length() &lt; <span class="number">4</span>) &#123;</span><br><span class="line">            qw = <span class="string">"0"</span> + qw;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> qw;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>发送商品数据代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">setGoods</span><span class="params">(BarCodeScaleGoods goods)</span> </span>&#123;</span><br><span class="line">    String plu = goods.pluCode;</span><br><span class="line">    String code = goods.code;</span><br><span class="line">    String price = String.valueOf(<span class="keyword">new</span> Double(goods.price * <span class="number">100</span>).intValue());</span><br><span class="line">    String goodsName = StringToAreaByteCode(goods.goodsName);</span><br><span class="line">    String unit = goods.unit;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (plu.length() &lt; <span class="number">4</span>) &#123;</span><br><span class="line">        plu = <span class="string">'0'</span> + plu;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (price.length() &lt; <span class="number">6</span>) &#123;</span><br><span class="line">        price = <span class="string">'0'</span> + price;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    String goodsInfo = String.format(<span class="string">"!0V%sA%s%s%s00000099901010000000000000000000000000000000000000000000000B%sCDE"</span>, plu, code, price, unit, goodsName);</span><br><span class="line">    <span class="keyword">byte</span>[] bytes = goodsInfo.getBytes();</span><br><span class="line">    String result = sendCommand(bytes);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (result.equals(<span class="string">"SEND_SUCCESS"</span>)) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            InputStreamReader ipr = <span class="keyword">new</span> InputStreamReader(socket.getInputStream());</span><br><span class="line">            bufferedReader = <span class="keyword">new</span> BufferedReader(ipr);</span><br><span class="line">            String str = bufferedReader.readLine();</span><br><span class="line">            <span class="keyword">if</span> (str.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为发送商品数据的指令每个字段没有明确的标识位，大华在解析指令时是以下标来获取信息的，所以得保证每个字段的信息字节数是固定的，所以得对动态的信息进行补位，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (plu.length() &lt; <span class="number">4</span>) &#123;</span><br><span class="line">    plu = <span class="string">'0'</span> + plu;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (price.length() &lt; <span class="number">6</span>) &#123;</span><br><span class="line">    price = <span class="string">'0'</span> + price;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>需在空字节上填充0。</p>
+<p>在完成发送后，判断条码秤是否成功录入商品的条件是条码秤有没有返回信息，所以就有以下代码来判断是否录入成功。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (result.equals(<span class="string">"SEND_SUCCESS"</span>)) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        InputStreamReader ipr = <span class="keyword">new</span> InputStreamReader(socket.getInputStream());</span><br><span class="line">        bufferedReader = <span class="keyword">new</span> BufferedReader(ipr);</span><br><span class="line">        String str = bufferedReader.readLine();</span><br><span class="line">        <span class="keyword">if</span> (str.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后需要同步热键设置，用于快捷键录入商品，文档描述如下：</p>
+<p><img src="https://images.gitee.com/uploads/images/2020/0629/101217_c4e72097_1284034.png" alt="输入图片说明" title="屏幕截图.png"></p>
+<p>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setHotKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String str = <span class="string">"!0L00A"</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">71</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (String.valueOf(i).length() == <span class="number">1</span>) &#123;</span><br><span class="line">            str += <span class="string">"000"</span> + i;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (String.valueOf(i).length() == <span class="number">2</span>) &#123;</span><br><span class="line">            str += <span class="string">"00"</span> + i;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    str += <span class="string">"B"</span>;</span><br><span class="line">    <span class="keyword">byte</span>[] bytes = str.getBytes();</span><br><span class="line">    sendCommand(bytes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/myBlogs/2020/06/27/使用-c-调用-windows-打印-api-进行打印/" rel="next" title="使用 c++ 调用 windows 打印 api 进行打印">
+                <i class="fa fa-chevron-left"></i> 使用 c++ 调用 windows 打印 api 进行打印
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/myBlogs/2021/01/20/通讯称对接文档/" rel="prev" title="森果收银台-通讯称对接文档">
+                森果收银台-通讯称对接文档 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://www.zpblogs.com/img/headportrait.png"
+                alt="Richard Chou" />
+            
+              <p class="site-author-name" itemprop="name">Richard Chou</p>
+              <p class="site-description motion-element" itemprop="description">Blogs for Richard Chou</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/myBlogs/archives/">
+              
+                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tcp-ip"><span class="nav-number">2.</span> <span class="nav-text">tcp/ip</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发送数据到条码秤"><span class="nav-number">3.</span> <span class="nav-text">发送数据到条码秤</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/myBlogs/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/myBlogs/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/myBlogs/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/myBlogs/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/myBlogs/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/myBlogs/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
