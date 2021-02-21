@@ -86,16 +86,16 @@
 <meta property="og:site_name" content="Richard Chou">
 <meta property="og:description" content="前言一个超市里常用的条码秤对接经历">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0628/182840_5a4c4672_1284034.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2020/png/425406/1594288127086-fc46b421-8131-40ba-8242-d4aa0634c71a.png">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0628/194252_bcb252af_1284034.png">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0628/195939_648e1109_1284034.png">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0628/200012_51bf2907_1284034.png">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0629/101217_c4e72097_1284034.png">
-<meta property="og:updated_time" content="2020-07-31T03:07:31.020Z">
+<meta property="og:updated_time" content="2021-02-21T02:19:49.460Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="大华条码秤对接经验总结">
 <meta name="twitter:description" content="前言一个超市里常用的条码秤对接经历">
-<meta name="twitter:image" content="https://images.gitee.com/uploads/images/2020/0628/182840_5a4c4672_1284034.png">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2020/png/425406/1594288127086-fc46b421-8131-40ba-8242-d4aa0634c71a.png">
 
 
 
@@ -306,7 +306,7 @@
 
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>一个超市里常用的条码秤对接经历</p>
-<p><img src="https://images.gitee.com/uploads/images/2020/0628/182840_5a4c4672_1284034.png" alt="输入图片说明" title="屏幕截图.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/425406/1594288127086-fc46b421-8131-40ba-8242-d4aa0634c71a.png" alt="输入图片说明"></p>
 <a id="more"></a>
 <h1 id="tcp-ip"><a href="#tcp-ip" class="headerlink" title="tcp/ip"></a>tcp/ip</h1><p>该条码秤使用 tcp/ip 协议进行通信，在 <strong>java</strong> 中，tcp/ip 通信被封装成了 Socket 类，所以使用起来还算简单。</p>
 <p>以下是一个简单的 socket 示例<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    socket = <span class="keyword">new</span> Socket();</span><br><span class="line">    InetSocketAddress socketAddress = <span class="keyword">new</span> InetSocketAddress(<span class="string">"192.168.3.150"</span>, <span class="number">4001</span>);</span><br><span class="line">    socket.connect(socketAddress, <span class="number">10</span> * <span class="number">1000</span>);</span><br><span class="line">    socket.setSoTimeout(<span class="number">5</span> * <span class="number">1000</span>);</span><br><span class="line">    <span class="keyword">if</span> (socket.isConnected()) &#123;</span><br><span class="line">        <span class="comment">// 向 socket 服务器写入数据</span></span><br><span class="line">        <span class="keyword">byte</span>[] bytes = &#123;<span class="number">0x21</span>, <span class="number">0x30</span>, <span class="number">0x49</span>, <span class="number">0x41</span>, <span class="number">0x0d</span>, <span class="number">0x0a</span>, <span class="number">0x03</span>&#125;;</span><br><span class="line">        socket.getOutputStream().write(bytes);</span><br><span class="line">        <span class="comment">// 接收 socket 服务器返回的数据</span></span><br><span class="line">        InputStreamReader ipr = <span class="keyword">new</span> InputStreamReader(socket.getInputStream());</span><br><span class="line">        bufferedReader = <span class="keyword">new</span> BufferedReader(ipr);</span><br><span class="line">        String str = bufferedReader.readLine();</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">catch</span> (IOException error) &#123;</span><br><span class="line">    error.printStackTrace();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>

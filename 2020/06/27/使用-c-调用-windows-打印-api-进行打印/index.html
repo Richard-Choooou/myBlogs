@@ -79,19 +79,19 @@
 
 
 
-<meta name="description" content="前言在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：  在客户的使用过程中，遇到一个问题，如果机器安装了打印机驱动，那么调用厂商提供的 sdk 进行打印的话，会导致出现小票只打印一半的情况，对此，需要绕过厂商 sdk 使用系统的打印才能够解决这一问题。 在 web 端打印中，需要调用浏览器打印 api 进行网页打印。这意味着，之前后端编写的esc/pos无法复用到，">
+<meta name="description" content="前言在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用 c++ 调用 windows 打印 api 进行打印">
 <meta property="og:url" content="http://www.zpblogs.com/2020/06/27/使用-c-调用-windows-打印-api-进行打印/index.html">
 <meta property="og:site_name" content="Richard Chou">
-<meta property="og:description" content="前言在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：  在客户的使用过程中，遇到一个问题，如果机器安装了打印机驱动，那么调用厂商提供的 sdk 进行打印的话，会导致出现小票只打印一半的情况，对此，需要绕过厂商 sdk 使用系统的打印才能够解决这一问题。 在 web 端打印中，需要调用浏览器打印 api 进行网页打印。这意味着，之前后端编写的esc/pos无法复用到，">
+<meta property="og:description" content="前言在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0627/180700_40121bd5_1284034.png">
-<meta property="og:updated_time" content="2020-06-27T11:12:03.927Z">
+<meta property="og:image" content="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png">
+<meta property="og:updated_time" content="2021-02-21T02:20:16.940Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用 c++ 调用 windows 打印 api 进行打印">
-<meta name="twitter:description" content="前言在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：  在客户的使用过程中，遇到一个问题，如果机器安装了打印机驱动，那么调用厂商提供的 sdk 进行打印的话，会导致出现小票只打印一半的情况，对此，需要绕过厂商 sdk 使用系统的打印才能够解决这一问题。 在 web 端打印中，需要调用浏览器打印 api 进行网页打印。这意味着，之前后端编写的esc/pos无法复用到，">
-<meta name="twitter:image" content="https://images.gitee.com/uploads/images/2020/0627/180700_40121bd5_1284034.png">
+<meta name="twitter:description" content="前言在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：">
+<meta name="twitter:image" content="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png">
 
 
 
@@ -302,7 +302,8 @@
 
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：</p>
-<p><img src="https://images.gitee.com/uploads/images/2020/0627/180700_40121bd5_1284034.png" alt="输入图片说明" title="屏幕截图.png"></p>
+<p><img src="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="输入图片说明"></p>
+<a id="more"></a>
 <p>在客户的使用过程中，遇到一个问题，如果机器安装了打印机驱动，那么调用厂商提供的 sdk 进行打印的话，会导致出现小票只打印一半的情况，对此，需要绕过厂商 sdk 使用系统的打印才能够解决这一问题。</p>
 <p>在 web 端打印中，需要调用浏览器打印 api 进行网页打印。这意味着，之前后端编写的esc/pos无法复用到，同时，前端还得花费精力来编写 html 以及css 来完成打印内容的排版，这无疑增加了复杂度以及工作量。正打算开始时，得到高人指点。</p>
 <blockquote>
@@ -352,8 +353,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/myBlogs/2020/04/18/编写nodejs c++ 扩展/" rel="next" title="编写nodejs c++ 扩展">
-                <i class="fa fa-chevron-left"></i> 编写nodejs c++ 扩展
+              <a href="/myBlogs/2020/04/18/编写nodejs c++ 扩展/" rel="next" title="编写nodejs c++ 扩展环境安装">
+                <i class="fa fa-chevron-left"></i> 编写nodejs c++ 扩展环境安装
               </a>
             
           </div>

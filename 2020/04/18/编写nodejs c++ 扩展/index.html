@@ -79,22 +79,22 @@
 
 
 
-<meta name="description" content="首先下载 visual studio 注意不是 vscode 接着安装 node-gyp 创建空文件夹，在根目录新建 binging.gyp 文件，内容如下： 12345678910&amp;#123;    &quot;targets&quot;: [        &amp;#123;            &quot;target_name&quot;: &quot;node_extension&quot;,            &quot;sources&quot;: [">
+<meta name="description" content="首先下载 visual studio 注意不是 vscode">
 <meta property="og:type" content="article">
-<meta property="og:title" content="编写nodejs c++ 扩展">
+<meta property="og:title" content="编写nodejs c++ 扩展环境安装">
 <meta property="og:url" content="http://www.zpblogs.com/2020/04/18/编写nodejs c++ 扩展/index.html">
 <meta property="og:site_name" content="Richard Chou">
-<meta property="og:description" content="首先下载 visual studio 注意不是 vscode 接着安装 node-gyp 创建空文件夹，在根目录新建 binging.gyp 文件，内容如下： 12345678910&amp;#123;    &quot;targets&quot;: [        &amp;#123;            &quot;target_name&quot;: &quot;node_extension&quot;,            &quot;sources&quot;: [">
+<meta property="og:description" content="首先下载 visual studio 注意不是 vscode">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0418/174731_6bd73edc_1284034.png">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0418/174827_1d7175d4_1284034.png">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0418/185934_1abbf383_1284034.png">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0418/175359_2144e93a_1284034.png">
 <meta property="og:image" content="https://images.gitee.com/uploads/images/2020/0418/193748_2c39b597_1284034.png">
-<meta property="og:updated_time" content="2020-04-21T09:48:29.344Z">
+<meta property="og:updated_time" content="2021-02-21T02:16:45.297Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="编写nodejs c++ 扩展">
-<meta name="twitter:description" content="首先下载 visual studio 注意不是 vscode 接着安装 node-gyp 创建空文件夹，在根目录新建 binging.gyp 文件，内容如下： 12345678910&amp;#123;    &quot;targets&quot;: [        &amp;#123;            &quot;target_name&quot;: &quot;node_extension&quot;,            &quot;sources&quot;: [">
+<meta name="twitter:title" content="编写nodejs c++ 扩展环境安装">
+<meta name="twitter:description" content="首先下载 visual studio 注意不是 vscode">
 <meta name="twitter:image" content="https://images.gitee.com/uploads/images/2020/0418/174731_6bd73edc_1284034.png">
 
 
@@ -131,7 +131,7 @@
 
 
 
-  <title>编写nodejs c++ 扩展 | Richard Chou</title>
+  <title>编写nodejs c++ 扩展环境安装 | Richard Chou</title>
   
 
 
@@ -255,7 +255,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">编写nodejs c++ 扩展</h1>
+          <h1 class="post-title" itemprop="name headline">编写nodejs c++ 扩展环境安装</h1>
         
 
         <div class="post-meta">
@@ -306,6 +306,7 @@
 
       
         <p>首先下载 <a href="https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&amp;rel=16#" target="_blank" rel="noopener">visual studio</a> 注意不是 vscode</p>
+<a id="more"></a>
 <p>接着安装 <a href="https://www.npmjs.com/package/node-gyp" target="_blank" rel="noopener">node-gyp</a></p>
 <p>创建空文件夹，在根目录新建 binging.gyp 文件，内容如下：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"targets"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"target_name"</span>: <span class="string">"node_extension"</span>,</span><br><span class="line">            <span class="attr">"sources"</span>: [</span><br><span class="line">                <span class="string">"main.cc"</span></span><br><span class="line">            ]</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
