@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>森果零售收银台结算流程与职责链模式 | Richard Chou</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言零售收银台活动以及优惠场景众多，如会员折扣、整单折扣、满减满送、优惠券、积分抵扣 等等，如何优雅的处理好这些金额计算逻辑，那么就需要用到职责链模式了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="森果零售收银台结算流程与职责链模式">
+<meta property="og:url" content="http://www.zpblogs.com/2021/08/27/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E7%BB%93%E7%AE%97%E6%B5%81%E7%A8%8B%E4%B8%8E%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言零售收银台活动以及优惠场景众多，如会员折扣、整单折扣、满减满送、优惠券、积分抵扣 等等，如何优雅的处理好这些金额计算逻辑，那么就需要用到职责链模式了。">
+<meta property="og:locale">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/131063034-2a61c1ef-47f6-4a6a-8866-123441bba591.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/131281251-441fcb35-fb4b-4aa0-afe4-9467587549cf.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/131303138-30477298-b2ae-4fac-9e43-aff8b4f730d9.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/131303957-b87f8c31-73f6-4378-8737-190e84b128d7.png">
+<meta property="article:published_time" content="2021-08-27T10:19:24.000Z">
+<meta property="article:modified_time" content="2024-01-19T02:49:31.023Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23492006/131063034-2a61c1ef-47f6-4a6a-8866-123441bba591.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Richard Chou" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/myBlogs/css/style.css">
+
+  
+
+<meta name="generator" content="Hexo 7.0.0-rc1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/myBlogs/" id="logo">Richard Chou</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/myBlogs/">Home</a>
+        
+          <a class="main-nav-link" href="/myBlogs/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.zpblogs.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-森果零售收银台结算流程与职责链模式" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2021/08/27/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E7%BB%93%E7%AE%97%E6%B5%81%E7%A8%8B%E4%B8%8E%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F/" class="article-date">
+  <time datetime="2021-08-27T10:19:24.000Z" itemprop="datePublished">2021-08-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      森果零售收银台结算流程与职责链模式
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>零售收银台活动以及优惠场景众多，如<strong>会员折扣</strong>、<strong>整单折扣</strong>、<strong>满减满送</strong>、<strong>优惠券</strong>、<strong>积分抵扣</strong> 等等，如何优雅的处理好这些金额计算逻辑，那么就需要用到职责链模式了。<br><img src="https://user-images.githubusercontent.com/23492006/131063034-2a61c1ef-47f6-4a6a-8866-123441bba591.png" alt="图片加载失败，需科学上网"></p>
+<span id="more"></span>
+
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>从上图可见，结算流程有很多环节，收银台可能需要用到这每一个环节计算得到的金额，例如获取会员折扣和余额抵扣之前以及之后的金额，如果不使用设计模式，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取订单最终价格</span></span><br><span class="line"><span class="type">double</span> <span class="title function_">getFinalPrice</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">double</span>.parse((_getBeforeBalanceDeductionPrice() - getBalanceDeduction()).roundTo(<span class="number">4</span>).toString());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取折扣抵扣后的金额</span></span><br><span class="line"><span class="type">double</span> <span class="title function_">getAfterMemberDiscountDeduction</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">double</span>.parse((getTotalPrice() - getMemberDiscountDeduction()).roundTo(<span class="number">4</span>).toString());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取余额抵扣前的应付的金额</span></span><br><span class="line"><span class="type">double</span> <span class="title function_">_getBeforeBalanceDeductionPrice</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">double</span>.parse((getAfterMemberDiscountDeduction() - getExemptionPrice()).roundTo(<span class="number">4</span>).toString());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取余额可抵扣的金额</span></span><br><span class="line"><span class="type">double</span> <span class="title function_">getBalanceDeduction</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isUseBalancePay) &#123;</span><br><span class="line">        <span class="keyword">return</span> memberInfo.balance - _getBeforeBalanceDeductionPrice() &gt;= <span class="number">0</span> ? _getBeforeBalanceDeductionPrice() : memberInfo.balance;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取折扣抵扣金额, 包含会员折扣以及整单折扣</span></span><br><span class="line"><span class="type">double</span> <span class="title function_">getMemberDiscountDeduction</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isCanUseMemberDiscountActivity()) &#123; <span class="comment">// 会员折扣</span></span><br><span class="line">      <span class="type">double</span> <span class="variable">totalPrice</span> <span class="operator">=</span> getTotalPrice();</span><br><span class="line">      <span class="keyword">return</span> <span class="type">double</span>.parse((totalPrice - totalPrice * shopInfoStore.memberDiscountActivity.discount_rate).roundTo(<span class="number">2</span>).toString());</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取减免金额，包含订单减免，抹零的计算, 暂时包含整单折扣的金额（后期修改后独立成另一个算法）</span></span><br><span class="line"><span class="type">double</span> <span class="title function_">getExemptionPrice</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">double</span> <span class="variable">totalPrice</span> <span class="operator">=</span> getTotalPrice();</span><br><span class="line">    <span class="keyword">return</span> exemptionPrice + erasePrice + (totalPrice - totalPrice * discount).roundTo(<span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上是早期收银台使用 <strong>flutter</strong> 开发时的代码，可以看见，虽然已经极力的将逻辑封装成各个函数，并且将每个函数代码控制在了 10 行以内，但我相信你还是看不懂。<br>为什么呢？因为虽然函数简短，但这些函数之间还是有剪不断的联系，如果需要看懂一个函数，那就得看懂其它的函数，这样一来一回，就被绕晕了，如何解决这个问题，那么便是使用职责链模式。</p>
+<h1 id="职责链"><a href="#职责链" class="headerlink" title="职责链"></a>职责链</h1><p>关于职责链，这里不详细讲解，可在<a href="https://www.cnblogs.com/surahe/p/6133471.html">《javascript 设计模式与开发实践》</a> 这一书中的职责链篇了解详情。</p>
+<p>与书本中职责链不同的是，书中的场景只需要找到其中一环，而收银台职责链需要处理多个环节的计算，于是对收银台结算职责链进行了一些小修改，如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">PriceComputeFn</span> = <span class="function">(<span class="params">price: Big</span>) =&gt;</span> <span class="title class_">Big</span> | string</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Chain</span> &#123;</span><br><span class="line">    public <span class="keyword">static</span> <span class="attr">NEXT_SUCCESSOR</span>: string = <span class="string">&#x27;nextSuccessor&#x27;</span></span><br><span class="line">    public <span class="attr">fn</span>: <span class="title class_">PriceComputeFn</span></span><br><span class="line">    public <span class="attr">successor</span>: <span class="title class_">Chain</span> | <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">func: PriceComputeFn</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">fn</span> = func</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">successor</span> = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">setNextSuccessor</span>(<span class="params">next: Chain</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">successor</span> = next</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">passRequest</span>(<span class="attr">price</span>: <span class="title class_">Big</span>): <span class="title class_">Big</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> result = <span class="variable language_">this</span>.<span class="title function_">fn</span>(price)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (result === <span class="title class_">Chain</span>.<span class="property">NEXT_SUCCESSOR</span>) &#123; <span class="comment">// 如果执行当前算法得到的结果是交给下一个职责人</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">successor</span> != <span class="literal">null</span>) &#123; <span class="comment">// 判断下一个职责人是否为空</span></span><br><span class="line">                <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">successor</span>.<span class="title function_">passRequest</span>(price) <span class="comment">// 不为空就把上一个职责人交接的数据交给下一个职责人处理</span></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> price <span class="comment">// 否则直接返回上一个职责人交接的数据</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">successor</span> != <span class="literal">null</span>) &#123; <span class="comment">// 如果返回的是计算得到的金额，并且存在下一个职责人，那么把当前得到的结果继续交给下一个职责人处理</span></span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">successor</span>.<span class="title function_">passRequest</span>(result <span class="keyword">as</span> <span class="title class_">Big</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result <span class="keyword">as</span> <span class="title class_">Big</span> <span class="comment">// 都不成立的话，说明已经到了最后一个职责人，那么直接返回最终计算的结果</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过对 <strong>Chain</strong> 类的修改，可以使得每个结算环节都参与计算，形成一条完整的金额计算链条，那每个环节需要做什么呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 减去优惠券减免的金额</span></span><br><span class="line">public subtractOrderCouponPrice = (<span class="attr">price</span>: <span class="title class_">Big</span>): <span class="title class_">Big</span> | <span class="function"><span class="params">string</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">couponTotalPrice</span> !== <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> result = price.<span class="title function_">minus</span>(<span class="variable language_">this</span>.<span class="property">couponTotalPrice</span>) <span class="comment">// 上一阶段得到的金额 - 优惠券抵扣金额</span></span><br><span class="line">        <span class="keyword">return</span> result.<span class="title function_">gt</span>(<span class="number">0</span>) ? result : <span class="title class_">Big</span>(<span class="number">0</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">Chain</span>.<span class="property">NEXT_SUCCESSOR</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 减去余额抵扣金额</span></span><br><span class="line">public subtractBalancePrice = (<span class="attr">price</span>: <span class="title class_">Big</span>): <span class="title class_">Big</span> | <span class="function"><span class="params">string</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">member</span>.<span class="title function_">isCanUseBalancePay</span>() &amp;&amp; <span class="variable language_">this</span>.<span class="property">member</span>.<span class="property">isUseBalancePay</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> price.<span class="title function_">minus</span>(<span class="variable language_">this</span>.<span class="title function_">getBalanceDeduction</span>()) <span class="comment">// 上一阶段得到的金额 - 可用余额</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">Chain</span>.<span class="property">NEXT_SUCCESSOR</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上所见，每个环节只需判断自身是否满足条件，使用上一环节传递的金额减去自身优惠的金额即可，无需关心其它的结算逻辑，这样就将整个结算流程解耦开来。</p>
+<p>最终通过组合职责环节，得到完整的职责链。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> head = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractMemberDiscountDeduction</span>) <span class="comment">// 会员折扣</span></span><br><span class="line"><span class="keyword">const</span> node1 = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractOrderDiscountPrice</span>) <span class="comment">// 整单折扣</span></span><br><span class="line"><span class="keyword">const</span> node2 = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractMinusSendPrice</span>) <span class="comment">// 满减满送</span></span><br><span class="line"><span class="keyword">const</span> node3 = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractDeductionPrice</span>) <span class="comment">// 减免</span></span><br><span class="line"><span class="keyword">const</span> node4 = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractErasePrice</span>) <span class="comment">// 抹零</span></span><br><span class="line"><span class="keyword">const</span> node5 = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractOrderCouponPrice</span>) <span class="comment">// 优惠券</span></span><br><span class="line"><span class="keyword">const</span> node6 = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractMemberChainCoinDeductionPrice</span>) <span class="comment">// 连锁币抵扣</span></span><br><span class="line"><span class="keyword">const</span> node7 = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractMemberPointsDeductionPrice</span>) <span class="comment">// 会员积分</span></span><br><span class="line"><span class="keyword">const</span> node8 = <span class="keyword">new</span> <span class="title class_">Chain</span>(<span class="variable language_">this</span>.<span class="property">subtractBalancePrice</span>) <span class="comment">// 会员余额</span></span><br><span class="line"></span><br><span class="line">head.<span class="title function_">setNextSuccessor</span>(node1)</span><br><span class="line">node1.<span class="title function_">setNextSuccessor</span>(node2)</span><br><span class="line">node2.<span class="title function_">setNextSuccessor</span>(node3)</span><br><span class="line">node3.<span class="title function_">setNextSuccessor</span>(node4)</span><br><span class="line">node4.<span class="title function_">setNextSuccessor</span>(node5)</span><br><span class="line">node5.<span class="title function_">setNextSuccessor</span>(node6)</span><br><span class="line">node6.<span class="title function_">setNextSuccessor</span>(node7)</span><br><span class="line">node7.<span class="title function_">setNextSuccessor</span>(node8)</span><br><span class="line"></span><br><span class="line">head.<span class="title function_">passRequest</span>(<span class="variable language_">this</span>.<span class="title function_">getTotalPrice</span>())</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://user-images.githubusercontent.com/23492006/131281251-441fcb35-fb4b-4aa0-afe4-9467587549cf.png" alt="图片加载失败，需科学上网"></p>
+<p>组合职责链这一流程又有些繁琐，对此我们可以进行封装：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 根据传入的节点组合职责链</span></span><br><span class="line">public <span class="title function_">composeChain</span>(<span class="attr">fnArr</span>: <span class="title class_">PriceComputeFn</span>[]): <span class="title class_">Chain</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> head = fnArr.<span class="title function_">shift</span>()</span><br><span class="line">    <span class="keyword">const</span> chainHead = <span class="keyword">new</span> <span class="title class_">Chain</span>(head <span class="keyword">as</span> <span class="title class_">PriceComputeFn</span>)</span><br><span class="line">    <span class="keyword">let</span> next = chainHead</span><br><span class="line">    <span class="keyword">while</span> (fnArr.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> cur = <span class="keyword">new</span> <span class="title class_">Chain</span>(fnArr.<span class="title function_">shift</span>() <span class="keyword">as</span> <span class="title class_">PriceComputeFn</span>)</span><br><span class="line">        next.<span class="title function_">setNextSuccessor</span>(cur)</span><br><span class="line">        next = cur</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> chainHead</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">publuc <span class="title function_">getFinalPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> nodes = [</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberDiscountDeduction</span>, <span class="comment">// 会员折扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractOrderDiscountPrice</span>, <span class="comment">// 整单折扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMinusSendPrice</span>, <span class="comment">// 满减满送</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractDeductionPrice</span>, <span class="comment">// 减免</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractErasePrice</span>, <span class="comment">// 抹零</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractOrderCouponPrice</span>, <span class="comment">// 优惠券</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberChainCoinDeductionPrice</span>, <span class="comment">// 连锁币抵扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberPointsDeductionPrice</span>, <span class="comment">// 会员积分</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractBalancePrice</span>, <span class="comment">// 会员余额</span></span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">composeChain</span>(nodes).<span class="title function_">passRequest</span>(<span class="variable language_">this</span>.<span class="title function_">getTotalPrice</span>())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过职责链的使用，将整个业务逻辑拆分成了数个小块，代码更加清晰易读，对于新人上手也更加友好，即使新人不了解什么是职责链，看不懂职责链，也能通过职责链节点了解整个业务流程以及计算逻辑，同时职责链有更多的妙用。</p>
+<h2 id="方便剥离的逻辑"><a href="#方便剥离的逻辑" class="headerlink" title="方便剥离的逻辑"></a>方便剥离的逻辑</h2><p>假设随着业务的变动，某个活动逻辑取消了，例如取消掉了优惠券逻辑，那么只需将优惠券节点从职责链中移除就好，如下：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/131303138-30477298-b2ae-4fac-9e43-aff8b4f730d9.png" alt="图片加载失败，需科学上网"></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">publuc <span class="title function_">getFinalPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> nodes = [</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberDiscountDeduction</span>, <span class="comment">// 会员折扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractOrderDiscountPrice</span>, <span class="comment">// 整单折扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMinusSendPrice</span>, <span class="comment">// 满减满送</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractDeductionPrice</span>, <span class="comment">// 减免</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractErasePrice</span>, <span class="comment">// 抹零</span></span><br><span class="line">        <span class="comment">// this.subtractOrderCouponPrice, &lt;--- 取消优惠券逻辑</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberChainCoinDeductionPrice</span>, <span class="comment">// 连锁币抵扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberPointsDeductionPrice</span>, <span class="comment">// 会员积分</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractBalancePrice</span>, <span class="comment">// 会员余额</span></span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">composeChain</span>(nodes).<span class="title function_">passRequest</span>(<span class="variable language_">this</span>.<span class="title function_">getTotalPrice</span>())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或者某个业务逻辑仅需要判断两个活动减免后的金额，那么也可以进行职责链的组合达到目的。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 获取优惠金额，用于订单信息页展示订单优惠列表的逻辑判断</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> <span class="variable">order</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">public <span class="keyword">static</span> <span class="title function_">getPricePartOfDiscount</span>(<span class="attr">order</span>: <span class="title class_">Order</span>): <span class="title class_">Big</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> totalPrice = order.<span class="title function_">getTotalPrice</span>()</span><br><span class="line">    <span class="keyword">const</span> chain = order.<span class="title function_">composeChain</span>([</span><br><span class="line">        order.<span class="property">subtractMemberDiscountDeduction</span>, <span class="comment">// 会员折扣</span></span><br><span class="line">        order.<span class="property">subtractMinusSendPrice</span>, <span class="comment">// 满减满送</span></span><br><span class="line">    ])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> afterMinusSendPricePrice = chain.<span class="title function_">passRequest</span>(totalPrice)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> totalPrice.<span class="title function_">minus</span>(afterMinusSendPricePrice)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="随意调换业务顺序"><a href="#随意调换业务顺序" class="headerlink" title="随意调换业务顺序"></a>随意调换业务顺序</h2><p>假设某一天产品提出，需要先计算优惠券减免，再计算会员折扣，那么只需要调换职责链节点顺序就能完成相应功能：<br><img src="https://user-images.githubusercontent.com/23492006/131303957-b87f8c31-73f6-4378-8737-190e84b128d7.png" alt="图片加载失败，需科学上网"></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">publuc <span class="title function_">getFinalPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> nodes = [</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractOrderCouponPrice</span>, <span class="comment">// &lt;--- 调换优惠券位置到会员折扣之上</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberDiscountDeduction</span>, <span class="comment">// 会员折扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractOrderDiscountPrice</span>, <span class="comment">// 整单折扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMinusSendPrice</span>, <span class="comment">// 满减满送</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractDeductionPrice</span>, <span class="comment">// 减免</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractErasePrice</span>, <span class="comment">// 抹零</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberChainCoinDeductionPrice</span>, <span class="comment">// 连锁币抵扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberPointsDeductionPrice</span>, <span class="comment">// 会员积分</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractBalancePrice</span>, <span class="comment">// 会员余额</span></span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">composeChain</span>(nodes).<span class="title function_">passRequest</span>(<span class="variable language_">this</span>.<span class="title function_">getTotalPrice</span>())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="更精简的代码"><a href="#更精简的代码" class="headerlink" title="更精简的代码"></a>更精简的代码</h2><p>因为收银台有各种价格需要计算展示，例如某项节点抵扣前，抵扣后，以及抵扣的金额，通过职责链模式非常容易做到这些价格的计算。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取结算流程中的职责链节点</span></span><br><span class="line">public <span class="title function_">getPriceComputeNodes</span>(<span class="attr">fn</span>: <span class="title class_">PriceComputeFn</span>): <span class="title class_">PriceComputeFn</span>[] &#123;</span><br><span class="line">    <span class="keyword">const</span> stages = [</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberDiscountDeduction</span>, <span class="comment">// 会员折扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractOrderDiscountPrice</span>, <span class="comment">// 整单折扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMinusSendPrice</span>, <span class="comment">// 满减满送</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractDeductionPrice</span>, <span class="comment">// 减免</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractErasePrice</span>, <span class="comment">// 抹零</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractOrderCouponPrice</span>, <span class="comment">// 优惠券</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberChainCoinDeductionPrice</span>, <span class="comment">// 连锁币抵扣</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractMemberPointsDeductionPrice</span>, <span class="comment">// 会员积分</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">subtractBalancePrice</span>, <span class="comment">// 会员余额</span></span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> stages.<span class="title function_">slice</span>(<span class="number">0</span>, stages.<span class="title function_">indexOf</span>(fn) + <span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取余额抵扣前的金额</span></span><br><span class="line">public <span class="title function_">getBeforeBalanceDeduction</span>(): <span class="title class_">Big</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> getMemberDiscountChain = <span class="variable language_">this</span>.<span class="title function_">composeChain</span>(</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">getPriceComputeNodes</span>(<span class="variable language_">this</span>.<span class="property">subtractMemberPointsDeductionPrice</span>)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> getMemberDiscountChain.<span class="title function_">passRequest</span>(<span class="variable language_">this</span>.<span class="title function_">getTotalPrice</span>())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取积分抵扣的金额</span></span><br><span class="line">public <span class="title function_">getMemberPointsDeductionPrice</span>(): <span class="title class_">Big</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> totalPrice = <span class="variable language_">this</span>.<span class="title function_">getTotalPrice</span>()</span><br><span class="line">    <span class="comment">// 积分抵扣前的应付金额</span></span><br><span class="line">    <span class="keyword">const</span> beforeMemberPointsDeductionPrice = <span class="variable language_">this</span>.<span class="title function_">composeChain</span>(</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">getPriceComputeNodes</span>(<span class="variable language_">this</span>.<span class="property">subtractMemberChainCoinDeductionPrice</span>)</span><br><span class="line">    ).<span class="title function_">passRequest</span>(totalPrice)</span><br><span class="line">    <span class="comment">// 积分抵扣后的应付金额</span></span><br><span class="line">    <span class="keyword">const</span> afterMemberPointsDeductionPrice = <span class="variable language_">this</span>.<span class="title function_">composeChain</span>(</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">getPriceComputeNodes</span>(<span class="variable language_">this</span>.<span class="property">subtractMemberPointsDeductionPrice</span>)</span><br><span class="line">    ).<span class="title function_">passRequest</span>(totalPrice)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> beforeMemberPointsDeductionPrice.<span class="title function_">minus</span>(afterMemberPointsDeductionPrice) <span class="comment">// 两者相减 得到 积分抵扣金额</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上所示，仅需组合职责链后计算即可，无需编写复杂的计算逻辑。</p>
+<h1 id="节尾"><a href="#节尾" class="headerlink" title="节尾"></a>节尾</h1><p>以上便是收银台结算逻辑与职责链模式的结合妙用，使得收银台结算流程更加清晰易读。</p>
+<h2 id="相关阅读"><a href="#相关阅读" class="headerlink" title="相关阅读"></a>相关阅读</h2><p><a href="http://www.zpblogs.com/myBlogs/2021/08/23/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1">森果零售收银台面向对象设计</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2021/08/27/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E7%BB%93%E7%AE%97%E6%B5%81%E7%A8%8B%E4%B8%8E%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F/" data-id="clrk1lqj0001dc9om86neht1y" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/myBlogs/2022/06/21/%E8%BF%9C%E7%A8%8B%E8%A7%86%E9%A2%91%E5%8D%8F%E5%90%8C%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          远程视频协同架构设计
+        
+      </div>
+    </a>
+  
+  
+    <a href="/myBlogs/2021/08/23/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">森果零售收银台面向对象设计</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/electron/" rel="tag">electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react/" rel="tag">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react-webpack/" rel="tag">react webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/vue/" rel="tag">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack-vue/" rel="tag">webpack vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" rel="tag">好文系列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag">系统架构</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/myBlogs/tags/electron/" style="font-size: 10px;">electron</a> <a href="/myBlogs/tags/react/" style="font-size: 10px;">react</a> <a href="/myBlogs/tags/react-webpack/" style="font-size: 15px;">react webpack</a> <a href="/myBlogs/tags/vue/" style="font-size: 10px;">vue</a> <a href="/myBlogs/tags/webpack/" style="font-size: 20px;">webpack</a> <a href="/myBlogs/tags/webpack-vue/" style="font-size: 10px;">webpack vue</a> <a href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" style="font-size: 10px;">好文系列</a> <a href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" style="font-size: 10px;">系统架构</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/03/">March 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/myBlogs/2023/09/26/%E6%8A%BD%E8%B1%A1%E7%9A%84admin/">抽象的admin</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/09/14/%E5%89%8D%E7%AB%AF%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%90%AF%E8%92%99/">前端面向对象抽象思维启蒙</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">更优雅的编写后台管理系统</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/07/12/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%B2%BE%E5%87%86%E5%9D%90%E6%A0%87%E5%AE%9A%E4%BD%8D/">远程协作-精准坐标定位</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/">远程协作-线上多人协作面向对象设计</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 Richard Chou<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/myBlogs/" class="mobile-nav-link">Home</a>
+  
+    <a href="/myBlogs/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/myBlogs/fancybox/jquery.fancybox.css">
+
+  
+<script src="/myBlogs/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/myBlogs/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>森果零售收银台主副屏通信设计 | Richard Chou</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言零售收银台使用到了副屏这一硬件，为的是方便客户查看当前订单信息，效果如下，本文主要讲述副屏硬件在 android 和 windows 平台下的使用以及零售收银台在主副屏通信相关设计。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="森果零售收银台主副屏通信设计">
+<meta property="og:url" content="http://www.zpblogs.com/2021/08/20/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E5%89%AF%E5%B1%8F%E9%80%9A%E4%BF%A1%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言零售收银台使用到了副屏这一硬件，为的是方便客户查看当前订单信息，效果如下，本文主要讲述副屏硬件在 android 和 windows 平台下的使用以及零售收银台在主副屏通信相关设计。">
+<meta property="og:locale">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/130174291-ac5a59bb-359f-461e-aa2e-dad68b25c71d.JPG">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/130174287-e6d66062-ef68-4a12-994d-4e062e0f6fec.JPG">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/130217190-b7bc0dc3-9513-4360-8ed8-2f022127c609.png">
+<meta property="article:published_time" content="2021-08-20T09:06:17.000Z">
+<meta property="article:modified_time" content="2024-01-19T02:49:31.023Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23492006/130174291-ac5a59bb-359f-461e-aa2e-dad68b25c71d.JPG">
+  
+    <link rel="alternate" href="/atom.xml" title="Richard Chou" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/myBlogs/css/style.css">
+
+  
+
+<meta name="generator" content="Hexo 7.0.0-rc1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/myBlogs/" id="logo">Richard Chou</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/myBlogs/">Home</a>
+        
+          <a class="main-nav-link" href="/myBlogs/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.zpblogs.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-森果零售收银台副屏通信设计" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2021/08/20/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E5%89%AF%E5%B1%8F%E9%80%9A%E4%BF%A1%E8%AE%BE%E8%AE%A1/" class="article-date">
+  <time datetime="2021-08-20T09:06:17.000Z" itemprop="datePublished">2021-08-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      森果零售收银台主副屏通信设计
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>零售收银台使用到了副屏这一硬件，为的是方便客户查看当前订单信息，效果如下，本文主要讲述副屏硬件在 android 和 windows 平台下的使用以及零售收银台在主副屏通信相关设计。<br><img src="https://user-images.githubusercontent.com/23492006/130174291-ac5a59bb-359f-461e-aa2e-dad68b25c71d.JPG" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/130174287-e6d66062-ef68-4a12-994d-4e062e0f6fec.JPG" alt="图片加载失败，需科学上网"></p>
+<span id="more"></span>
+
+<h1 id="副屏的使用"><a href="#副屏的使用" class="headerlink" title="副屏的使用"></a>副屏的使用</h1><h2 id="android"><a href="#android" class="headerlink" title="android"></a>android</h2><p>在 android 使用扩展的显示设备，需要用到 <a href="https://developer.android.google.cn/reference/android/app/Presentation">Presentation</a> 这一类，大致用法如下，具体细节可查阅<a href="https://developer.android.google.cn/reference/android/app/Presentation">文档</a>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyPresentation</span> <span class="keyword">extends</span> <span class="title class_">Presentation</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MyPresentation</span><span class="params">(Activity ctx, Display display)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(ctx, display);</span><br><span class="line">        setOnShowListener(<span class="keyword">new</span> <span class="title class_">OnShowListener</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onShow</span><span class="params">(DialogInterface dialogInterface)</span> &#123;</span><br><span class="line">                </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        setOnDismissListener(<span class="keyword">new</span> <span class="title class_">OnDismissListener</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onDismiss</span><span class="params">(DialogInterface dialogInterface)</span> &#123;</span><br><span class="line">                </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onCreate(savedInstanceState);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SecondScreen</span> &#123;</span><br><span class="line">    Activity context;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">SecondScreen</span><span class="params">(Activity ctx)</span> &#123;</span><br><span class="line">        context = ctx;</span><br><span class="line">        <span class="type">MediaRouter</span> <span class="variable">mediaRouter</span> <span class="operator">=</span> (MediaRouter) context.getSystemService(Context.MEDIA_ROUTER_SERVICE);</span><br><span class="line">        MediaRouter.<span class="type">RouteInfo</span> <span class="variable">route</span> <span class="operator">=</span> mediaRouter.getSelectedRoute(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (route != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">Display</span> <span class="variable">presentationDisplay</span> <span class="operator">=</span> route.getPresentationDisplay();</span><br><span class="line">            <span class="keyword">if</span> (presentationDisplay != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">Presentation</span> <span class="variable">presentation</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MyPresentation</span>(context, presentationDisplay);</span><br><span class="line">                presentation.show();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 <strong>onShow</strong> 和 <strong>onDismiss</strong> 两个事件中处理相关业务逻辑。</p>
+<h2 id="windows"><a href="#windows" class="headerlink" title="windows"></a>windows</h2><p>windows 使用 electron 进行开发，这里需要用到 electron 相关的 api，使用 windows 副屏代码如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">initSecondScreen</span>(<span class="params"></span>): <span class="literal">null</span> | <span class="title class_">BrowserWindow</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> displays = screen.<span class="title function_">getAllDisplays</span>()</span><br><span class="line">    <span class="keyword">const</span> secondScreen = displays.<span class="title function_">find</span>(<span class="function"><span class="params">display</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> display.<span class="property">bounds</span>.<span class="property">x</span> !== <span class="number">0</span> || display.<span class="property">bounds</span>.<span class="property">y</span> !== <span class="number">0</span></span><br><span class="line">    &#125;)</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">let</span> secondWindow = <span class="literal">null</span></span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span> (secondScreen) &#123;</span><br><span class="line">        secondWindow = <span class="keyword">new</span> <span class="title class_">BrowserWindow</span>(&#123;</span><br><span class="line">            <span class="attr">fullscreen</span>: <span class="literal">true</span>,</span><br><span class="line">            <span class="attr">x</span>: secondScreen.<span class="property">bounds</span>.<span class="property">x</span>,</span><br><span class="line">            <span class="attr">y</span>: secondScreen.<span class="property">bounds</span>.<span class="property">y</span>,</span><br><span class="line">        &#125;)</span><br><span class="line">        secondWindow.<span class="title function_">setMenu</span>(<span class="literal">null</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> secondWindow</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先获取所有的显示设备，找到左上角坐标不为(x:0, y:0)的屏幕设备，那么这个屏幕便是扩展的屏幕，其次新建一个 BrowserWindow 将左上角的 xy 坐标设置成副屏的坐标，这样就可以使副屏展示内容。</p>
+<h1 id="副屏技术选型"><a href="#副屏技术选型" class="headerlink" title="副屏技术选型"></a>副屏技术选型</h1><p>因为副屏需要同时支持 android 和 windows 平台，同时副屏没有与用户交互的功能，仅是展示内容，所以副屏选择使用 web 进行开发。一来可以提升开发效率，二来跨平台也更加方便。</p>
+<h2 id="页面加载"><a href="#页面加载" class="headerlink" title="页面加载"></a>页面加载</h2><h3 id="android-1"><a href="#android-1" class="headerlink" title="android"></a>android</h3><p>android 端在 Presentation 的 <strong>onShow</strong> 事件中加载页面</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">setOnShowListener(<span class="keyword">new</span> <span class="title class_">OnShowListener</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onShow</span><span class="params">(DialogInterface dialogInterface)</span> &#123;</span><br><span class="line">        setContentView(R.layout.second_screen);</span><br><span class="line">        <span class="type">Webview</span> <span class="variable">webView</span> <span class="operator">=</span> (WebView) findViewById(R.id.webview);</span><br><span class="line">        webView.loadUrl(<span class="string">&quot;https://ls.senguo.cc/cashier/#/viceScreen&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- second_screen.xml --&gt;</span></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">com.tencent.smtt.sdk.WebView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/webview&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="windows-1"><a href="#windows-1" class="headerlink" title="windows"></a>windows</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> secondScreenWindow = <span class="title function_">initSecondScreen</span>()</span><br><span class="line">secondScreenWindow?.<span class="title function_">loadURL</span>(<span class="string">&quot;https://ls.senguo.cc/cashier/#/viceScreen&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h1 id="主副屏通信"><a href="#主副屏通信" class="headerlink" title="主副屏通信"></a>主副屏通信</h1><p>收银台主屏交互逻辑也是使用 web 进行开发，此时主副屏都是 web 平台，意味着存在两个 web 容器，导致无法直接交换数据，那么主副屏如何进行通信是目前存在的一个问题。</p>
+<p>对此进行了如下设计：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/130217190-b7bc0dc3-9513-4360-8ed8-2f022127c609.png" alt="图片加载失败，需科学上网"></p>
+<p>主屏通过客户端桥接与副屏建立联系，先发送事件到客户端，再由客户端转发消息到副屏，副屏收到消息后进行相关功能的处理。对此可以使用收银台之前编写的 jsBridge 进行通信，关于零售收银台 jsBridge 通信，可在<a href="http://www.zpblogs.com/myBlogs/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/">此文</a>中详细了解，此处不做说明。</p>
+<h2 id="代码说明"><a href="#代码说明" class="headerlink" title="代码说明"></a>代码说明</h2><p>对副屏所实现的交互功能进行定义了如下事件：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">SecondScreenEvents</span> &#123; <span class="comment">// 副屏事件，web 端既可以是发送方也可以是接收方</span></span><br><span class="line">    closeDialog = <span class="string">&#x27;closeDialog&#x27;</span>, <span class="comment">// 关闭弹窗</span></span><br><span class="line">    openMessage = <span class="string">&#x27;openMessage&#x27;</span>, <span class="comment">// 打开消息提示框</span></span><br><span class="line">    updateOrderInfo = <span class="string">&#x27;updateOrderInfo&#x27;</span>, <span class="comment">// 更新订单信息</span></span><br><span class="line">    updateMemberInfo = <span class="string">&#x27;updateMemberInfo&#x27;</span>, <span class="comment">// 更新会员信息</span></span><br><span class="line">    updateShopInfo = <span class="string">&#x27;updateShopInfo&#x27;</span>, <span class="comment">// 更新店铺信息</span></span><br><span class="line">    updateWeightInfo = <span class="string">&#x27;updateWeightInfo&#x27;</span>, <span class="comment">// 更新重量信息</span></span><br><span class="line">    settleSuccess = <span class="string">&#x27;settleSuccess&#x27;</span>, <span class="comment">// 打开结算成功弹窗</span></span><br><span class="line">    openAddMemberDialog = <span class="string">&#x27;openAddMemberDialog&#x27;</span>, <span class="comment">// 打开会员小程序码弹窗</span></span><br><span class="line">    closeAddMemberDialog = <span class="string">&#x27;closeAddMemberDialog&#x27;</span>, <span class="comment">// 关闭会员小程序码弹窗</span></span><br><span class="line">    updateBanner = <span class="string">&#x27;updateBanner&#x27;</span>, <span class="comment">// 更新轮播广告</span></span><br><span class="line">    openScanPaymentDialog = <span class="string">&#x27;openScanPaymentDialog&#x27;</span>, <span class="comment">// 打开扫码结算弹窗</span></span><br><span class="line">    closeScanPaymentDialog = <span class="string">&#x27;closeScanPaymentDialog&#x27;</span>, <span class="comment">// 关闭扫码结算弹窗</span></span><br><span class="line">    setSecondScreenScale = <span class="string">&#x27;setSecondScreenScale&#x27;</span>, <span class="comment">// 设置副屏缩放比例</span></span><br><span class="line">    updateWeightUnit = <span class="string">&#x27;updateWeightUnit&#x27;</span>, <span class="comment">// 更新重量单位</span></span><br><span class="line">    openCouponQrDialog = <span class="string">&#x27;openCouponQrDialog&#x27;</span>, <span class="comment">// 打开优惠券小程序码弹窗</span></span><br><span class="line">    closeCouponQrDialog = <span class="string">&#x27;closeCouponQrDialog&#x27;</span>, <span class="comment">// 关闭优惠券小程序码弹窗</span></span><br><span class="line">    openMemberPasswordDialog = <span class="string">&#x27;openMemberPasswordDialog&#x27;</span>, <span class="comment">// 打开会员密码输入弹窗</span></span><br><span class="line">    setMemberPassword = <span class="string">&#x27;setMemberPassword&#x27;</span>, <span class="comment">// 设置会员已输入的密码</span></span><br><span class="line">    openMemberPhoneDialog = <span class="string">&#x27;openMemberPhoneDialog&#x27;</span>, <span class="comment">// 打开会员输入手机号弹窗</span></span><br><span class="line">    setMemberPhoneNumber = <span class="string">&#x27;setMemberPhoneNumber&#x27;</span>, <span class="comment">// 设置会员手机号码录入</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同时在客户端定义了 <strong>sendEventToSecondScreen</strong>，主屏向客户端发送 <strong>sendEventToSecondScreen</strong> 事件，并且传输了副屏相关事件信息，客户端在接收到这个事件时，将获取到的副屏事件信息再派发给副屏，这样就完成了一次跨屏通信，示例如下：</p>
+<h3 id="主屏"><a href="#主屏" class="headerlink" title="主屏"></a>主屏</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SecondScreen</span> &#123;</span><br><span class="line">    public <span class="keyword">static</span> <span class="title function_">sendEvent</span>(<span class="params">eventName: SecondScreenEvents, data: any</span>) &#123;</span><br><span class="line">        <span class="comment">// 发送副屏事件到客户端</span></span><br><span class="line">        cashierBridge.<span class="title function_">invokeClientFunction</span>(<span class="title class_">ClientEvents</span>.<span class="property">sendEventToSecondScreen</span>, &#123;</span><br><span class="line">            <span class="attr">event</span>: eventName,</span><br><span class="line">            data</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">SecondScreen</span>.<span class="title function_">sendEvent</span>(<span class="title class_">SecondScreenEvents</span>.<span class="property">updateShopInfo</span>, shopInfo) <span class="comment">// 发送店铺信息到副屏</span></span><br><span class="line"><span class="title class_">SecondScreen</span>.<span class="title function_">sendEvent</span>(<span class="title class_">SecondScreenEvents</span>.<span class="property">settleSuccess</span>, &#123; <span class="comment">// 打开结算成功弹窗</span></span><br><span class="line">    <span class="string">&#x27;order_no&#x27;</span>: payResult.<span class="property">order_no</span>,</span><br><span class="line">    <span class="string">&#x27;totalPrice&#x27;</span>: <span class="variable language_">this</span>.<span class="property">props</span>.<span class="property">order</span>.<span class="title function_">getPriceBeforeBalanceDeduction</span>(),</span><br><span class="line">    <span class="string">&#x27;paymentInfo&#x27;</span>: paymentsText,</span><br><span class="line">    <span class="string">&#x27;isPrint&#x27;</span>: <span class="variable language_">this</span>.<span class="property">isPrintTicket</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="title class_">SecondScreen</span>.<span class="title function_">sendEvent</span>(<span class="title class_">SecondScreenEvents</span>.<span class="property">openAddMemberDialog</span>, &#123; <span class="comment">// 打开添加会员二维码</span></span><br><span class="line">    <span class="string">&#x27;imgSrc&#x27;</span>: props.<span class="property">wxCode</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><p>客户端在收到 <strong>sendEventToSecondScreen</strong> 事件后对数据进行解包，取出事件名和数据后，再发送给副屏 web 端进行处理。</p>
+<h4 id="android-2"><a href="#android-2" class="headerlink" title="android"></a>android</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">sendEventToWebView</span><span class="params">(ClientEvent event)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">json</span> <span class="operator">=</span> event.getData();</span><br><span class="line">        <span class="type">String</span> <span class="variable">eventName</span> <span class="operator">=</span> json.getString(<span class="string">&quot;event&quot;</span>); <span class="comment">// 副屏事件名称</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> json.getString(<span class="string">&quot;data&quot;</span>); <span class="comment">// 相应数据</span></span><br><span class="line">        webView.loadUrl(<span class="string">&quot;javascript:window.cashierBridge.dispatch(&#x27;&quot;</span> + eventName + <span class="string">&quot;&#x27;, &quot;</span> + data + <span class="string">&quot;)&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (JSONException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="windows-2"><a href="#windows-2" class="headerlink" title="windows"></a>windows</h4><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ipc.<span class="title function_">on</span>(<span class="title class_">ClientEvents</span>.<span class="property">sendEventToSecondScreen</span>, <span class="function">(<span class="params">event, args</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> data = polyfill&lt;&#123;</span><br><span class="line">        <span class="attr">event</span>: <span class="title class_">SecondScreenEvents</span>,</span><br><span class="line">        <span class="attr">data</span>: <span class="built_in">any</span></span><br><span class="line">    &#125;&gt;(args)</span><br><span class="line">    <span class="keyword">if</span> (secondWindow) &#123;</span><br><span class="line">        <span class="title function_">sendEventToWebByScript</span>(secondWindow.<span class="property">webContents</span>, data.<span class="property">event</span>, data.<span class="property">data</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    event.<span class="property">returnValue</span> = <span class="string">&quot;success&quot;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="副屏"><a href="#副屏" class="headerlink" title="副屏"></a>副屏</h3><p>副屏在初始化时订阅副屏相关事件，收到事件后进行相应交互处理，如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 更新副屏重量信息</span></span><br><span class="line">cashierBridge.<span class="title function_">addEventListener</span>(<span class="title class_">SecondScreenEvents</span>.<span class="property">updateWeightInfo</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> weight = <span class="variable language_">this</span>.<span class="property">state</span>.<span class="property">weightUnit</span> === <span class="title class_">WeightUnits</span>.<span class="property">jin</span> ? +event.<span class="property">weight</span> * <span class="number">2</span> : +event.<span class="property">weight</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;</span><br><span class="line">        <span class="attr">weight</span>: weight.<span class="title function_">toFixed</span>(<span class="number">3</span>),</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打开录入会员二维码弹窗</span></span><br><span class="line">cashierBridge.<span class="title function_">addEventListener</span>(<span class="title class_">SecondScreenEvents</span>.<span class="property">openAddMemberDialog</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">    dialog.<span class="title function_">showDialog</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">MemberQrCode</span> <span class="attr">imgSrc</span>=<span class="string">&#123;data.imgSrc&#125;</span> <span class="attr">shopInfo</span>=<span class="string">&#123;this.state.shopInfo&#125;</span>&gt;</span><span class="tag">&lt;/<span class="name">MemberQrCode</span>&gt;</span></span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以上便是零售收银台主副屏通信原理。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2021/08/20/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E5%89%AF%E5%B1%8F%E9%80%9A%E4%BF%A1%E8%AE%BE%E8%AE%A1/" data-id="clrk1lqiz001cc9om3fpx8w6x" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/myBlogs/2021/08/23/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          森果零售收银台面向对象设计
+        
+      </div>
+    </a>
+  
+  
+    <a href="/myBlogs/2021/02/27/%E7%B3%BB%E7%BB%9F%E6%9B%B4%E6%96%B0%E6%8F%90%E7%A4%BA%E8%AE%BE%E8%AE%A1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">系统模块更新提示设计</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/electron/" rel="tag">electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react/" rel="tag">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react-webpack/" rel="tag">react webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/vue/" rel="tag">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack-vue/" rel="tag">webpack vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" rel="tag">好文系列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag">系统架构</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/myBlogs/tags/electron/" style="font-size: 10px;">electron</a> <a href="/myBlogs/tags/react/" style="font-size: 10px;">react</a> <a href="/myBlogs/tags/react-webpack/" style="font-size: 15px;">react webpack</a> <a href="/myBlogs/tags/vue/" style="font-size: 10px;">vue</a> <a href="/myBlogs/tags/webpack/" style="font-size: 20px;">webpack</a> <a href="/myBlogs/tags/webpack-vue/" style="font-size: 10px;">webpack vue</a> <a href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" style="font-size: 10px;">好文系列</a> <a href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" style="font-size: 10px;">系统架构</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/03/">March 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/myBlogs/2023/09/26/%E6%8A%BD%E8%B1%A1%E7%9A%84admin/">抽象的admin</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/09/14/%E5%89%8D%E7%AB%AF%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%90%AF%E8%92%99/">前端面向对象抽象思维启蒙</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">更优雅的编写后台管理系统</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/07/12/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%B2%BE%E5%87%86%E5%9D%90%E6%A0%87%E5%AE%9A%E4%BD%8D/">远程协作-精准坐标定位</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/">远程协作-线上多人协作面向对象设计</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 Richard Chou<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/myBlogs/" class="mobile-nav-link">Home</a>
+  
+    <a href="/myBlogs/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/myBlogs/fancybox/jquery.fancybox.css">
+
+  
+<script src="/myBlogs/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/myBlogs/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

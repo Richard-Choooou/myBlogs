@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>web 平台使用 clippath 属性进行元素裁剪 | Richard Chou</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言在上一篇文章中讲解了在 flutter 平台上如何使用 clippath widget 来裁剪不规则图形，本章讲解如何使用css以及html完成同样的效果。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="web 平台使用 clippath 属性进行元素裁剪">
+<meta property="og:url" content="http://www.zpblogs.com/2020/03/02/web-%E5%B9%B3%E5%8F%B0%E4%BD%BF%E7%94%A8-clippath-%E5%B1%9E%E6%80%A7%E8%BF%9B%E8%A1%8C%E5%85%83%E7%B4%A0%E8%A3%81%E5%89%AA/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言在上一篇文章中讲解了在 flutter 平台上如何使用 clippath widget 来裁剪不规则图形，本章讲解如何使用css以及html完成同样的效果。">
+<meta property="og:locale">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/75662396-fe115a80-5ca9-11ea-8463-74cdc6f720a1.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/75662654-65c7a580-5caa-11ea-8aa3-08921c826818.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/75662719-85f76480-5caa-11ea-9109-256fad96bbbe.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/75665502-38312b00-5caf-11ea-8657-7f123853d69c.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/75665447-23549780-5caf-11ea-84ab-9982ebfe3922.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/75668801-d5429280-5cb4-11ea-8b47-c1aac1055857.png">
+<meta property="article:published_time" content="2020-03-02T20:23:05.000Z">
+<meta property="article:modified_time" content="2024-01-19T02:49:31.023Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23492006/75662396-fe115a80-5ca9-11ea-8463-74cdc6f720a1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Richard Chou" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/myBlogs/css/style.css">
+
+  
+
+<meta name="generator" content="Hexo 7.0.0-rc1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/myBlogs/" id="logo">Richard Chou</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/myBlogs/">Home</a>
+        
+          <a class="main-nav-link" href="/myBlogs/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.zpblogs.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-web-平台使用-clippath-属性进行元素裁剪" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2020/03/02/web-%E5%B9%B3%E5%8F%B0%E4%BD%BF%E7%94%A8-clippath-%E5%B1%9E%E6%80%A7%E8%BF%9B%E8%A1%8C%E5%85%83%E7%B4%A0%E8%A3%81%E5%89%AA/" class="article-date">
+  <time datetime="2020-03-02T20:23:05.000Z" itemprop="datePublished">2020-03-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      web 平台使用 clippath 属性进行元素裁剪
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在<a href="http://www.zpblogs.com/myBlogs/2019/09/11/flutter-%E4%BD%BF%E7%94%A8-ClipPath-%E7%BB%98%E5%88%B6%E7%89%B9%E6%AE%8A%E5%9B%BE%E5%BD%A2/">上一篇文章</a>中讲解了在 flutter 平台上如何使用 clippath widget 来裁剪不规则图形，本章讲解如何使用css以及html完成同样的效果。</p>
+<span id="more"></span>
+
+<h1 id="设计稿分析"><a href="#设计稿分析" class="headerlink" title="设计稿分析"></a>设计稿分析</h1><p><img src="https://user-images.githubusercontent.com/23492006/75662396-fe115a80-5ca9-11ea-8463-74cdc6f720a1.png" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/75662654-65c7a580-5caa-11ea-8aa3-08921c826818.png" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/75662719-85f76480-5caa-11ea-9109-256fad96bbbe.png" alt="图片加载失败，需科学上网"></p>
+<p>如上图所示，每个 tab 的头部位置不同且形状不同，同时头部与内容区域连接为一个整体且有一个连续的投影效果，对此如果使用普通的手段实现起来较为麻烦，难点在于：</p>
+<ul>
+<li>不规则的弧形边缘可以尝试使用 borderRadius 实现，但是这些弧形边缘会有与之对应的阴影，使用 borderradius 无法很好的控制阴影重叠的位置</li>
+<li>使用图片，需要对图片进行精准的定位，可能会因为图片拉伸压缩导致变形，导致阴影连接处出现瑕疵</li>
+</ul>
+<p>对此我们可以使用 clippath 属性来完成这一样式。</p>
+<h1 id="clippath"><a href="#clippath" class="headerlink" title="clippath"></a>clippath</h1><p>在 css 中有一个属性名为 clippath，顾名思义修剪路径。这个属性可以按照特定的路径来对元素进行裁剪。关于该属性具体的讲解可以看张鑫旭大佬的<a href="https://www.zhangxinxu.com/wordpress/2014/12/css3-svg-clip-path/">这一篇文章</a>进行详细了解。</p>
+<p>通过了解 api 可以发现有很多种函数可以进行不同形状的裁剪，但唯一满足当前需求的是使用 <strong>svg</strong> 的 <strong>clippath</strong> 进行裁剪，因为在这些函数中只有 svg 支持贝塞尔曲线，tab 头部那些弯弯曲曲的曲线正是贝塞尔曲线。</p>
+<p>在开始裁剪之前首先了解一下贝塞尔曲线在 svg 中的用法，可以参考<a href="https://www.zhangxinxu.com/wordpress/2014/06/deep-understand-svg-path-bezier-curves-command/">张鑫旭大佬的文章</a></p>
+<p>同时为了方便实现，这里需要欺骗一下用户的视觉，把头部和内容区域拆分成两个整体，如下图所示：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/75665502-38312b00-5caf-11ea-8657-7f123853d69c.png" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/75665447-23549780-5caf-11ea-84ab-9982ebfe3922.png" alt="图片加载失败，需科学上网"></p>
+<p>接下来我们实现最左侧的头部</p>
+<h1 id="左侧"><a href="#左侧" class="headerlink" title="左侧"></a>左侧</h1><p>具体代码如下，此处不进行 svg 教学，可以在网上找相关资源进行学习。</p>
+<p>html 代码如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;left-item&quot;</span>&gt;</span></span><br><span class="line">    </span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>svg 代码如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">viewBox</span>=<span class="string">&quot;0,0,168,60&quot;</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.w3.org/2000/svg&quot;</span> <span class="attr">version</span>=<span class="string">&quot;1.1&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">clipPath</span> <span class="attr">id</span>=<span class="string">&quot;leftPath&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">path</span> <span class="attr">d</span>=<span class="string">&quot;M0 60 L0 20 Q0 0 20 0 H128 Q148 0 148 20 V40 Q148 60 168 60 Z&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">clipPath</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>css 代码如下：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.left-item</span> &#123;</span><br><span class="line">    <span class="attribute">clip-path</span>: <span class="built_in">url</span>(<span class="string">&#x27;#leftPath&#x27;</span>);</span><br><span class="line">    <span class="attribute">padding-right</span>: <span class="number">20px</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">168px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">60px</span>;</span><br><span class="line">    <span class="attribute">background</span>: <span class="number">#f00</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>效果如下，可检查元素预览效果：</p>
+<div class="left-item"></div>
+
+<p>svg 中的 path 标签内的d属性，描述了裁剪的路径，其中使用了三个二次贝塞尔曲线，贝塞尔曲线的控制点在下图标红处，知道每个贝塞尔曲线的起点，控制点以及终点，那么很容易绘制这样一个图形，接下来使用同样的方式绘制其它两种图形。</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/75668801-d5429280-5cb4-11ea-8b47-c1aac1055857.png" alt="图片加载失败，需科学上网"></p>
+<h1 id="中间"><a href="#中间" class="headerlink" title="中间"></a>中间</h1><p>代码如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;center-item&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.center-item</span> &#123;</span><br><span class="line">    <span class="attribute">clip-path</span>: <span class="built_in">url</span>(<span class="string">&#x27;#centerPath&#x27;</span>);</span><br><span class="line">    <span class="attribute">padding-right</span>: <span class="number">20px</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">188px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">60px</span>;</span><br><span class="line">    <span class="attribute">background</span>: <span class="number">#f00</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">viewBox</span>=<span class="string">&quot;0,0,188,60&quot;</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.w3.org/2000/svg&quot;</span> <span class="attr">version</span>=<span class="string">&quot;1.1&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">clippath</span> <span class="attr">id</span>=<span class="string">&quot;centerPath&quot;</span> &gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">path</span> <span class="attr">d</span>=<span class="string">&quot;M0 60 Q20 60 20 40 L20 20 Q20 0 40 0 H148 Q168 0 168 20 V40 Q168 60 188 60 Z&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">clippath</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>效果如下：</p>
+<div class="center-item"></div>
+
+<br>
+# 右侧
+
+<p>代码如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;right-item&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.right-item</span> &#123;</span><br><span class="line">    <span class="attribute">clip-path</span>: <span class="built_in">url</span>(<span class="string">&#x27;#rightPath&#x27;</span>);</span><br><span class="line">    <span class="attribute">padding-right</span>: <span class="number">20px</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">168px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">60px</span>;</span><br><span class="line">    <span class="attribute">background</span>: <span class="number">#f00</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">viewBox</span>=<span class="string">&quot;0,0,168,60&quot;</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.w3.org/2000/svg&quot;</span> <span class="attr">version</span>=<span class="string">&quot;1.1&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">clippath</span> <span class="attr">id</span>=<span class="string">&quot;rightPath&quot;</span> &gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">path</span> <span class="attr">d</span>=<span class="string">&quot;M0 60 Q20 60 20 40 L20 20 Q20 0 40 0 H148 Q168 0 168 20 V60 Z&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">clippath</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>效果如下：</p>
+<div class="right-item"></div>
+
+<br>
+# 阴影
+完成了元素的裁剪，接下来需要给元素添加阴影，阴影的添加方式不能使用 boxShaow 属性，否则将什么效果都不能得到，因为阴影被 clippath 裁剪掉了:
+
+<div class="center-item" style="box-shadow: 0 0 10px 0 #000"></div><br>
+
+<p>同时也不能在父元素上使用 boxshadow，否则将会得到如下的结果</p>
+<div style="box-shadow: 0 0 10px 0 #000;width: 188px"><div class="center-item"></div></div><br>
+
+<p>但是在父元素上使用 <strong>filter: ‘drop-shadow’</strong> 这一属性，结果就不一样了，属性详情参见张鑫旭大佬的<a href="https://www.zhangxinxu.com/wordpress/2016/05/css3-filter-drop-shadow-vs-box-shadow/">这篇文章</a></p>
+<div style="filter: drop-shadow(0px 0px 5px rgba(0,0,0,0.8)); width: 188px"><div class="center-item"></div></div><br>
+
+<p>具体讲解就先到这里，希望对你有所帮助。</p>
+<style>
+.center-item {
+    clip-path: url('#centerPath');
+    padding-right: 20px;
+    width: 188px;
+    height: 60px;
+    background: #f00;
+}
+</style>
+
+<p><svg viewBox="0,0,188,60" xmlns="http://www.w3.org/2000/svg" version="1.1"><clippath id="centerPath" ><path d="M0 60 Q20 60 20 40 L20 20 Q20 0 40 0 H148 Q168 0 168 20 V40 Q168 60 188 60 Z"></path></clipath></svg></p>
+<style>
+.left-item {
+    clip-path: url('#leftPath');
+    padding-right: 20px;
+    width: 168px;
+    height: 60px;
+    background: #f00;
+}
+</style>
+
+
+
+<p><svg viewBox="0,0,168,60" xmlns="http://www.w3.org/2000/svg" version="1.1"><clipPath id="leftPath"><path d="M0 60 L0 20 Q0 0 20 0 H128 Q148 0 148 20 V40 Q148 60 168 60 Z"></path></clipPath></svg></p>
+<style>
+.right-item {
+    clip-path: url('#rightPath');
+    padding-right: 20px;
+    width: 168px;
+    height: 60px;
+    background: #f00;
+}
+</style>
+
+<p><svg viewBox="0,0,168,60" xmlns="http://www.w3.org/2000/svg" version="1.1"><clippath id="rightPath" ><path d="M0 60 Q20 60 20 40 L20 20 Q20 0 40 0 H148 Q168 0 168 20 V60 Z"></path></clippath></svg></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2020/03/02/web-%E5%B9%B3%E5%8F%B0%E4%BD%BF%E7%94%A8-clippath-%E5%B1%9E%E6%80%A7%E8%BF%9B%E8%A1%8C%E5%85%83%E7%B4%A0%E8%A3%81%E5%89%AA/" data-id="clrk1lqi3000ac9om05bg2owq" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/myBlogs/2020/04/18/%E7%BC%96%E5%86%99nodejs%20c++%20%E6%89%A9%E5%B1%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          打包 nodejs c++ 扩展环境安装
+        
+      </div>
+    </a>
+  
+  
+    <a href="/myBlogs/2019/11/25/react%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%85%8D%E7%BD%AE/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">react环境变量配置</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/electron/" rel="tag">electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react/" rel="tag">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react-webpack/" rel="tag">react webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/vue/" rel="tag">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack-vue/" rel="tag">webpack vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" rel="tag">好文系列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag">系统架构</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/myBlogs/tags/electron/" style="font-size: 10px;">electron</a> <a href="/myBlogs/tags/react/" style="font-size: 10px;">react</a> <a href="/myBlogs/tags/react-webpack/" style="font-size: 15px;">react webpack</a> <a href="/myBlogs/tags/vue/" style="font-size: 10px;">vue</a> <a href="/myBlogs/tags/webpack/" style="font-size: 20px;">webpack</a> <a href="/myBlogs/tags/webpack-vue/" style="font-size: 10px;">webpack vue</a> <a href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" style="font-size: 10px;">好文系列</a> <a href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" style="font-size: 10px;">系统架构</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/03/">March 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/myBlogs/2023/09/26/%E6%8A%BD%E8%B1%A1%E7%9A%84admin/">抽象的admin</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/09/14/%E5%89%8D%E7%AB%AF%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%90%AF%E8%92%99/">前端面向对象抽象思维启蒙</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">更优雅的编写后台管理系统</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/07/12/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%B2%BE%E5%87%86%E5%9D%90%E6%A0%87%E5%AE%9A%E4%BD%8D/">远程协作-精准坐标定位</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/">远程协作-线上多人协作面向对象设计</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 Richard Chou<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/myBlogs/" class="mobile-nav-link">Home</a>
+  
+    <a href="/myBlogs/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/myBlogs/fancybox/jquery.fancybox.css">
+
+  
+<script src="/myBlogs/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/myBlogs/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
