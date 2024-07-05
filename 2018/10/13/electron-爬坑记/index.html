@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>electron 爬坑记 | Richard Chou</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言最近开始了react的学习，打算开发一款压缩图片的客户端工具练练手，于是开始了electron的学习，这过程中遇到了一些坑，就此记录下来。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="electron 爬坑记">
+<meta property="og:url" content="http://www.zpblogs.com/2018/10/13/electron-%E7%88%AC%E5%9D%91%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言最近开始了react的学习，打算开发一款压缩图片的客户端工具练练手，于是开始了electron的学习，这过程中遇到了一些坑，就此记录下来。">
+<meta property="og:locale">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/2/2/168ad4d9c466675d?w=1320&h=250&f=png&s=90655">
+<meta property="article:published_time" content="2018-10-13T12:06:44.000Z">
+<meta property="article:modified_time" content="2024-07-05T06:59:11.708Z">
+<meta property="article:author" content="Richard Chou">
+<meta property="article:tag" content="electron">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2019/2/2/168ad4d9c466675d?w=1320&h=250&f=png&s=90655">
+  
+    <link rel="alternate" href="/atom.xml" title="Richard Chou" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/myBlogs/css/style.css">
+
+  
+
+<meta name="generator" content="Hexo 7.0.0-rc1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/myBlogs/" id="logo">Richard Chou</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/myBlogs/">Home</a>
+        
+          <a class="main-nav-link" href="/myBlogs/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.zpblogs.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-electron-爬坑记" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2018/10/13/electron-%E7%88%AC%E5%9D%91%E8%AE%B0/" class="article-date">
+  <time datetime="2018-10-13T12:06:44.000Z" itemprop="datePublished">2018-10-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      electron 爬坑记
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近开始了react的学习，打算开发一款压缩图片的客户端工具练练手，于是开始了electron的学习，这过程中遇到了一些坑，就此记录下来。</p>
+<span id="more"></span>
+
+<h1 id="在浏览器环境中使用-nodejs-api"><a href="#在浏览器环境中使用-nodejs-api" class="headerlink" title="在浏览器环境中使用 nodejs api"></a>在浏览器环境中使用 nodejs api</h1><p>因为开发结合了react，所以会用到webpack，在调试环境下electron打开的是webpack提供的服务器地址：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create the browser window.</span></span><br><span class="line">    mainWindow = <span class="keyword">new</span> <span class="title class_">BrowserWindow</span>(&#123; <span class="attr">width</span>: <span class="number">800</span>, <span class="attr">height</span>: <span class="number">600</span>, <span class="attr">webPreferences</span>: &#123; <span class="attr">webSecurity</span>: <span class="literal">false</span> &#125; &#125;)</span><br><span class="line">    mainWindow.<span class="title function_">setMinimumSize</span>(<span class="number">800</span>, <span class="number">600</span>)</span><br><span class="line">    mainWindow.<span class="property">webContents</span>.<span class="title function_">openDevTools</span>()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// and load the index.html of the app.</span></span><br><span class="line">    <span class="comment">//   mainWindow.loadFile(&#x27;index.html&#x27;)</span></span><br><span class="line">    mainWindow.<span class="title function_">loadURL</span>(<span class="string">&#x27;http://127.0.0.1:3000&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>所以要是在react工程中直接require nodejs的原生包，就会报运行错误，因为nodejs原生包调用了很多的底层api，浏览器当然没有给到这个权限，所以，要想在浏览器中使用nodejs的api，需要用下面这种方式引入原生Nodejs包：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> electron = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;electron&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> process = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;process&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> fs = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> <span class="title class_">Https</span> = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;https&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>electron将nodejs api挂载在了window对象上，来与底层进行通信，所以需要调用window上的require函数来引入 nodejs 包。</p>
+<h1 id="在浏览器环境中使用app对象"><a href="#在浏览器环境中使用app对象" class="headerlink" title="在浏览器环境中使用app对象"></a>在浏览器环境中使用app对象</h1><p>在electron主进程中使用app对象直接require electron就行了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; app &#125; = <span class="built_in">require</span>(<span class="string">&#x27;electron&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>但是在渲染进程中使用app对象则需要这样引入：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> electron = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;electron&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> app = electron.<span class="property">remote</span>.<span class="property">app</span></span><br></pre></td></tr></table></figure>
+
+<p>哈哈，不知道的话很懵逼吧。</p>
+<h1 id="在浏览器环境中使用第三方nodejs包"><a href="#在浏览器环境中使用第三方nodejs包" class="headerlink" title="在浏览器环境中使用第三方nodejs包"></a>在浏览器环境中使用第三方nodejs包</h1><p>如果在浏览器中require第三方nodejs包肯定是会报错的，所以需要创建window的时候预先引入第三方依赖包，代码如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.js</span></span><br><span class="line">mainWindow = <span class="keyword">new</span> <span class="title class_">BrowserWindow</span>(&#123; </span><br><span class="line">    <span class="attr">width</span>: <span class="number">800</span>, </span><br><span class="line">    <span class="attr">height</span>: <span class="number">600</span>, </span><br><span class="line">    <span class="attr">webPreferences</span>: &#123; </span><br><span class="line">        <span class="attr">webSecurity</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">preload</span>: path.<span class="title function_">resolve</span>(__dirname, <span class="string">&#x27;./public/renderer.js&#x27;</span>)</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ./public/renderer.js</span></span><br><span class="line"><span class="variable language_">global</span>.<span class="property">imagemin</span> = <span class="built_in">require</span>(<span class="string">&#x27;imagemin&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// window环境下代码</span></span><br><span class="line"><span class="keyword">const</span> imagemin = <span class="variable language_">window</span>.<span class="property">imagemin</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="打包后无法运行二进制文件"><a href="#打包后无法运行二进制文件" class="headerlink" title="打包后无法运行二进制文件"></a>打包后无法运行二进制文件</h1><p>这个压缩图片的工具用到了 <a href="https://www.npmjs.com/package/imagemin">imagemin</a>这个npm包，在开发的时候压缩图片没任何问题，但是经过electron打包，一旦压缩图片，就会报错，如图所示：</p>
+<img width="660" alt="qq20190201-164247 2x" src="https://user-gold-cdn.xitu.io/2019/2/2/168ad4d9c466675d?w=1320&h=250&f=png&s=90655">
+
+<p>起初我是懵逼的，因为这看不到有效的报错信息啊，但是经过阅读源码网上查找解决方案，最终发现了端倪。在debugger的过程中，发现imagemin是使用二进制可执行文件来对图片进行压缩的，执行二进制的函数是child_process.spawn，这个函数对于文件路径有限制，因为electron打包后，会把依赖项压缩成一个文件，导致这个函数判断路径时报错，对于这个问题，如果是自己的代码中使用了二进制文件，则可以将child_process.spawn替换为child_process.execFile函数来执行二进制文件。</p>
+<p>但是我这里引用的是别人的包，如果擅自修改非本源的包，可能会导致项目无法在其他的环境中运行，所以得找例外的解决方案，皇天不负苦心人，终于找到了解决方案，那就是electron打包时，不对依赖项进行压缩，那样就能得到一个正确的路径了。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>修改package.json中的build选项，这个选项是对electron打包的一系列配置。将其中的 <strong>asar</strong> 修改为false，就能让electron在打包时，不对依赖进行压缩，如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;build&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;appId&quot;</span>: <span class="string">&quot;com.richard.image_compress&quot;</span>,</span><br><span class="line">    <span class="string">&quot;mac&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;category&quot;</span>: <span class="string">&quot;tool&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;extends&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="string">&quot;files&quot;</span>: [<span class="string">&quot;build&quot;</span>, <span class="string">&quot;*.js&quot;</span>, <span class="string">&quot;public&quot;</span>],</span><br><span class="line">    <span class="string">&quot;asar&quot;</span>: <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>随着爬完了这一系列的坑，图片压缩的客户端工具终于完成。</p>
+<p>git repo: <a href="https://github.com/Richard-Choooou/image-compress">https://github.com/Richard-Choooou/image-compress</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2018/10/13/electron-%E7%88%AC%E5%9D%91%E8%AE%B0/" data-id="cly8chwre0000b6q6eo9a9mxa" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/myBlogs/tags/electron/" rel="tag">electron</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/myBlogs/2018/11/01/%E4%BD%BF%E7%94%A8%E6%A0%91%E8%8E%93%E6%B4%BE%E6%89%93%E9%80%A0%E4%B8%80%E5%A5%97%E7%AE%80%E5%8D%95%E7%9A%84%E5%AE%89%E9%98%B2%E7%B3%BB%E7%BB%9F/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          使用树莓派打造一套简单的安防系统
+        
+      </div>
+    </a>
+  
+  
+    <a href="/myBlogs/2018/10/08/%E6%A3%AE%E6%9E%9C%E5%86%85%E9%83%A8%E5%88%86%E4%BA%AB%EF%BC%9Awebpack%E9%85%8D%E7%BD%AE%E4%BB%8E0%E5%88%B01/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">森果技术分享：webpack配置从0到1</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/electron/" rel="tag">electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react/" rel="tag">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react-webpack/" rel="tag">react webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/vue/" rel="tag">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack-vue/" rel="tag">webpack vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" rel="tag">好文系列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag">系统架构</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/myBlogs/tags/electron/" style="font-size: 10px;">electron</a> <a href="/myBlogs/tags/react/" style="font-size: 10px;">react</a> <a href="/myBlogs/tags/react-webpack/" style="font-size: 15px;">react webpack</a> <a href="/myBlogs/tags/vue/" style="font-size: 10px;">vue</a> <a href="/myBlogs/tags/webpack/" style="font-size: 20px;">webpack</a> <a href="/myBlogs/tags/webpack-vue/" style="font-size: 10px;">webpack vue</a> <a href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" style="font-size: 10px;">好文系列</a> <a href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" style="font-size: 10px;">系统架构</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/03/">March 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/myBlogs/2023/09/26/%E6%8A%BD%E8%B1%A1%E7%9A%84admin/">抽象的admin</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/09/14/%E5%89%8D%E7%AB%AF%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%90%AF%E8%92%99/">前端面向对象抽象思维启蒙</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">更优雅的编写后台管理系统</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/07/12/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%B2%BE%E5%87%86%E5%9D%90%E6%A0%87%E5%AE%9A%E4%BD%8D/">远程协作-精准坐标定位</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/">远程协作-线上多人协作面向对象设计</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 Richard Chou<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/myBlogs/" class="mobile-nav-link">Home</a>
+  
+    <a href="/myBlogs/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/myBlogs/fancybox/jquery.fancybox.css">
+
+  
+<script src="/myBlogs/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/myBlogs/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

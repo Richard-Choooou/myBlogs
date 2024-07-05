@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Richard Chou</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Blogs for Richard Chou">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Richard Chou">
+<meta property="og:url" content="http://www.zpblogs.com/page/2/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="Blogs for Richard Chou">
+<meta property="og:locale">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Richard Chou" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/myBlogs/css/style.css">
+
+  
+
+<meta name="generator" content="Hexo 7.0.0-rc1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/myBlogs/" id="logo">Richard Chou</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/myBlogs/">Home</a>
+        
+          <a class="main-nav-link" href="/myBlogs/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.zpblogs.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-森果收银台jsbridge设计" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/" class="article-date">
+  <time datetime="2021-02-07T10:06:29.000Z" itemprop="datePublished">2021-02-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/">森果收银台 jsBridge 设计</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>森果收银台中涉及到不少跨平台通信，如电子秤，打印机、副屏、钱箱等客户端才能调用的硬件，同时涉及到 android 和 windows 两个平台，如果不设计通信交互，那么代码将会变得十分混乱，因此一个好用的 jsBridge 设计对收银台来说尤为重要。</p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/" data-id="cly8chwsf0019b6q6eluu8esy" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-森果收银台架构设计" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2021/02/06/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="article-date">
+  <time datetime="2021-02-06T15:16:26.000Z" itemprop="datePublished">2021-02-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2021/02/06/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/">森果收银台架构设计</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>森果零售通收银台开发了两年多，业务已趋于稳定，其中对许多业务细节做了大量思考，这里分别编写文档记录下来。</p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2021/02/06/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2021/02/06/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" data-id="cly8chwsf001bb6q657qk31hn" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-森果收银台-打印机对接文档" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2021/01/22/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-%E6%89%93%E5%8D%B0%E6%9C%BA%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/" class="article-date">
+  <time datetime="2021-01-22T09:41:59.000Z" itemprop="datePublished">2021-01-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2021/01/22/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-%E6%89%93%E5%8D%B0%E6%9C%BA%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/">森果收银台-打印机对接文档</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h1><p>在森果零售收银台项目中，需要在结算后进行小票打印。</p>
+<img src="https://img.senguo.cc/DINGTALK_IM_1047466412.JPG" width="100" />
+
+<p>打印机分为多种类型，普通的 58mm 小票打印机，80mm 小票打印机，标签贴纸打印机，有外置 usb 打印机，也有内置串口打印机，本文讲解这些打印机在 android 与 windows 平台的对接过程。</p>
+<p>打印流程如下所示：</p>
+<p><img src="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png"></p>
+<p>本篇主要讲解客户端层面代码设计。</p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2021/01/22/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-%E6%89%93%E5%8D%B0%E6%9C%BA%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2021/01/22/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-%E6%89%93%E5%8D%B0%E6%9C%BA%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/" data-id="cly8chwse0018b6q65f4g3hrm" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-通讯称对接文档" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2021/01/20/%E9%80%9A%E8%AE%AF%E7%A7%B0%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/" class="article-date">
+  <time datetime="2021-01-20T16:45:15.000Z" itemprop="datePublished">2021-01-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2021/01/20/%E9%80%9A%E8%AE%AF%E7%A7%B0%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/">森果收银台-通讯称对接文档</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h1><p>在森果零售收银台项目中，需要在 app 内读取到电子秤的重量信息用于计重结算。</p>
+<p><img src="https://img.senguo.cc/20210120153834.jpg" alt="https://img.senguo.cc/20210120153834.jpg"></p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2021/01/20/%E9%80%9A%E8%AE%AF%E7%A7%B0%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2021/01/20/%E9%80%9A%E8%AE%AF%E7%A7%B0%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/" data-id="cly8chwsq001qb6q64wbh4fmd" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-大华条码秤对接总结" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2020/06/28/%E5%A4%A7%E5%8D%8E%E6%9D%A1%E7%A0%81%E7%A7%A4%E5%AF%B9%E6%8E%A5%E6%80%BB%E7%BB%93/" class="article-date">
+  <time datetime="2020-06-28T18:24:49.000Z" itemprop="datePublished">2020-06-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2020/06/28/%E5%A4%A7%E5%8D%8E%E6%9D%A1%E7%A0%81%E7%A7%A4%E5%AF%B9%E6%8E%A5%E6%80%BB%E7%BB%93/">大华条码秤对接经验总结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>一个超市里常用的条码秤对接经历</p>
+<p><img src="https://img.senguo.cc/1594288127086-fc46b421-8131-40ba-8242-d4aa0634c71a.png" alt="输入图片说明"></p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2020/06/28/%E5%A4%A7%E5%8D%8E%E6%9D%A1%E7%A0%81%E7%A7%A4%E5%AF%B9%E6%8E%A5%E6%80%BB%E7%BB%93/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2020/06/28/%E5%A4%A7%E5%8D%8E%E6%9D%A1%E7%A0%81%E7%A7%A4%E5%AF%B9%E6%8E%A5%E6%80%BB%E7%BB%93/" data-id="cly8chws7000ub6q60ci41oly" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-使用-c-调用-windows-打印-api-进行打印" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2020/06/27/%E4%BD%BF%E7%94%A8-c-%E8%B0%83%E7%94%A8-windows-%E6%89%93%E5%8D%B0-api-%E8%BF%9B%E8%A1%8C%E6%89%93%E5%8D%B0/" class="article-date">
+  <time datetime="2020-06-27T17:37:15.000Z" itemprop="datePublished">2020-06-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2020/06/27/%E4%BD%BF%E7%94%A8-c-%E8%B0%83%E7%94%A8-windows-%E6%89%93%E5%8D%B0-api-%E8%BF%9B%E8%A1%8C%E6%89%93%E5%8D%B0/">使用 c++ 调用 windows 打印 api 进行打印</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：</p>
+<p><img src="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="输入图片说明"></p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2020/06/27/%E4%BD%BF%E7%94%A8-c-%E8%B0%83%E7%94%A8-windows-%E6%89%93%E5%8D%B0-api-%E8%BF%9B%E8%A1%8C%E6%89%93%E5%8D%B0/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2020/06/27/%E4%BD%BF%E7%94%A8-c-%E8%B0%83%E7%94%A8-windows-%E6%89%93%E5%8D%B0-api-%E8%BF%9B%E8%A1%8C%E6%89%93%E5%8D%B0/" data-id="cly8chws1000kb6q6h2ar3zdt" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="打包 nodejs c++ 扩展-编写nodejs c++ 扩展" class="article article-type-打包 nodejs c++ 扩展" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2020/04/18/%E7%BC%96%E5%86%99nodejs%20c++%20%E6%89%A9%E5%B1%95/" class="article-date">
+  <time datetime="2020-04-18T17:06:10.000Z" itemprop="datePublished">2020-04-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2020/04/18/%E7%BC%96%E5%86%99nodejs%20c++%20%E6%89%A9%E5%B1%95/">打包 nodejs c++ 扩展环境安装</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>首先下载 <a href="https://visualstudio.microsoft.com/zh-hans/thank-you-downloading-visual-studio/?sku=Community&rel=16#">visual studio</a> 注意不是 vscode</p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2020/04/18/%E7%BC%96%E5%86%99nodejs%20c++%20%E6%89%A9%E5%B1%95/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2020/04/18/%E7%BC%96%E5%86%99nodejs%20c++%20%E6%89%A9%E5%B1%95/" data-id="cly8chwsl001hb6q670a34oy1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-web-平台使用-clippath-属性进行元素裁剪" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2020/03/02/web-%E5%B9%B3%E5%8F%B0%E4%BD%BF%E7%94%A8-clippath-%E5%B1%9E%E6%80%A7%E8%BF%9B%E8%A1%8C%E5%85%83%E7%B4%A0%E8%A3%81%E5%89%AA/" class="article-date">
+  <time datetime="2020-03-02T20:23:05.000Z" itemprop="datePublished">2020-03-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2020/03/02/web-%E5%B9%B3%E5%8F%B0%E4%BD%BF%E7%94%A8-clippath-%E5%B1%9E%E6%80%A7%E8%BF%9B%E8%A1%8C%E5%85%83%E7%B4%A0%E8%A3%81%E5%89%AA/">web 平台使用 clippath 属性进行元素裁剪</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在<a href="http://www.zpblogs.com/myBlogs/2019/09/11/flutter-%E4%BD%BF%E7%94%A8-ClipPath-%E7%BB%98%E5%88%B6%E7%89%B9%E6%AE%8A%E5%9B%BE%E5%BD%A2/">上一篇文章</a>中讲解了在 flutter 平台上如何使用 clippath widget 来裁剪不规则图形，本章讲解如何使用css以及html完成同样的效果。</p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2020/03/02/web-%E5%B9%B3%E5%8F%B0%E4%BD%BF%E7%94%A8-clippath-%E5%B1%9E%E6%80%A7%E8%BF%9B%E8%A1%8C%E5%85%83%E7%B4%A0%E8%A3%81%E5%89%AA/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2020/03/02/web-%E5%B9%B3%E5%8F%B0%E4%BD%BF%E7%94%A8-clippath-%E5%B1%9E%E6%80%A7%E8%BF%9B%E8%A1%8C%E5%85%83%E7%B4%A0%E8%A3%81%E5%89%AA/" data-id="cly8chwrt000ab6q6asdlhsyg" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-react环境变量配置" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2019/11/25/react%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%85%8D%E7%BD%AE/" class="article-date">
+  <time datetime="2019-11-25T10:15:00.000Z" itemprop="datePublished">2019-11-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2019/11/25/react%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%85%8D%E7%BD%AE/">react环境变量配置</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="react-环境变量配置"><a href="#react-环境变量配置" class="headerlink" title="react 环境变量配置"></a>react 环境变量配置</h2><p>在 <strong>react scripts</strong> 升级到 3.0 版本后，添加了 env 文件用于环境变量配置，与 vue 类似。其并不是抄袭自 vue, vue 与 react 都是基于 <a href="https://www.npmjs.com/package/dotenv">dotenv</a> 这个库来完成这一功能。</p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2019/11/25/react%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%85%8D%E7%BD%AE/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2019/11/25/react%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%85%8D%E7%BD%AE/" data-id="cly8chwrr0008b6q6gr0uh7zp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/myBlogs/tags/react/" rel="tag">react</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-解决-vue-cli-使用-typescript-后打包巨慢的问题" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2019/09/29/%E8%A7%A3%E5%86%B3-vue-cli-%E4%BD%BF%E7%94%A8-typescript-%E5%90%8E%E6%89%93%E5%8C%85%E5%B7%A8%E6%85%A2%E7%9A%84%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2019-09-29T16:42:20.000Z" itemprop="datePublished">2019-09-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/myBlogs/2019/09/29/%E8%A7%A3%E5%86%B3-vue-cli-%E4%BD%BF%E7%94%A8-typescript-%E5%90%8E%E6%89%93%E5%8C%85%E5%B7%A8%E6%85%A2%E7%9A%84%E9%97%AE%E9%A2%98/">解决 vue cli 使用 typescript 后打包巨慢的问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近新开了一个项目，虽然用的是 vue 技术栈，但是为了项目的健壮性，还是强上了 typescript, 于是引出了下面的问题。</p>
+        
+          <p class="article-more-link">
+            <a href="/myBlogs/2019/09/29/%E8%A7%A3%E5%86%B3-vue-cli-%E4%BD%BF%E7%94%A8-typescript-%E5%90%8E%E6%89%93%E5%8C%85%E5%B7%A8%E6%85%A2%E7%9A%84%E9%97%AE%E9%A2%98/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2019/09/29/%E8%A7%A3%E5%86%B3-vue-cli-%E4%BD%BF%E7%94%A8-typescript-%E5%90%8E%E6%89%93%E5%8C%85%E5%B7%A8%E6%85%A2%E7%9A%84%E9%97%AE%E9%A2%98/" data-id="cly8chwsm001jb6q67nsl0btv" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/myBlogs/tags/webpack-vue/" rel="tag">webpack vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    <a class="extend prev" rel="prev" href="/myBlogs/">&amp;laquo; __(&#39;prev&#39;)</a><a class="page-number" href="/myBlogs/">1</a><span class="page-number current">2</span><a class="page-number" href="/myBlogs/page/3/">3</a><a class="page-number" href="/myBlogs/page/4/">4</a><a class="page-number" href="/myBlogs/page/5/">5</a><a class="extend next" rel="next" href="/myBlogs/page/3/">__(&#39;next&#39;) &amp;raquo;</a>
+  </nav>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/electron/" rel="tag">electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react/" rel="tag">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react-webpack/" rel="tag">react webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/vue/" rel="tag">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack-vue/" rel="tag">webpack vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" rel="tag">好文系列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag">系统架构</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/myBlogs/tags/electron/" style="font-size: 10px;">electron</a> <a href="/myBlogs/tags/react/" style="font-size: 10px;">react</a> <a href="/myBlogs/tags/react-webpack/" style="font-size: 15px;">react webpack</a> <a href="/myBlogs/tags/vue/" style="font-size: 10px;">vue</a> <a href="/myBlogs/tags/webpack/" style="font-size: 20px;">webpack</a> <a href="/myBlogs/tags/webpack-vue/" style="font-size: 10px;">webpack vue</a> <a href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" style="font-size: 10px;">好文系列</a> <a href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" style="font-size: 10px;">系统架构</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/03/">March 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/myBlogs/2023/09/26/%E6%8A%BD%E8%B1%A1%E7%9A%84admin/">抽象的admin</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/09/14/%E5%89%8D%E7%AB%AF%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%90%AF%E8%92%99/">前端面向对象抽象思维启蒙</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">更优雅的编写后台管理系统</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/07/12/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%B2%BE%E5%87%86%E5%9D%90%E6%A0%87%E5%AE%9A%E4%BD%8D/">远程协作-精准坐标定位</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/">远程协作-线上多人协作面向对象设计</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 Richard Chou<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/myBlogs/" class="mobile-nav-link">Home</a>
+  
+    <a href="/myBlogs/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/myBlogs/fancybox/jquery.fancybox.css">
+
+  
+<script src="/myBlogs/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/myBlogs/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

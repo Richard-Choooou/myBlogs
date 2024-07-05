@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>使用 c++ 调用 windows 打印 api 进行打印 | Richard Chou</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 c++ 调用 windows 打印 api 进行打印">
+<meta property="og:url" content="http://www.zpblogs.com/2020/06/27/%E4%BD%BF%E7%94%A8-c-%E8%B0%83%E7%94%A8-windows-%E6%89%93%E5%8D%B0-api-%E8%BF%9B%E8%A1%8C%E6%89%93%E5%8D%B0/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：">
+<meta property="og:locale">
+<meta property="og:image" content="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png">
+<meta property="article:published_time" content="2020-06-27T17:37:15.000Z">
+<meta property="article:modified_time" content="2024-07-05T06:59:11.708Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Richard Chou" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/myBlogs/css/style.css">
+
+  
+
+<meta name="generator" content="Hexo 7.0.0-rc1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/myBlogs/" id="logo">Richard Chou</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/myBlogs/">Home</a>
+        
+          <a class="main-nav-link" href="/myBlogs/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://www.zpblogs.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-使用-c-调用-windows-打印-api-进行打印" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/myBlogs/2020/06/27/%E4%BD%BF%E7%94%A8-c-%E8%B0%83%E7%94%A8-windows-%E6%89%93%E5%8D%B0-api-%E8%BF%9B%E8%A1%8C%E6%89%93%E5%8D%B0/" class="article-date">
+  <time datetime="2020-06-27T17:37:15.000Z" itemprop="datePublished">2020-06-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      使用 c++ 调用 windows 打印 api 进行打印
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在近期开发的收银台项目中，需要使用打印机进行小票打印，打印流程的时序图如下所示：</p>
+<p><img src="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%89%93%E5%8D%B0%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="输入图片说明"></p>
+<span id="more"></span>
+
+<p>在客户的使用过程中，遇到一个问题，如果机器安装了打印机驱动，那么调用厂商提供的 sdk 进行打印的话，会导致出现小票只打印一半的情况，对此，需要绕过厂商 sdk 使用系统的打印才能够解决这一问题。</p>
+<p>在 web 端打印中，需要调用浏览器打印 api 进行网页打印。这意味着，之前后端编写的esc&#x2F;pos无法复用到，同时，前端还得花费精力来编写 html 以及css 来完成打印内容的排版，这无疑增加了复杂度以及工作量。正打算开始时，得到高人指点。</p>
+<blockquote>
+<p>可以使用 windows api 进行打印</p>
+</blockquote>
+<p>具体参见<a href="https://support.microsoft.com/zh-cn/help/138594/howto-send-raw-data-to-a-printer-by-using-the-win32-api">这篇文档</a></p>
+<p>于是开始这方面的研究，功夫不负有心人，使用 windows api 完成了系统的打印，于是编写这篇文章记录踩过的坑。</p>
+<p>首先看看如何进行打印：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">RawDataToPrinter</span><span class="params">(LPSTR szPrinterName, LPBYTE lpData, DWORD dwCount)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HANDLE     hPrinter;</span><br><span class="line">    DOC_INFO_1 DocInfo;</span><br><span class="line">    DWORD      dwJob;</span><br><span class="line">    DWORD      dwBytesWritten;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Need a handle to the printer.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">OpenPrinter</span>(szPrinterName, &amp;hPrinter, <span class="literal">NULL</span>)) &#123;</span><br><span class="line">        <span class="type">int</span> y = <span class="built_in">GetLastError</span>();</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;openFail&quot;</span> &lt;&lt; y &lt;&lt; endl;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Fill in the structure with info about this &quot;document.&quot;</span></span><br><span class="line"></span><br><span class="line">    DocInfo.pDocName = <span class="built_in">LPSTR</span>(<span class="string">&quot;My Document\0&quot;</span>);</span><br><span class="line">    DocInfo.pOutputFile = <span class="literal">NULL</span>;</span><br><span class="line">    DocInfo.pDatatype = <span class="literal">NULL</span>; <span class="comment">// LPWSTR(&quot;RAW\0&quot;);</span></span><br><span class="line">    <span class="comment">// Inform the spooler the document is beginning.</span></span><br><span class="line">    <span class="keyword">if</span> ((dwJob = <span class="built_in">StartDocPrinter</span>(hPrinter, <span class="number">1</span>, (LPBYTE)&amp;DocInfo)) == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> x = <span class="built_in">GetLastError</span>();</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;StartDocPrinter Fail&quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Start a page.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">StartPagePrinter</span>(hPrinter))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">EndDocPrinter</span>(hPrinter);</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Send the data to the printer.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">WritePrinter</span>(hPrinter, lpData, dwCount, &amp;dwBytesWritten))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">EndPagePrinter</span>(hPrinter);</span><br><span class="line">        <span class="built_in">EndDocPrinter</span>(hPrinter);</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// End the page.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">EndPagePrinter</span>(hPrinter))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">EndDocPrinter</span>(hPrinter);</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Inform the spooler that the document is ending.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">EndDocPrinter</span>(hPrinter))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Tidy up the printer handle.</span></span><br><span class="line">    <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">    <span class="comment">// Check to see if correct number of bytes were written.</span></span><br><span class="line">    <span class="keyword">if</span> (dwBytesWritten != dwCount)</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<a href="https://docs.microsoft.com/en-us/windows/win32/printdocs/openprinter">文档</a>中提到，打开打印机时”<strong>OpenPrinter</strong>“可以传入 null 以使用本地打印服务，因为不知道打印机名称，于是就传入了 null，结果在 <strong>StartDocPrinter</strong> 时一直提示失败，后来了解到使用 <strong>GetLastError</strong> 可以查看 error code，得到错误码后一<a href="https://docs.microsoft.com/zh-cn/windows/win32/debug/system-error-codes--1700-3999-?redirectedfrom=MSDN">对照</a>，发现是 handle 是无效的，也就意味这 <strong>OpenPrinter</strong> 这一步骤没有打开需要的打印机。于是尝试使用 设备与打印机中的打印机名称，还真就连上了，成功调用打印服务。</p>
+<p>但客户电脑上的打印机名称是不固定的，不能使用固定打印机名称，所以得拿到已经连接了的打印机列表，于是搜索到了 <strong>EnumPrinters</strong> 这一api，具体用法如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">getPrinterList</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    PRINTER_INFO_2* printerList;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> size;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> pcbNeeded;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> pcReturned;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">EnumPrinters</span>(PRINTER_ENUM_LOCAL, <span class="literal">NULL</span>, <span class="number">2</span>, <span class="literal">NULL</span>, <span class="number">0</span>, &amp;pcbNeeded, &amp;pcReturned);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((printerList = (PRINTER_INFO_2*)<span class="built_in">malloc</span>(pcbNeeded)) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">EnumPrinters</span>(PRINTER_ENUM_LOCAL, <span class="literal">NULL</span>, <span class="number">2</span>, (LPBYTE)printerList, pcbNeeded, &amp;pcbNeeded, &amp;pcReturned)) &#123;</span><br><span class="line">        <span class="built_in">free</span>(printerList);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; (<span class="type">int</span>)pcReturned; i++) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="function">string <span class="title">printName</span><span class="params">(printerList[i].pPrinterName)</span></span>;</span><br><span class="line">        <span class="keyword">if</span> (printerList[i].Attributes &amp; PRINTER_ATTRIBUTE_NETWORK) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;网络打印机&quot;</span> &lt;&lt; printName &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;本地打印机&quot;</span> &lt;&lt; printName &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;number &quot;</span> &lt;&lt; pcReturned &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过这一方式，的确获取到了系统中可用的打印机，可是拿到可用的打印机后还是有一个问题：“如何知道哪一个是小票打印机”?</p>
+<p>为此又进行了搜索，又找到了一个 api <strong>GetDefaultPrinter</strong>，用法如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">string <span class="title">getDefaultPrinterName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    DWORD size = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">GetDefaultPrinter</span>(<span class="literal">NULL</span>, &amp;size);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (size) &#123;</span><br><span class="line">        TCHAR* buffer = <span class="keyword">new</span> TCHAR[size];</span><br><span class="line">        <span class="built_in">GetDefaultPrinter</span>(buffer, &amp;size);</span><br><span class="line">        <span class="function">string <span class="title">printerName</span><span class="params">(buffer)</span></span>;</span><br><span class="line">        <span class="keyword">return</span> printerName;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过此方法获取到系统默认打印机，客户只需要设置默认的打印机为小票打印机就完美解决问题了。</p>
+<p>以下是完整代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;node.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;base64.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> v8::FunctionCallbackInfo;</span><br><span class="line"><span class="keyword">using</span> v8::Isolate;</span><br><span class="line"><span class="keyword">using</span> v8::Local;</span><br><span class="line"><span class="keyword">using</span> v8::NewStringType;</span><br><span class="line"><span class="keyword">using</span> v8::Object;</span><br><span class="line"><span class="keyword">using</span> v8::String;</span><br><span class="line"><span class="keyword">using</span> v8::Value;</span><br><span class="line"><span class="keyword">using</span> v8::Integer;</span><br><span class="line"><span class="keyword">using</span> v8::Int8Array;</span><br><span class="line"></span><br><span class="line"><span class="function">BOOL <span class="title">RawDataToPrinter</span><span class="params">(LPSTR szPrinterName, LPBYTE lpData, DWORD dwCount)</span></span>;</span><br><span class="line"><span class="function">string <span class="title">getDefaultPrinterName</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">localPrintRawData</span><span class="params">(<span class="type">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> </span>&#123;</span><br><span class="line">    Isolate* isolate = args.<span class="built_in">GetIsolate</span>();</span><br><span class="line">    Local&lt;v8::Context&gt; context = isolate-&gt;<span class="built_in">GetCurrentContext</span>();</span><br><span class="line">    v8::<span class="function">String::Utf8Value <span class="title">portString</span><span class="params">(isolate, args[<span class="number">0</span>])</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">base64Str</span><span class="params">(*portString)</span></span>;</span><br><span class="line"></span><br><span class="line">    vector&lt;BYTE&gt; bytes = <span class="built_in">base64_decode</span>(base64Str);</span><br><span class="line">    <span class="type">char</span>* buffer = <span class="keyword">new</span> <span class="type">char</span>[bytes.<span class="built_in">size</span>()];</span><br><span class="line">    <span class="built_in">copy</span>(bytes.<span class="built_in">begin</span>(), bytes.<span class="built_in">end</span>(), buffer);</span><br><span class="line">    string printerName = <span class="built_in">getDefaultPrinterName</span>();</span><br><span class="line">    <span class="keyword">if</span> (printerName.<span class="built_in">size</span>() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        printerName += <span class="string">&quot;\0&quot;</span>;</span><br><span class="line">        <span class="function">wstring <span class="title">ws</span><span class="params">(printerName.begin(), printerName.end())</span></span>;</span><br><span class="line">        <span class="built_in">RawDataToPrinter</span>(<span class="built_in">const_cast</span>&lt;<span class="type">char</span>*&gt;(printerName.<span class="built_in">c_str</span>()), &amp;bytes[<span class="number">0</span>], bytes.<span class="built_in">size</span>());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;no printer&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">BOOL <span class="title">RawDataToPrinter</span><span class="params">(LPSTR szPrinterName, LPBYTE lpData, DWORD dwCount)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HANDLE     hPrinter;</span><br><span class="line">    DOC_INFO_1 DocInfo;</span><br><span class="line">    DWORD      dwJob;</span><br><span class="line">    DWORD      dwBytesWritten;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Need a handle to the printer.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">OpenPrinter</span>(szPrinterName, &amp;hPrinter, <span class="literal">NULL</span>)) &#123;</span><br><span class="line">        <span class="type">int</span> y = <span class="built_in">GetLastError</span>();</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;openFial&quot;</span> &lt;&lt; y &lt;&lt; endl;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Fill in the structure with info about this &quot;document.&quot;</span></span><br><span class="line"></span><br><span class="line">    DocInfo.pDocName = <span class="built_in">LPSTR</span>(<span class="string">&quot;My Document\0&quot;</span>);</span><br><span class="line">    DocInfo.pOutputFile = <span class="literal">NULL</span>;</span><br><span class="line">    DocInfo.pDatatype = <span class="literal">NULL</span>; <span class="comment">// LPWSTR(&quot;RAW\0&quot;);</span></span><br><span class="line">    <span class="comment">// Inform the spooler the document is beginning.</span></span><br><span class="line">    <span class="keyword">if</span> ((dwJob = <span class="built_in">StartDocPrinter</span>(hPrinter, <span class="number">1</span>, (LPBYTE)&amp;DocInfo)) == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> x = <span class="built_in">GetLastError</span>();</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;StartDocPrinter Fial&quot;</span> &lt;&lt; x &lt;&lt; endl;</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Start a page.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">StartPagePrinter</span>(hPrinter))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">EndDocPrinter</span>(hPrinter);</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Send the data to the printer.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">WritePrinter</span>(hPrinter, lpData, dwCount, &amp;dwBytesWritten))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">EndPagePrinter</span>(hPrinter);</span><br><span class="line">        <span class="built_in">EndDocPrinter</span>(hPrinter);</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// End the page.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">EndPagePrinter</span>(hPrinter))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">EndDocPrinter</span>(hPrinter);</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Inform the spooler that the document is ending.</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">EndDocPrinter</span>(hPrinter))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Tidy up the printer handle.</span></span><br><span class="line">    <span class="built_in">ClosePrinter</span>(hPrinter);</span><br><span class="line">    <span class="comment">// Check to see if correct number of bytes were written.</span></span><br><span class="line">    <span class="keyword">if</span> (dwBytesWritten != dwCount)</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">getPrinterList</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    PRINTER_INFO_2* printerList;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> size;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> pcbNeeded;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> pcReturned;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">EnumPrinters</span>(PRINTER_ENUM_LOCAL, <span class="literal">NULL</span>, <span class="number">2</span>, <span class="literal">NULL</span>, <span class="number">0</span>, &amp;pcbNeeded, &amp;pcReturned);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((printerList = (PRINTER_INFO_2*)<span class="built_in">malloc</span>(pcbNeeded)) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">EnumPrinters</span>(PRINTER_ENUM_LOCAL, <span class="literal">NULL</span>, <span class="number">2</span>, (LPBYTE)printerList, pcbNeeded, &amp;pcbNeeded, &amp;pcReturned)) &#123;</span><br><span class="line">        <span class="built_in">free</span>(printerList);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; (<span class="type">int</span>)pcReturned; i++) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="function">string <span class="title">printName</span><span class="params">(printerList[i].pPrinterName)</span></span>;</span><br><span class="line">        <span class="keyword">if</span> (printerList[i].Attributes &amp; PRINTER_ATTRIBUTE_NETWORK) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;网络打印机&quot;</span> &lt;&lt; printName &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;本地打印机&quot;</span> &lt;&lt; printName &lt;&lt; endl;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;number &quot;</span> &lt;&lt; pcReturned &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">string <span class="title">getDefaultPrinterName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    DWORD size = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">GetDefaultPrinter</span>(<span class="literal">NULL</span>, &amp;size);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (size) &#123;</span><br><span class="line">        TCHAR* buffer = <span class="keyword">new</span> TCHAR[size];</span><br><span class="line">        <span class="built_in">GetDefaultPrinter</span>(buffer, &amp;size);</span><br><span class="line">        <span class="function">string <span class="title">printerName</span><span class="params">(buffer)</span></span>;</span><br><span class="line">        <span class="keyword">return</span> printerName;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Initialize</span><span class="params">(Local&lt;Object&gt; exports)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">NODE_SET_METHOD</span>(exports, <span class="string">&quot;localPrintRawData&quot;</span>, localPrintRawData);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">NODE_MODULE</span>(zq_device, Initialize)</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<p><a href="https://support.microsoft.com/zh-cn/help/138594/howto-send-raw-data-to-a-printer-by-using-the-win32-api">https://support.microsoft.com/zh-cn/help/138594/howto-send-raw-data-to-a-printer-by-using-the-win32-api</a></p>
+<p><a href="https://docs.microsoft.com/en-us/windows/win32/printdocs/openprinter">https://docs.microsoft.com/en-us/windows/win32/printdocs/openprinter</a></p>
+<p><a href="https://stackoverflow.com/questions/6682286/understanding-a-c-sample-printers-handles-strings">https://stackoverflow.com/questions/6682286/understanding-a-c-sample-printers-handles-strings</a></p>
+<p><a href="https://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/a27c6615-9452-44b1-90fc-9b91b15f0e50/openprinter-returing-errorinvalidprintername1801-when-called-with?forum=windowsgeneraldevelopmentissues">https://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/a27c6615-9452-44b1-90fc-9b91b15f0e50/openprinter-returing-errorinvalidprintername1801-when-called-with?forum=windowsgeneraldevelopmentissues</a></p>
+<p><a href="https://social.msdn.microsoft.com/Forums/vstudio/en-US/de7c55a1-ae63-49c9-a87a-fe3bf32822e4/how-to-use-the-enumprinters-function-to-be-able-to-classify-installed-printers-into-quot-network?forum=vclanguage">https://social.msdn.microsoft.com/Forums/vstudio/en-US/de7c55a1-ae63-49c9-a87a-fe3bf32822e4/how-to-use-the-enumprinters-function-to-be-able-to-classify-installed-printers-into-quot-network?forum=vclanguage</a></p>
+<p><a href="https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-">https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-</a></p>
+<p><a href="https://docs.microsoft.com/zh-cn/windows/win32/debug/system-error-codes--1700-3999-?redirectedfrom=MSDN">https://docs.microsoft.com/zh-cn/windows/win32/debug/system-error-codes--1700-3999-?redirectedfrom=MSDN</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://www.zpblogs.com/2020/06/27/%E4%BD%BF%E7%94%A8-c-%E8%B0%83%E7%94%A8-windows-%E6%89%93%E5%8D%B0-api-%E8%BF%9B%E8%A1%8C%E6%89%93%E5%8D%B0/" data-id="cly8chws1000kb6q6h2ar3zdt" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/myBlogs/2020/06/28/%E5%A4%A7%E5%8D%8E%E6%9D%A1%E7%A0%81%E7%A7%A4%E5%AF%B9%E6%8E%A5%E6%80%BB%E7%BB%93/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          大华条码秤对接经验总结
+        
+      </div>
+    </a>
+  
+  
+    <a href="/myBlogs/2020/04/18/%E7%BC%96%E5%86%99nodejs%20c++%20%E6%89%A9%E5%B1%95/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">打包 nodejs c++ 扩展环境安装</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/electron/" rel="tag">electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react/" rel="tag">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/react-webpack/" rel="tag">react webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/vue/" rel="tag">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/webpack-vue/" rel="tag">webpack vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" rel="tag">好文系列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag">系统架构</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/myBlogs/tags/electron/" style="font-size: 10px;">electron</a> <a href="/myBlogs/tags/react/" style="font-size: 10px;">react</a> <a href="/myBlogs/tags/react-webpack/" style="font-size: 15px;">react webpack</a> <a href="/myBlogs/tags/vue/" style="font-size: 10px;">vue</a> <a href="/myBlogs/tags/webpack/" style="font-size: 20px;">webpack</a> <a href="/myBlogs/tags/webpack-vue/" style="font-size: 10px;">webpack vue</a> <a href="/myBlogs/tags/%E5%A5%BD%E6%96%87%E7%B3%BB%E5%88%97/" style="font-size: 10px;">好文系列</a> <a href="/myBlogs/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" style="font-size: 10px;">系统架构</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/09/">September 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2023/05/">May 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/07/">July 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/08/">August 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/myBlogs/archives/2017/03/">March 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/myBlogs/2023/09/26/%E6%8A%BD%E8%B1%A1%E7%9A%84admin/">抽象的admin</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/09/14/%E5%89%8D%E7%AB%AF%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%90%AF%E8%92%99/">前端面向对象抽象思维启蒙</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">更优雅的编写后台管理系统</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/07/12/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%B2%BE%E5%87%86%E5%9D%90%E6%A0%87%E5%AE%9A%E4%BD%8D/">远程协作-精准坐标定位</a>
+          </li>
+        
+          <li>
+            <a href="/myBlogs/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/">远程协作-线上多人协作面向对象设计</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 Richard Chou<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/myBlogs/" class="mobile-nav-link">Home</a>
+  
+    <a href="/myBlogs/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/myBlogs/fancybox/jquery.fancybox.css">
+
+  
+<script src="/myBlogs/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/myBlogs/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
