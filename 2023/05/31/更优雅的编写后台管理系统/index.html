@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="编写管理系统存在的问题通常的管理系统开发，会使用 vue 或者 react 等框架结合第三方优质的开源 UI 库，例如 ant design 或者 element ui。亦或者是在此二者的基础上进一步封装的 ant design pro 和 vue element admin 等框架。此类框架的确减轻了项目基础建设的负担，但是管理模块还是得编写大量的增删改查等代码，而在编写增删改查时会有以下效率低">
+<meta property="og:type" content="article">
+<meta property="og:title" content="更优雅的编写后台管理系统">
+<meta property="og:url" content="http://example.com/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="编写管理系统存在的问题通常的管理系统开发，会使用 vue 或者 react 等框架结合第三方优质的开源 UI 库，例如 ant design 或者 element ui。亦或者是在此二者的基础上进一步封装的 ant design pro 和 vue element admin 等框架。此类框架的确减轻了项目基础建设的负担，但是管理模块还是得编写大量的增删改查等代码，而在编写增删改查时会有以下效率低">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/abdulle-sabaf/cathunu-bhallifa/assets/23492006/1fe53a46-d383-4c59-afd4-142c766401b5">
+<meta property="og:image" content="https://github.com/webfactory/ssh-agent/assets/23492006/462bfeee-0ec0-402b-a6b7-5d729e3853b6">
+<meta property="og:image" content="https://github.com/ant-design/ant-design/assets/23492006/d692a8b7-7f9b-453a-b81b-56f54ea7e631">
+<meta property="og:image" content="https://github.com/ant-design/ant-design/assets/23492006/1e3c3996-d81e-4b49-91d9-56d675501dda">
+<meta property="og:image" content="https://github.com/ant-design/ant-design/assets/23492006/9637b0cd-3616-4c01-a731-f7dca0546624">
+<meta property="og:image" content="https://github.com/ant-design/ant-design/assets/23492006/cbe48982-9b59-4d09-8819-ac89aac0e7eb">
+<meta property="og:image" content="https://github.com/ant-design/ant-design/assets/23492006/4070113a-b400-4416-a1f2-bcea579453b9">
+<meta property="og:image" content="https://github.com/ant-design/ant-design/assets/23492006/ba5008cf-7cfa-4277-9a4a-2025d72e000e">
+<meta property="og:image" content="https://github.com/ant-design/ant-design/assets/23492006/f1badc64-a7e6-4626-8104-758a98f0509b">
+<meta property="og:image" content="https://github.com/webfactory/ssh-agent/assets/23492006/6a2455b7-219c-4d82-aa93-f980c98e2707">
+<meta property="og:image" content="https://github.com/webfactory/ssh-agent/assets/23492006/807feb3c-b8ba-4ad5-8129-7e9d8749b042">
+<meta property="article:published_time" content="2023-05-31T15:34:52.000Z">
+<meta property="article:modified_time" content="2024-09-13T03:12:58.264Z">
+<meta property="article:author" content="Richard Chou">
+<meta property="article:tag" content="系统架构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/abdulle-sabaf/cathunu-bhallifa/assets/23492006/1fe53a46-d383-4c59-afd4-142c766401b5">
+
+<link rel="canonical" href="http://example.com/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>更优雅的编写后台管理系统 | Richard Chou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Richard Chou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Richard Chou's blogs</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/31/%E6%9B%B4%E4%BC%98%E9%9B%85%E7%9A%84%E7%BC%96%E5%86%99%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="Blogs for Richard Chou">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          更优雅的编写后台管理系统
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-31 15:34:52" itemprop="dateCreated datePublished" datetime="2023-05-31T15:34:52+00:00">2023-05-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-13 03:12:58" itemprop="dateModified" datetime="2024-09-13T03:12:58+00:00">2024-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="编写管理系统存在的问题"><a href="#编写管理系统存在的问题" class="headerlink" title="编写管理系统存在的问题"></a>编写管理系统存在的问题</h1><p>通常的管理系统开发，会使用 vue 或者 react 等框架结合第三方优质的开源 UI 库，例如 ant design 或者 element ui。亦或者是在此二者的基础上进一步封装的 ant design pro 和 vue element admin 等框架。此类框架的确减轻了项目基础建设的负担，但是管理模块还是得编写大量的增删改查等代码，而在编写增删改查时会有以下效率低下且重复的问题存在。</p>
+<span id="more"></span>
+
+<h2 id="增"><a href="#增" class="headerlink" title="增"></a>增</h2><p>“增”，需要将接口的表单字段翻译成对应的表单元素，同时需要编写对应的校验，提交表单时调用对应接口，新增成功后刷新表格等重复逻辑。</p>
+<h2 id="删"><a href="#删" class="headerlink" title="删"></a>删</h2><p>“删”，需要在点击删除按钮后打开警告窗口提示用户删除，用户同意后调用接口进行删除，删除后调用接口刷新表格。</p>
+<h2 id="改"><a href="#改" class="headerlink" title="改"></a>改</h2><p>“改”，通常情况下可以复用新增的表单，但是还是需要编写将数据回填表单，调用接口，刷新表格等重复逻辑。</p>
+<h2 id="查"><a href="#查" class="headerlink" title="查"></a>查</h2><p>“查”，会有更多要处理的重复逻辑，例如定义表格字段、处理筛选逻辑、处理分页逻辑、处理排序逻辑、调用接口等。</p>
+<p>通过上述描述，可以知道一个管理系统中的增删改查存在大量重复逻辑，本文旨在提出一种对于前端来说“新”的设计思想，解决编写增删改查效率低下的问题。</p>
+<h1 id="对一个管理界面的抽象"><a href="#对一个管理界面的抽象" class="headerlink" title="对一个管理界面的抽象"></a>对一个管理界面的抽象</h1><p>想要提高增删改查的效率，那么需要对管理界面进行抽象，发现什么是通用的逻辑，并将之封装，才能提升效率。</p>
+<p>一个管理界面在通常情况下，字段有以下三种表现。</p>
+<ol>
+<li><strong>表单里的数据，大部分会显示在表格中</strong>。</li>
+<li><strong>表格中的数据，在表单中也会有同样的体现</strong>。</li>
+<li><strong>表格中的字段，部分也会体现在筛选栏中</strong>。</li>
+</ol>
+<p>通过这一现象，可以抽离出一个界面中通用的字段信息，通过这一份信息去渲染表单、表格以及筛选，那么不就减轻了不少工作量。</p>
+<p><img src="https://github.com/abdulle-sabaf/cathunu-bhallifa/assets/23492006/1fe53a46-d383-4c59-afd4-142c766401b5" alt="加载失败，需科学上网"></p>
+<p>对此，可以抽象出 ModelForm，即表单模型。</p>
+<h2 id="ModelForm"><a href="#ModelForm" class="headerlink" title="ModelForm"></a>ModelForm</h2><p>在一个表单中，大致可抽象为两种基础类型字段，输入类型，选择类型。输入类型可以理解为不确定的输入项，选择类型是确定的输入项，以此约束用户输入。</p>
+<p>输入类型因为不确定性，可以表现为各种输入控件，例如 日期、时间、富文本、地图等各种控件，满足管理系统需求。</p>
+<p>选择类型是选项固定的字段，数据来源可以为本地，或者是接口的远端数据。</p>
+<p>通过实现以上描述，可以得到如下的一个模板代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">StudentModelForm</span> <span class="keyword">extends</span> <span class="title class_ inherited__">ModelForm</span> &#123;</span><br><span class="line">    name = <span class="title class_">ModelForm</span>.<span class="title class_">InputField</span>(&#123;</span><br><span class="line">        <span class="attr">verboseName</span>: <span class="string">&#x27;姓名&#x27;</span></span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    birthday = <span class="title class_">ModelForm</span>.<span class="title class_">InputField</span>(&#123;</span><br><span class="line">        <span class="attr">verboseName</span>: <span class="string">&#x27;出生日期&#x27;</span>,</span><br><span class="line">        <span class="attr">widget</span>: <span class="title class_">DatePickerWidget</span></span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    gender = <span class="title class_">ModelForm</span>.<span class="title class_">ChoicesField</span>(&#123;</span><br><span class="line">        <span class="attr">verboseName</span>: <span class="string">&#x27;性别&#x27;</span>,</span><br><span class="line">        <span class="attr">choices</span>: [&#123;</span><br><span class="line">            <span class="attr">label</span>: <span class="string">&#x27;男&#x27;</span>,</span><br><span class="line">            <span class="attr">value</span>: <span class="number">1</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="attr">label</span>: <span class="string">&#x27;女&#x27;</span>,</span><br><span class="line">            <span class="attr">value</span>: <span class="number">0</span></span><br><span class="line">        &#125;]</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    classId = <span class="title class_">ModelForm</span>.<span class="title class_">ChoicesField</span>(&#123;</span><br><span class="line">        <span class="attr">verboseName</span>: <span class="string">&#x27;班级&#x27;</span>,</span><br><span class="line">        <span class="attr">choices</span>: [&#123;</span><br><span class="line">            <span class="attr">label</span>: <span class="string">&#x27;三年一班&#x27;</span>,</span><br><span class="line">            <span class="attr">value</span>: <span class="number">1</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="attr">label</span>: <span class="string">&#x27;三年二班&#x27;</span>,</span><br><span class="line">            <span class="attr">value</span>: <span class="number">2</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="attr">label</span>: <span class="string">&#x27;三年三班&#x27;</span>,</span><br><span class="line">            <span class="attr">value</span>: <span class="number">3</span></span><br><span class="line">        &#125;]</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    solo = <span class="title class_">ModelForm</span>.<span class="title class_">BooleanField</span>(&#123;</span><br><span class="line">        <span class="attr">verboseName</span>: <span class="string">&#x27;是否是独生子女&#x27;</span></span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    info = <span class="title class_">ModelForm</span>.<span class="title class_">InputField</span>(&#123;</span><br><span class="line">        <span class="attr">verboseName</span>: <span class="string">&#x27;信息&#x27;</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上述模板代码的描述，可以渲染出如下的一个表单界面：</p>
+<p><img src="https://github.com/webfactory/ssh-agent/assets/23492006/462bfeee-0ec0-402b-a6b7-5d729e3853b6" alt="图片加载失败，需科学上网"></p>
+<h2 id="ModelAdmin"><a href="#ModelAdmin" class="headerlink" title="ModelAdmin"></a>ModelAdmin</h2><p>只有表单是不够的，还需要筛选功能以及表格展示，才能形成一个基础的管理界面。因为 ModelForm 已经包含了足够多的信息来表述表单，那么渲染表格也是可以利用其中的信息，为此封装 ModelAdmin，它是以 ModelForm 为元数据的一个渲染组件，代码示例如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">App</span> <span class="keyword">extends</span> <span class="title class_ inherited__">ModelAdmin</span>&lt;any, any&gt; &#123;</span><br><span class="line">    filters = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>]</span><br><span class="line">    listDisplay = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>, <span class="string">&#x27;info&#x27;</span>]</span><br><span class="line">    <span class="title function_">getModel</span>(): <span class="title function_">new</span> () =&gt; <span class="title class_">ModelForm</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">StudentModelForm</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>仅需 7 行代码，既完成了筛选的渲染，也完成了表格的渲染。</p>
+<p><img src="https://github.com/ant-design/ant-design/assets/23492006/d692a8b7-7f9b-453a-b81b-56f54ea7e631" alt="图片加载失败，需科学上网"></p>
+<p>同时它还是管理界面的“驱动器”，通过暴露出的生命周期，实现管理界面各个模块的联动，生命周期如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">App</span> <span class="keyword">extends</span> <span class="title class_ inherited__">ModelAdmin</span>&lt;any, any&gt; &#123;</span><br><span class="line">    filters = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>]</span><br><span class="line">    listDisplay = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>, <span class="string">&#x27;info&#x27;</span>]</span><br><span class="line">    <span class="title function_">getModel</span>(): <span class="title function_">new</span> () =&gt; <span class="title class_">ModelForm</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">StudentModelForm</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="title function_">getTableDataSource</span>(<span class="attr">pagination</span>: <span class="title class_">TemplateTablePagination</span>, filters?: any, orders?: any): <span class="title class_">Promise</span>&lt;<span class="title class_">App</span>.<span class="property">Pagination</span>&lt;any&gt;&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="title function_">onFormAddSubmit</span>(<span class="attr">composeValues</span>: any, <span class="attr">formValues</span>: any, <span class="attr">initialValues</span>: any): <span class="title class_">Promise</span>&lt;<span class="keyword">void</span>&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="title function_">onFormUpdateSubmit</span>(<span class="attr">composeValues</span>: any, <span class="attr">formValues</span>: any, <span class="attr">initialValues</span>: any): <span class="title class_">Promise</span>&lt;<span class="keyword">void</span>&gt; &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="title function_">getaddFormInitialValues</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="title function_">getUpdateFormInitialValues</span>(<span class="attr">record</span>: any): <span class="title class_">Promise</span>&lt;any&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="title function_">onConfirmDeleteRow</span>(<span class="attr">record</span>: any): <span class="title class_">Promise</span>&lt;<span class="keyword">void</span>&gt; &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="getTableDataSource"><a href="#getTableDataSource" class="headerlink" title="getTableDataSource"></a>getTableDataSource</h3><p>getTableDataSource 生命周期用于获取表格数据，当表格需要刷新时即会调用。例如，新增、修改、删除了数据，亦或者时进行了切页，筛选、排序等操作，因此getTableDataSource 生命周期能够接收分页，筛选以及排序等数据作为参数进行使用。</p>
+<h3 id="onFormAddSubmit"><a href="#onFormAddSubmit" class="headerlink" title="onFormAddSubmit"></a>onFormAddSubmit</h3><p>onFormAddSubmit 生命周期用于新增表单提交并通过校验后的操作，该接口接收表单数据以及表单初始化的数据作为参数，通过此生命周期调用创建接口进行新增数据的创建，接口调用成功会同步更新表格数据。</p>
+<h3 id="onFormUpdateSubmit"><a href="#onFormUpdateSubmit" class="headerlink" title="onFormUpdateSubmit"></a>onFormUpdateSubmit</h3><p>onFormUpdateSubmit 生命周期用于更新表单提交并通过校验后的操作，该接口接收表单数据以及表单初始化数据作为参数，通过此生命周期调用更新接口进行数据的更新，接口调用成功会同步更新表格数据。</p>
+<h3 id="getaddFormInitialValues"><a href="#getaddFormInitialValues" class="headerlink" title="getaddFormInitialValues"></a>getaddFormInitialValues</h3><p>getaddFormInitialValues 生命周期用于打开新增表单设置初始数据，该函数返回的数据会作为初始表单数据填入。</p>
+<h3 id="getUpdateFormInitialValues"><a href="#getUpdateFormInitialValues" class="headerlink" title="getUpdateFormInitialValues"></a>getUpdateFormInitialValues</h3><p>getUpdateFormInitialValues 生命周期用于打开更新表单设置初始数据，因为更新数据通常需要做数据回填，因此该函数会接收待编辑的那一行数据作为参数，返回值会被填入表单，此函数是一个异步函数，因此可以在此调用接口，获取详细的数据进行回填，亦或者可以在此做数据修正。</p>
+<h3 id="onConfirmDeleteRow"><a href="#onConfirmDeleteRow" class="headerlink" title="onConfirmDeleteRow"></a>onConfirmDeleteRow</h3><p>onConfirmDeleteRow 生命周期用于当用户点击确认删除按钮后的操作，该函数接收删除的那一列数据作为参数。</p>
+<p>ModelAdmin 会在内部维护当前管理界面各个组件的状态，同时利用暴露的生命周期进行管理界面的差异化。</p>
+<p>通过 ModelAdmin 可以减少大量的逻辑编写，例如点击新增打开表单、点击更新回填数据、点击删除打开提示、点击切页进行页面切换、点击搜索调用接口等逻辑编写。</p>
+<p><strong>真正实现配置化形式编写管理界面</strong>。</p>
+<h2 id="Widget"><a href="#Widget" class="headerlink" title="Widget"></a>Widget</h2><p>管理界面因为业务繁杂，通常需要各种不同的控件，ModelForm 也需要对此进行适配，为此抽象了 Widget 概念，一个 FormField 可以使用任何 Widget，只要它在对应的业务场景是合理的，例如上述的性别，ChoiceField 默认是一个下拉选择。</p>
+<p><img src="https://github.com/ant-design/ant-design/assets/23492006/1e3c3996-d81e-4b49-91d9-56d675501dda" alt="加载失败，需科学上网"></p>
+<p>在此体验可能不好，因此我们可以修改为 RadioWidget，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">gender = ModelForm.ChoicesField(&#123;</span><br><span class="line">    verboseName: &#x27;性别&#x27;,</span><br><span class="line">    choices: [&#123;</span><br><span class="line">        label: &#x27;男&#x27;,</span><br><span class="line">        value: 1</span><br><span class="line">    &#125;, &#123;</span><br><span class="line">        label: &#x27;女&#x27;,</span><br><span class="line">        value: 0</span><br><span class="line">    &#125;],</span><br><span class="line">    widget: RadioWidget</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>最终渲染如下：</p>
+<p><img src="https://github.com/ant-design/ant-design/assets/23492006/9637b0cd-3616-4c01-a731-f7dca0546624" alt="加载失败，需科学上网"></p>
+<p>信息一栏使用输入框过于单调，我们可以使用<strong>富文本组件</strong>来丰富它。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">info = <span class="title class_">ModelForm</span>.<span class="title class_">InputField</span>(&#123;</span><br><span class="line">    <span class="attr">verboseName</span>: <span class="string">&#x27;信息&#x27;</span>,</span><br><span class="line">    <span class="attr">widget</span>: <span class="title class_">RichTextWidget</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/ant-design/ant-design/assets/23492006/cbe48982-9b59-4d09-8819-ac89aac0e7eb" alt="图片加载失败，需科学上网"></p>
+<p>需要上传资料，我们可以使用 UploadWidget。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">doc = <span class="title class_">ModelForm</span>.<span class="title class_">InputField</span>(&#123;</span><br><span class="line">    <span class="attr">verboseName</span>: <span class="string">&#x27;资料&#x27;</span>,</span><br><span class="line">    <span class="attr">widget</span>: <span class="title class_">UploadWidget</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/ant-design/ant-design/assets/23492006/4070113a-b400-4416-a1f2-bcea579453b9" alt="图片加载失败，需科学上网"></p>
+<h1 id="Q-A"><a href="#Q-A" class="headerlink" title="Q&#x2F;A"></a>Q&#x2F;A</h1><h2 id="表格需要定制该怎么办"><a href="#表格需要定制该怎么办" class="headerlink" title="表格需要定制该怎么办"></a>表格需要定制该怎么办</h2><p>表格基于 ant design Table 进行开发，拥有完全的 ant design table 能力，只需要使用 Display 装饰器即可。</p>
+<p>新增 <strong>action</strong> 列用于操作。</p>
+<p>listDisplay 中新增 action 字段</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">listDisplay = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>, <span class="string">&#x27;info&#x27;</span>, <span class="string">&#x27;action&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>同时使用 Display 装饰器进行描述</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">App</span> <span class="keyword">extends</span> <span class="title class_ inherited__">ModelAdmin</span>&lt;any, any&gt; &#123;</span><br><span class="line">    filters = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>]</span><br><span class="line">    listDisplay = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>, <span class="string">&#x27;info&#x27;</span>, <span class="string">&#x27;action&#x27;</span>]</span><br><span class="line">    <span class="title function_">getModel</span>(): <span class="title function_">new</span> () =&gt; <span class="title class_">ModelForm</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">StudentModelForm</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @<span class="title class_">Display</span>(&#123;</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;action&#x27;</span>,</span><br><span class="line">        <span class="attr">title</span>: <span class="string">&#x27;操作&#x27;</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="title function_">displayAction</span>(<span class="params">val: any, record: any</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">span</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">className</span>=<span class="string">&quot;ml-2 text-blue-400 cursor-pointer&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-xml">                        this.modifyRowData(record)</span></span><br><span class="line"><span class="language-xml">                    &#125;&#125;&gt;</span></span><br><span class="line"><span class="language-xml">                编辑</span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">span</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">className</span>=<span class="string">&quot;text-red-400 ml-2 cursor-pointer&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-xml">                        this.deleteRowData(record)</span></span><br><span class="line"><span class="language-xml">                    &#125;&#125;&gt;</span></span><br><span class="line"><span class="language-xml">                删除</span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>得到如下结果：</p>
+<p><img src="https://github.com/ant-design/ant-design/assets/23492006/ba5008cf-7cfa-4277-9a4a-2025d72e000e" alt="图片加载失败，需科学上网"></p>
+<h2 id="筛选需要定制？"><a href="#筛选需要定制？" class="headerlink" title="筛选需要定制？"></a>筛选需要定制？</h2><p>使用 SetFilter 装饰器即可，如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">App</span> <span class="keyword">extends</span> <span class="title class_ inherited__">ModelAdmin</span>&lt;any, any&gt; &#123;</span><br><span class="line">    filters = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;parent&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>]</span><br><span class="line">    listDisplay = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>, <span class="string">&#x27;info&#x27;</span>, <span class="string">&#x27;action&#x27;</span>]</span><br><span class="line">    <span class="title function_">getModel</span>(): <span class="title function_">new</span> () =&gt; <span class="title class_">ModelForm</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">StudentModelForm</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @<span class="title class_">SetFilter</span>(&#123;</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;parent&#x27;</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="title function_">filterParent</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">ModelForm</span>.<span class="title class_">InputField</span>(&#123;</span><br><span class="line">            <span class="attr">verboseName</span>: <span class="string">&#x27;家长&#x27;</span>,</span><br><span class="line">            <span class="attr">name</span>: <span class="string">&#x27;parent&#x27;</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/ant-design/ant-design/assets/23492006/f1badc64-a7e6-4626-8104-758a98f0509b" alt="图片加载失败，需科学上网"></p>
+<h2 id="界面需要定制"><a href="#界面需要定制" class="headerlink" title="界面需要定制"></a>界面需要定制</h2><p>ModelAdmin 的本质是一个 react class component，所以重写 render 方法就好了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">App</span> <span class="keyword">extends</span> <span class="title class_ inherited__">ModelAdmin</span>&lt;any, any&gt; &#123;</span><br><span class="line">    filters = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;parent&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>]</span><br><span class="line">    listDisplay = [<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;birthday&#x27;</span>, <span class="string">&#x27;gender&#x27;</span>, <span class="string">&#x27;classId&#x27;</span>, <span class="string">&#x27;solo&#x27;</span>, <span class="string">&#x27;info&#x27;</span>, <span class="string">&#x27;action&#x27;</span>]</span><br><span class="line">    <span class="title function_">getModel</span>(): <span class="title function_">new</span> () =&gt; <span class="title class_">ModelForm</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">StudentModelForm</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="title function_">renderAdminContent</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&quot;flex flex-col&quot;</span> <span class="attr">style</span>=<span class="string">&#123;&#123;</span> <span class="attr">background:</span> &#x27;#<span class="attr">fff</span>&#x27;, <span class="attr">marginBottom:</span> &#x27;<span class="attr">24px</span>&#x27; &#125;&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">            &#123;this.renderFilter()&#125;</span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">className</span>=<span class="string">&quot;text-2xl text-red&quot;</span>&gt;</span>这是一个定制需求<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            &#123;this.renderTable()&#125;</span></span><br><span class="line"><span class="language-xml">            &#123;this.getAddFormTemplate()&#125;</span></span><br><span class="line"><span class="language-xml">            &#123;this.getChangeFormTemplate()&#125;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/webfactory/ssh-agent/assets/23492006/6a2455b7-219c-4d82-aa93-f980c98e2707" alt="图片加载失败，需科学上网"></p>
+<h2 id="选择的数据来自服务器"><a href="#选择的数据来自服务器" class="headerlink" title="选择的数据来自服务器"></a>选择的数据来自服务器</h2><p>RemoteDataChoiceWidget 安排上</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">RemoteClassDataWidget</span> <span class="keyword">extends</span> <span class="title class_ inherited__">RemoteDataChoiceWidget</span>&lt;any, any&gt; &#123;</span><br><span class="line">    <span class="title function_">getRemoteData</span>(): <span class="title class_">Promise</span>&lt;&#123; <span class="attr">label</span>: string; <span class="attr">value</span>: string | number &#125;[]&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">                <span class="title function_">resolve</span>([&#123;</span><br><span class="line">                    <span class="attr">label</span>: <span class="string">&#x27;四年一班&#x27;</span>,</span><br><span class="line">                    <span class="attr">value</span>: <span class="number">1</span></span><br><span class="line">                &#125;, &#123;</span><br><span class="line">                    <span class="attr">label</span>: <span class="string">&#x27;四年二班&#x27;</span>,</span><br><span class="line">                    <span class="attr">value</span>: <span class="number">2</span></span><br><span class="line">                &#125;, &#123;</span><br><span class="line">                    <span class="attr">label</span>: <span class="string">&#x27;四年三班&#x27;</span>,</span><br><span class="line">                    <span class="attr">value</span>: <span class="number">3</span></span><br><span class="line">                &#125;])</span><br><span class="line">            &#125;, <span class="number">1000</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">classId = <span class="title class_">ModelForm</span>.<span class="title class_">InputField</span>(&#123;</span><br><span class="line">    <span class="attr">verboseName</span>: <span class="string">&#x27;班级&#x27;</span>,</span><br><span class="line">    <span class="attr">widget</span>: <span class="title class_">RemoteClassDataWidget</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/webfactory/ssh-agent/assets/23492006/807feb3c-b8ba-4ad5-8129-7e9d8749b042" alt="图片加载失败，需科学上网"></p>
+<h1 id="Django"><a href="#Django" class="headerlink" title="Django"></a>Django</h1><p>以上设计思想源自 Django，一个非常厉害的 python 全栈框架。当然本文还有很多特殊的场景没有表达，但基本都能支持，毕竟 react 如此灵活。如果真有什么场景无法支持到，那不直接手写得了，毕竟这只是一个提升效率的轻量级框架，不会对工程整体造成什么影响。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag"># 系统架构</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/12/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%B2%BE%E5%87%86%E5%9D%90%E6%A0%87%E5%AE%9A%E4%BD%8D/" rel="prev" title="远程协作-精准坐标定位">
+      <i class="fa fa-chevron-left"></i> 远程协作-精准坐标定位
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/09/14/%E5%89%8D%E7%AB%AF%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%90%AF%E8%92%99/" rel="next" title="前端面向对象抽象思维启蒙">
+      前端面向对象抽象思维启蒙 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">编写管理系统存在的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A2%9E"><span class="nav-number">1.1.</span> <span class="nav-text">增</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A0"><span class="nav-number">1.2.</span> <span class="nav-text">删</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%B9"><span class="nav-number">1.3.</span> <span class="nav-text">改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5"><span class="nav-number">1.4.</span> <span class="nav-text">查</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E4%B8%80%E4%B8%AA%E7%AE%A1%E7%90%86%E7%95%8C%E9%9D%A2%E7%9A%84%E6%8A%BD%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">对一个管理界面的抽象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ModelForm"><span class="nav-number">2.1.</span> <span class="nav-text">ModelForm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ModelAdmin"><span class="nav-number">2.2.</span> <span class="nav-text">ModelAdmin</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#getTableDataSource"><span class="nav-number">2.2.1.</span> <span class="nav-text">getTableDataSource</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onFormAddSubmit"><span class="nav-number">2.2.2.</span> <span class="nav-text">onFormAddSubmit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onFormUpdateSubmit"><span class="nav-number">2.2.3.</span> <span class="nav-text">onFormUpdateSubmit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getaddFormInitialValues"><span class="nav-number">2.2.4.</span> <span class="nav-text">getaddFormInitialValues</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getUpdateFormInitialValues"><span class="nav-number">2.2.5.</span> <span class="nav-text">getUpdateFormInitialValues</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onConfirmDeleteRow"><span class="nav-number">2.2.6.</span> <span class="nav-text">onConfirmDeleteRow</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Widget"><span class="nav-number">2.3.</span> <span class="nav-text">Widget</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-A"><span class="nav-number">3.</span> <span class="nav-text">Q&#x2F;A</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A8%E6%A0%BC%E9%9C%80%E8%A6%81%E5%AE%9A%E5%88%B6%E8%AF%A5%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="nav-number">3.1.</span> <span class="nav-text">表格需要定制该怎么办</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%9B%E9%80%89%E9%9C%80%E8%A6%81%E5%AE%9A%E5%88%B6%EF%BC%9F"><span class="nav-number">3.2.</span> <span class="nav-text">筛选需要定制？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%95%8C%E9%9D%A2%E9%9C%80%E8%A6%81%E5%AE%9A%E5%88%B6"><span class="nav-number">3.3.</span> <span class="nav-text">界面需要定制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E7%9A%84%E6%95%B0%E6%8D%AE%E6%9D%A5%E8%87%AA%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">3.4.</span> <span class="nav-text">选择的数据来自服务器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Django"><span class="nav-number">4.</span> <span class="nav-text">Django</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Richard Chou</p>
+  <div class="site-description" itemprop="description">Blogs for Richard Chou</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

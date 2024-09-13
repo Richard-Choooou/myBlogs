@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言最近开始了react的学习，打算开发一款压缩图片的客户端工具练练手，于是开始了electron的学习，这过程中遇到了一些坑，就此记录下来。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="electron 爬坑记">
+<meta property="og:url" content="http://example.com/2018/10/13/electron-%E7%88%AC%E5%9D%91%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言最近开始了react的学习，打算开发一款压缩图片的客户端工具练练手，于是开始了electron的学习，这过程中遇到了一些坑，就此记录下来。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/2/2/168ad4d9c466675d?w=1320&h=250&f=png&s=90655">
+<meta property="article:published_time" content="2018-10-13T12:06:44.000Z">
+<meta property="article:modified_time" content="2024-09-13T03:12:58.264Z">
+<meta property="article:author" content="Richard Chou">
+<meta property="article:tag" content="electron">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2019/2/2/168ad4d9c466675d?w=1320&h=250&f=png&s=90655">
+
+<link rel="canonical" href="http://example.com/2018/10/13/electron-%E7%88%AC%E5%9D%91%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>electron 爬坑记 | Richard Chou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Richard Chou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Richard Chou's blogs</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/10/13/electron-%E7%88%AC%E5%9D%91%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="Blogs for Richard Chou">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          electron 爬坑记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-10-13 12:06:44" itemprop="dateCreated datePublished" datetime="2018-10-13T12:06:44+00:00">2018-10-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-13 03:12:58" itemprop="dateModified" datetime="2024-09-13T03:12:58+00:00">2024-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近开始了react的学习，打算开发一款压缩图片的客户端工具练练手，于是开始了electron的学习，这过程中遇到了一些坑，就此记录下来。</p>
+<span id="more"></span>
+
+<h1 id="在浏览器环境中使用-nodejs-api"><a href="#在浏览器环境中使用-nodejs-api" class="headerlink" title="在浏览器环境中使用 nodejs api"></a>在浏览器环境中使用 nodejs api</h1><p>因为开发结合了react，所以会用到webpack，在调试环境下electron打开的是webpack提供的服务器地址：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create the browser window.</span></span><br><span class="line">    mainWindow = <span class="keyword">new</span> <span class="title class_">BrowserWindow</span>(&#123; <span class="attr">width</span>: <span class="number">800</span>, <span class="attr">height</span>: <span class="number">600</span>, <span class="attr">webPreferences</span>: &#123; <span class="attr">webSecurity</span>: <span class="literal">false</span> &#125; &#125;)</span><br><span class="line">    mainWindow.<span class="title function_">setMinimumSize</span>(<span class="number">800</span>, <span class="number">600</span>)</span><br><span class="line">    mainWindow.<span class="property">webContents</span>.<span class="title function_">openDevTools</span>()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// and load the index.html of the app.</span></span><br><span class="line">    <span class="comment">//   mainWindow.loadFile(&#x27;index.html&#x27;)</span></span><br><span class="line">    mainWindow.<span class="title function_">loadURL</span>(<span class="string">&#x27;http://127.0.0.1:3000&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>所以要是在react工程中直接require nodejs的原生包，就会报运行错误，因为nodejs原生包调用了很多的底层api，浏览器当然没有给到这个权限，所以，要想在浏览器中使用nodejs的api，需要用下面这种方式引入原生Nodejs包：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> electron = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;electron&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> process = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;process&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> fs = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> <span class="title class_">Https</span> = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;https&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>electron将nodejs api挂载在了window对象上，来与底层进行通信，所以需要调用window上的require函数来引入 nodejs 包。</p>
+<h1 id="在浏览器环境中使用app对象"><a href="#在浏览器环境中使用app对象" class="headerlink" title="在浏览器环境中使用app对象"></a>在浏览器环境中使用app对象</h1><p>在electron主进程中使用app对象直接require electron就行了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; app &#125; = <span class="built_in">require</span>(<span class="string">&#x27;electron&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>但是在渲染进程中使用app对象则需要这样引入：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> electron = <span class="variable language_">window</span>.<span class="built_in">require</span>(<span class="string">&#x27;electron&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> app = electron.<span class="property">remote</span>.<span class="property">app</span></span><br></pre></td></tr></table></figure>
+
+<p>哈哈，不知道的话很懵逼吧。</p>
+<h1 id="在浏览器环境中使用第三方nodejs包"><a href="#在浏览器环境中使用第三方nodejs包" class="headerlink" title="在浏览器环境中使用第三方nodejs包"></a>在浏览器环境中使用第三方nodejs包</h1><p>如果在浏览器中require第三方nodejs包肯定是会报错的，所以需要创建window的时候预先引入第三方依赖包，代码如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.js</span></span><br><span class="line">mainWindow = <span class="keyword">new</span> <span class="title class_">BrowserWindow</span>(&#123; </span><br><span class="line">    <span class="attr">width</span>: <span class="number">800</span>, </span><br><span class="line">    <span class="attr">height</span>: <span class="number">600</span>, </span><br><span class="line">    <span class="attr">webPreferences</span>: &#123; </span><br><span class="line">        <span class="attr">webSecurity</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">preload</span>: path.<span class="title function_">resolve</span>(__dirname, <span class="string">&#x27;./public/renderer.js&#x27;</span>)</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ./public/renderer.js</span></span><br><span class="line"><span class="variable language_">global</span>.<span class="property">imagemin</span> = <span class="built_in">require</span>(<span class="string">&#x27;imagemin&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// window环境下代码</span></span><br><span class="line"><span class="keyword">const</span> imagemin = <span class="variable language_">window</span>.<span class="property">imagemin</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="打包后无法运行二进制文件"><a href="#打包后无法运行二进制文件" class="headerlink" title="打包后无法运行二进制文件"></a>打包后无法运行二进制文件</h1><p>这个压缩图片的工具用到了 <a href="https://www.npmjs.com/package/imagemin">imagemin</a>这个npm包，在开发的时候压缩图片没任何问题，但是经过electron打包，一旦压缩图片，就会报错，如图所示：</p>
+<img width="660" alt="qq20190201-164247 2x" src="https://user-gold-cdn.xitu.io/2019/2/2/168ad4d9c466675d?w=1320&h=250&f=png&s=90655">
+
+<p>起初我是懵逼的，因为这看不到有效的报错信息啊，但是经过阅读源码网上查找解决方案，最终发现了端倪。在debugger的过程中，发现imagemin是使用二进制可执行文件来对图片进行压缩的，执行二进制的函数是child_process.spawn，这个函数对于文件路径有限制，因为electron打包后，会把依赖项压缩成一个文件，导致这个函数判断路径时报错，对于这个问题，如果是自己的代码中使用了二进制文件，则可以将child_process.spawn替换为child_process.execFile函数来执行二进制文件。</p>
+<p>但是我这里引用的是别人的包，如果擅自修改非本源的包，可能会导致项目无法在其他的环境中运行，所以得找例外的解决方案，皇天不负苦心人，终于找到了解决方案，那就是electron打包时，不对依赖项进行压缩，那样就能得到一个正确的路径了。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>修改package.json中的build选项，这个选项是对electron打包的一系列配置。将其中的 <strong>asar</strong> 修改为false，就能让electron在打包时，不对依赖进行压缩，如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;build&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;appId&quot;</span>: <span class="string">&quot;com.richard.image_compress&quot;</span>,</span><br><span class="line">    <span class="string">&quot;mac&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;category&quot;</span>: <span class="string">&quot;tool&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;extends&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="string">&quot;files&quot;</span>: [<span class="string">&quot;build&quot;</span>, <span class="string">&quot;*.js&quot;</span>, <span class="string">&quot;public&quot;</span>],</span><br><span class="line">    <span class="string">&quot;asar&quot;</span>: <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>随着爬完了这一系列的坑，图片压缩的客户端工具终于完成。</p>
+<p>git repo: <a href="https://github.com/Richard-Choooou/image-compress">https://github.com/Richard-Choooou/image-compress</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/electron/" rel="tag"># electron</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/10/08/%E6%A3%AE%E6%9E%9C%E5%86%85%E9%83%A8%E5%88%86%E4%BA%AB%EF%BC%9Awebpack%E9%85%8D%E7%BD%AE%E4%BB%8E0%E5%88%B01/" rel="prev" title="森果技术分享：webpack配置从0到1">
+      <i class="fa fa-chevron-left"></i> 森果技术分享：webpack配置从0到1
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/11/01/%E4%BD%BF%E7%94%A8%E6%A0%91%E8%8E%93%E6%B4%BE%E6%89%93%E9%80%A0%E4%B8%80%E5%A5%97%E7%AE%80%E5%8D%95%E7%9A%84%E5%AE%89%E9%98%B2%E7%B3%BB%E7%BB%9F/" rel="next" title="使用树莓派打造一套简单的安防系统">
+      使用树莓派打造一套简单的安防系统 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8-nodejs-api"><span class="nav-number">2.</span> <span class="nav-text">在浏览器环境中使用 nodejs api</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8app%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.</span> <span class="nav-text">在浏览器环境中使用app对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%89%E6%96%B9nodejs%E5%8C%85"><span class="nav-number">4.</span> <span class="nav-text">在浏览器环境中使用第三方nodejs包</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%93%E5%8C%85%E5%90%8E%E6%97%A0%E6%B3%95%E8%BF%90%E8%A1%8C%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">打包后无法运行二进制文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">5.1.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%BE%E5%A3%B0"><span class="nav-number">6.</span> <span class="nav-text">尾声</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Richard Chou</p>
+  <div class="site-description" itemprop="description">Blogs for Richard Chou</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

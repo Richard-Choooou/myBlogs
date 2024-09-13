@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言多人协作是远程协作项目最为复杂的核心逻辑，合理的面向对象设计是降低多人协作复杂度的必要条件。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="远程协作-线上多人协作面向对象设计">
+<meta property="og:url" content="http://example.com/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言多人协作是远程协作项目最为复杂的核心逻辑，合理的面向对象设计是降低多人协作复杂度的必要条件。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/177489274-5c49c7ce-29a5-41f2-8990-c3bb1657365f.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/176077213-8a339bfe-b886-431a-9e12-07213777f1c4.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/176082568-a6ef6e4f-0a7b-4356-b4ad-88484edd8004.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/176082793-58153713-eee3-4b72-a4fc-550afb9e9bde.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/176083675-fdd562df-43dc-469c-8b40-4b1c5d2e0631.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/176623670-231c6c7c-2b77-4243-b9dd-cdc785f777f0.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/177487895-c8069a94-4b73-4b2b-be5c-d37d08e31985.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/177498221-f666949b-d93c-474a-a6f8-a535bd95943a.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/177509733-d14a4f6b-f2b5-4d1b-ba84-ac57e1ad4d5d.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/177690232-c7029ec7-f8c2-471c-880b-b97117253d32.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/177689955-164d2dc1-f831-440e-bb19-100bce80efef.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/177929455-099cebeb-ebee-4ac9-9605-84ead947a833.png">
+<meta property="article:published_time" content="2022-06-21T10:40:23.000Z">
+<meta property="article:modified_time" content="2024-09-13T03:12:58.268Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23492006/177489274-5c49c7ce-29a5-41f2-8990-c3bb1657365f.png">
+
+<link rel="canonical" href="http://example.com/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>远程协作-线上多人协作面向对象设计 | Richard Chou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Richard Chou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Richard Chou's blogs</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/21/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="Blogs for Richard Chou">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          远程协作-线上多人协作面向对象设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-21 10:40:23" itemprop="dateCreated datePublished" datetime="2022-06-21T10:40:23+00:00">2022-06-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-13 03:12:58" itemprop="dateModified" datetime="2024-09-13T03:12:58+00:00">2024-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>多人协作是远程协作项目最为复杂的核心逻辑，合理的面向对象设计是降低多人协作复杂度的必要条件。</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/177489274-5c49c7ce-29a5-41f2-8990-c3bb1657365f.png" alt="图片加载失败，需科学上网"></p>
+<span id="more"></span>
+
+<h1 id="需求介绍"><a href="#需求介绍" class="headerlink" title="需求介绍"></a>需求介绍</h1><ul>
+<li>能够一对一、多对多进行音视频通话</li>
+<li>能够多人同时进行画板绘制</li>
+<li>每个人能够对各自的画笔进行定制（颜色，尺寸）</li>
+<li>每个人能够撤回或者清空自己绘制的内容，无法删除他人绘制的内容</li>
+</ul>
+<h1 id="元素分析以及面向对象设计"><a href="#元素分析以及面向对象设计" class="headerlink" title="元素分析以及面向对象设计"></a>元素分析以及面向对象设计</h1><h2 id="画板-DrawArea"><a href="#画板-DrawArea" class="headerlink" title="画板 DrawArea"></a>画板 DrawArea</h2><p><img src="https://user-images.githubusercontent.com/23492006/176077213-8a339bfe-b886-431a-9e12-07213777f1c4.png" alt="图片加载失败，需科学上网"></p>
+<p>web 端通常使用 canvas 完成画板功能，需要在画板上绘制箭头、圆圈、以及连线路径这三种不同的元素，箭头和圆圈的绘制与连线不同，需要一边清除之前的内容，一边进行绘制，否则就会出现如下多次绘制的情况。</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/176082568-a6ef6e4f-0a7b-4356-b4ad-88484edd8004.png" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/176082793-58153713-eee3-4b72-a4fc-550afb9e9bde.png" alt="图片加载失败，需科学上网"></p>
+<p>因为画板的特殊性，需要保留之前绘制的内容，不能因为需要绘制箭头就将之前的内容清除掉，所以我们可以使用两个 canvas 来处理。</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/176083675-fdd562df-43dc-469c-8b40-4b1c5d2e0631.png" alt="图片加载失败，需科学上网"></p>
+<p>将两层 canvas 叠加在一起，底层 canvas 保存之前绘制内容，顶层 canvas 进行当前内容的绘制。在绘制箭头圆圈时动态清空顶层 canvas，绘制完成后，将顶层绘制的内容复制到底层，即可完成在同一个 canvas 绘制的效果。</p>
+<p>但这样做也会有一个问题，因为画板能够支持多人同时绘制，且每个人能取消自己绘制的内容，那么如何保证在一个 canvas 中取消绘制的内容时不会将别的用户内容撤销掉呢？</p>
+<p>答案是无法保证，每个用户绘制的内容有先后顺序，不能保证 canvas restore 时撤销的是自己上一次绘制的内容。或者使用命令模式，将用户的行为封装成命令，但这无疑增加了极大的复杂度，亦或者给每个用户一个单独的canvas进行绘制，但是这样在多人协作时，多个 canvas 也会显得不妥，实现不够优雅。</p>
+<p>那么我们可以换个画板的实现方式，使用 SVG 呢？</p>
+<p>svg 中的元素都是 DOM 元素，想要实现撤销效果，只需要将 dom 元素删除即可。同时 SVG 能够绘制的元素不比 canvas 少，实现画板功能绰绰有余，那么就决定使用 SVG 来实现画板吧。</p>
+<p>首先对画板进行抽象设计</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DrawArea</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>DrawArea 接收一个 svg 元素作为绘制容器</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DrawArea</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">svg</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">svgSelector</span> = svg</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同时画板需要作为一个可交互的对象，它承担着事件的订阅</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DrawArea</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">control, svg</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span> = control</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">svgSelector</span> = svg</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">initEventListener</span>()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private <span class="title function_">initEventListener</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span>!.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousedown&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onMouseDown</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>))</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span>!.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousemove&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onMouseMove</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>))</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span>!.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mouseup&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onMouseUp</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>))</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span>!.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mouseleave&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onMouseUp</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>))</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span>!.<span class="title function_">addEventListener</span>(<span class="string">&#x27;touchstart&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onTouchStart</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>))</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span>!.<span class="title function_">addEventListener</span>(<span class="string">&#x27;touchmove&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onTouchMove</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>))</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span>!.<span class="title function_">addEventListener</span>(<span class="string">&#x27;touchend&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onTouchEnd</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>))</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span>!.<span class="title function_">addEventListener</span>(<span class="string">&#x27;touchcancel&#x27;</span>, <span class="variable language_">this</span>.<span class="property">onTouchEnd</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当画板收到按下、抬起、移动等事件时，需要告知画板的使用者该绘制了，同时提供绘制的坐标信息。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DrawArea</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">control, svg</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">controlSelector</span> = control</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">svgSelector</span> = svg</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">initEventListener</span>()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">dispatchEvent</span>(<span class="params">event: <span class="string">&quot;pointDown&quot;</span> | <span class="string">&quot;pointMove&quot;</span> | <span class="string">&quot;pointUp&quot;</span>, data: &#123;</span></span><br><span class="line"><span class="params">        x: number,</span></span><br><span class="line"><span class="params">        y: number</span></span><br><span class="line"><span class="params">    &#125;</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">eventListeners</span>.<span class="title function_">forEach</span>(<span class="function"><span class="params">fn</span> =&gt;</span> <span class="title function_">fn</span>(&#123;</span><br><span class="line">            <span class="attr">type</span>: event,</span><br><span class="line">            data</span><br><span class="line">        &#125;))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>到这，画板该做的事情已经做完了，接下来实现绘制工具。</p>
+<h2 id="绘制工具-DrawUtil"><a href="#绘制工具-DrawUtil" class="headerlink" title="绘制工具 DrawUtil"></a>绘制工具 DrawUtil</h2><p><img src="https://user-images.githubusercontent.com/23492006/176623670-231c6c7c-2b77-4243-b9dd-cdc785f777f0.png" alt="图片加载失败，需科学上网"></p>
+<p>需要实现的绘制效果不是很多，分别有激光笔、圆圈、箭头、以及画笔，已知三种工具绘制的结果和绘制中的行为均不相同，例如激光笔需要有一个点确定坐标，但是鼠标抬起时需要等待三秒隐藏，圆圈和箭头工具则需要两个点来确定坐标，而画笔需要多个点位确定坐标来进行绘制。</p>
+<p>因此需要抽象出他们共同的行为，它们共同的行为和属性分别有 按下、移动、抬起以及取消绘制 等，对此我们可以定义一个接口，不同的画笔工具实现这个接口就好了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">DrawUtil</span> &#123;</span><br><span class="line">    <span class="attr">type</span>: <span class="built_in">string</span></span><br><span class="line">    <span class="attr">isOn</span>: <span class="built_in">boolean</span></span><br><span class="line">    <span class="title function_">onPointDown</span>(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>): <span class="built_in">void</span></span><br><span class="line">    <span class="title function_">onPointMove</span>(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>): <span class="built_in">void</span></span><br><span class="line">    <span class="title function_">onPointUp</span>(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>): <span class="built_in">void</span></span><br><span class="line">    <span class="title function_">cancel</span>(): <span class="built_in">void</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Pen</span> <span class="keyword">implements</span> <span class="title class_">DrawUtil</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="attr">type</span>: <span class="built_in">string</span> = <span class="string">&quot;pen&quot;</span></span><br><span class="line">    <span class="keyword">private</span> <span class="attr">linePath</span>: [<span class="built_in">number</span>, <span class="built_in">number</span>][] = []</span><br><span class="line">    <span class="keyword">private</span> <span class="attr">polyline</span>: d3.<span class="property">Selection</span>&lt;<span class="title class_">SVGPolylineElement</span>, <span class="built_in">unknown</span>, <span class="title class_">HTMLElement</span>, <span class="built_in">any</span>&gt; | <span class="literal">null</span> = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">private</span> <span class="attr">drawArea</span>: <span class="title class_">DrawArea</span></span><br><span class="line">    <span class="keyword">private</span> <span class="attr">user</span>: <span class="title class_">User</span></span><br><span class="line">    <span class="keyword">public</span> <span class="attr">isOn</span>: <span class="built_in">boolean</span> = <span class="literal">false</span></span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"><span class="attr">drawArea</span>: <span class="title class_">DrawArea</span>, <span class="attr">user</span>: <span class="title class_">User</span></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">user</span> = user</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">drawArea</span> = drawArea</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">sizeMap</span> = &#123;</span><br><span class="line">            <span class="number">1</span>: <span class="number">8</span>,</span><br><span class="line">            <span class="number">2</span>: <span class="number">10</span>,</span><br><span class="line">            <span class="number">3</span>: <span class="number">12</span>,</span><br><span class="line">            <span class="number">4</span>: <span class="number">14</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">colorMap</span>: <span class="built_in">any</span> = &#123;</span><br><span class="line">            <span class="string">&#x27;red&#x27;</span>: <span class="string">&#x27;rgb(255, 0, 0)&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;green&#x27;</span>: <span class="string">&#x27;rgb(0, 255, 0)&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;blue&#x27;</span>: <span class="string">&#x27;rgb(0, 0, 255)&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;yellow&#x27;</span>: <span class="string">&#x27;rgb(255, 255, 0)&#x27;</span>,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">onPointDown</span>(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>): <span class="built_in">void</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">linePath</span> = []</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">isOn</span> = <span class="literal">true</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">polyline</span> = <span class="variable language_">this</span>.<span class="property">drawArea</span>.<span class="property">svgSelector</span>.<span class="title function_">append</span>(<span class="string">&quot;polyline&quot;</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">polyline</span></span><br><span class="line">            .<span class="title function_">attr</span>(<span class="string">&quot;class&quot;</span>, <span class="string">`UID-<span class="subst">$&#123;<span class="variable language_">this</span>.user.uId&#125;</span> polyline`</span>)</span><br><span class="line">            .<span class="title function_">attr</span>(<span class="string">&quot;stroke&quot;</span>, <span class="variable language_">this</span>.<span class="property">colorMap</span>[<span class="variable language_">this</span>.<span class="property">user</span>.<span class="property">color</span>])</span><br><span class="line">            .<span class="title function_">attr</span>(<span class="string">&quot;stroke-width&quot;</span>, <span class="variable language_">this</span>.<span class="property">sizeMap</span>[<span class="variable language_">this</span>.<span class="property">user</span>.<span class="property">size</span>])</span><br><span class="line">            .<span class="title function_">attr</span>(<span class="string">&quot;stroke-linecap&quot;</span>, <span class="string">&quot;round&quot;</span>)</span><br><span class="line">            .<span class="title function_">attr</span>(<span class="string">&quot;stroke-linejoin&quot;</span>, <span class="string">&quot;round&quot;</span>)</span><br><span class="line">            .<span class="title function_">attr</span>(<span class="string">&quot;fill&quot;</span>, <span class="string">&quot;transparent&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">onPointMove</span>(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>): <span class="built_in">void</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">isOn</span>) <span class="keyword">return</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">linePath</span>.<span class="title function_">push</span>([x, y])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> pointsStr = <span class="variable language_">this</span>.<span class="property">linePath</span>.<span class="title function_">map</span>(<span class="function"><span class="params">val</span> =&gt;</span> val.<span class="title function_">join</span>(<span class="string">&quot;,&quot;</span>)).<span class="title function_">join</span>(<span class="string">&quot; &quot;</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">polyline</span>?.<span class="title function_">attr</span>(<span class="string">&quot;points&quot;</span>, pointsStr)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">onPointUp</span>(<span class="attr">x</span>: <span class="built_in">number</span>, <span class="attr">y</span>: <span class="built_in">number</span>): <span class="built_in">void</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">linePath</span> = []</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">polyline</span> = <span class="literal">null</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">isOn</span> = <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">cancel</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">isOn</span> = <span class="literal">false</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">polyline</span>?.<span class="title function_">remove</span>()</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">polyline</span> = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上代码是画笔的实现，当收到按下通知时，画笔工具在画板中插入 <strong>polyline</strong> 元素，在鼠标移动时记录了绘制路径的点位信息，同时修改 polyline 的绘制路径，鼠标抬起时进行初始化操作供下次绘制使用。</p>
+<p>其它绘制工具因篇幅原因不多做说明，代码类似，只是绘制的行为有所差异。</p>
+<p>以上便是绘制工具的抽象设计。</p>
+<h2 id="用户-User"><a href="#用户-User" class="headerlink" title="用户 User"></a>用户 User</h2><p>远程协作是一个多人协作类软件，既然牵扯到人，那么便离不开对于用户的抽象。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用户可以对画板进行绘制，那么他需要多个绘制工具，且能够随意的切换使用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">drawArea</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">arrow</span> = <span class="keyword">new</span> <span class="title class_">Arrow</span>(drawArea, <span class="variable language_">this</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">pen</span> = <span class="keyword">new</span> <span class="title class_">Pen</span>(drawArea, <span class="variable language_">this</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">circle</span> = <span class="keyword">new</span> <span class="title class_">Circel</span>(drawArea, <span class="variable language_">this</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">activeUtil</span> = <span class="variable language_">this</span>.<span class="property">pen</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">usePen</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">activeUtil</span> = <span class="variable language_">this</span>.<span class="property">pen</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">useArrow</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">activeUtil</span> = <span class="variable language_">this</span>.<span class="property">arrow</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用户也可以选择绘制工具的粗细以及颜色信息:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">color</span> = <span class="string">&#x27;red&#x27;</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">size</span> = <span class="number">2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">setColor</span>(<span class="params">color</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">color</span> = color</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">setSize</span>(<span class="params">size</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">size</span> = size</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过对以上几个元素的抽象，形成了如下一个关系图：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/177487895-c8069a94-4b73-4b2b-be5c-d37d08e31985.png" alt="图片加载失败，需科学上网"></p>
+<p>一群用户，拿着画笔在画板上绘制，通过如下代码即可完成最原始的绘制功能：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> drawArea = <span class="keyword">new</span> <span class="title class_">DrawArea</span>(container, svg)</span><br><span class="line"><span class="keyword">const</span> user = <span class="keyword">new</span> <span class="title class_">User</span>(drawArea)</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Event</span> &#123;</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;onPointDown&#x27;</span> | <span class="string">&#x27;onPointMove&#x27;</span> | <span class="string">&#x27;onPointUp&#x27;</span></span><br><span class="line">    <span class="attr">data</span>: &#123;</span><br><span class="line">        <span class="attr">x</span>: <span class="built_in">number</span>,</span><br><span class="line">        <span class="attr">y</span>: <span class="built_in">number</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">drawArea.<span class="title function_">on</span>(<span class="attr">event</span>: <span class="function"><span class="params">Event</span> =&gt;</span> &#123;</span><br><span class="line">    user.<span class="property">activeUtil</span>[event.<span class="property">type</span>](event.<span class="property">data</span>.<span class="property">x</span>, event.<span class="property">data</span>.<span class="property">y</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="房间-Room"><a href="#房间-Room" class="headerlink" title="房间 Room"></a>房间 Room</h2><p>为了方便管理以上所有元素，为此抽象出房间 Room 概念。</p>
+<p>首先 Room 承担着画板的管理：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Room</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"><span class="attr">drawArea</span>: <span class="title class_">DrawArea</span></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">drawArea</span> = drawArea</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时修改 User 构造函数：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"><span class="attr">room</span>: <span class="title class_">Room</span>， <span class="attr">userId</span>: <span class="built_in">number</span></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">userId</span> = userId</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">room</span> = room</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">arrow</span> = <span class="keyword">new</span> <span class="title class_">Arrow</span>(<span class="variable language_">this</span>.<span class="property">room</span>.<span class="property">drawArea</span>, <span class="variable language_">this</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">pen</span> = <span class="keyword">new</span> <span class="title class_">Pen</span>(<span class="variable language_">this</span>.<span class="property">room</span>.<span class="property">drawArea</span>, <span class="variable language_">this</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">circle</span> = <span class="keyword">new</span> <span class="title class_">Circel</span>(<span class="variable language_">this</span>.<span class="property">room</span>.<span class="property">drawArea</span>, <span class="variable language_">this</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">activeUtil</span> = <span class="variable language_">this</span>.<span class="property">pen</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>User 维护 Room(房间) 比维护 DrawArea(画板) 更加合理，因为 User 会使用到 Room 的相关功能，同时通过 Room 也能够获取到 DrawArea。</p>
+<p>Room 同时管理着 User，控制着 User 的加入和离开：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Room</span> &#123;</span><br><span class="line">    <span class="attr">userList</span>: <span class="title class_">Set</span>&lt;<span class="title class_">User</span>&gt; = <span class="keyword">new</span> <span class="title class_">Set</span>()</span><br><span class="line"></span><br><span class="line">    <span class="title function_">onUserJoin</span>(<span class="params">uId</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">userList</span>.<span class="title function_">add</span>(<span class="keyword">new</span> <span class="title class_">User</span>(<span class="variable language_">this</span>, uId))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">onUserLeave</span>(<span class="params"><span class="attr">user</span>: <span class="title class_">User</span></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">userList</span>.<span class="title function_">delete</span>(user)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，咱们的依赖图已经变成如下形式：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/177498221-f666949b-d93c-474a-a6f8-a535bd95943a.png" alt="图片加载失败，需科学上网"></p>
+<p>阅读到这里，有没有发现一个问题，以上面向对象设计的代码始终是在同一个运行环境中，与线上多人协作并无关系，最多称之为本地多人协作，那么如何使用上述的面向对象设计完成线上多人协作呢?</p>
+<h1 id="线上多人协作设计"><a href="#线上多人协作设计" class="headerlink" title="线上多人协作设计"></a>线上多人协作设计</h1><p>很简单，将上述设计在另一个运行环境中 copy 一份，然后将本地 Room 和远端 Room 形成映射关系。</p>
+<p>为了区分 Room 中的自己和远端用户，修改 Room 添加 mine 属性:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Room</span> &#123;</span><br><span class="line">    <span class="attr">userList</span>: <span class="title class_">Set</span>&lt;<span class="title class_">RoomUser</span>&gt; = <span class="keyword">new</span> <span class="title class_">Set</span>()</span><br><span class="line">    <span class="attr">mine</span>: <span class="title class_">User</span></span><br><span class="line"></span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">drawArea, mineId</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">mine</span> = <span class="keyword">new</span> <span class="title class_">User</span>(<span class="variable language_">this</span>, mineId)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>mine 代表的是当前用户，userList 代表其他参与协作的用户。</p>
+<p>假设我们有 3 台设备同时进行协作，那么在这3台设备上的房间以及用户将会是如下关系图谱。<br><img src="https://user-images.githubusercontent.com/23492006/177509733-d14a4f6b-f2b5-4d1b-ba84-ac57e1ad4d5d.png" alt="图片加载失败，需科学上网"></p>
+<p>每个设备上的 Room 中的 mine 以及 userList 是不同的，那么每台设备的当前用户在绘制时，只需要这样处理，即可完成自身的绘制。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> drawArea = <span class="keyword">new</span> <span class="title class_">DrawArea</span>(container, svg)</span><br><span class="line"><span class="keyword">const</span> room = <span class="keyword">new</span> <span class="title class_">Room</span>(drawArea, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">drawArea.<span class="title function_">on</span>(<span class="attr">event</span>: <span class="function"><span class="params">Event</span> =&gt;</span> &#123;</span><br><span class="line">    room.<span class="property">mine</span>.<span class="property">activeUtil</span>[event.<span class="property">type</span>](event.<span class="property">data</span>.<span class="property">x</span>, event.<span class="property">data</span>.<span class="property">y</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>通过上述代码，实现了在本机进行绘图，那么本机绘制的内容如何同步到别的用户的设备上呢？代码又该如何编写才更简单？</p>
+<p>不难处理，只需要将本机用户行为同步到其他设备上的自己（User），让远程 User 代替自己进行绘制就好了，如下：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/177690232-c7029ec7-f8c2-471c-880b-b97117253d32.png" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/177689955-164d2dc1-f831-440e-bb19-100bce80efef.png" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/177929455-099cebeb-ebee-4ac9-9605-84ead947a833.png" alt="图片加载失败，需科学上网"></p>
+<p>此时抽象 Room 的作用就体现出来了，它不仅管理画板和用户，更多是的作为本地 Room 与远端 Room 沟通的媒介，通过 Room 实现真正的线上多人协作，新增 Room 接口如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Room</span> &#123;</span><br><span class="line">    <span class="title function_">postMessage</span>(<span class="params">message</span>) &#123;</span><br><span class="line">        <span class="comment">// 以下为伪代码实现</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">channel</span>.<span class="title function_">postMessage</span>(message)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在绘制的同时向其它远端 Room 广播绘制消息：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> drawArea = <span class="keyword">new</span> <span class="title class_">DrawArea</span>(container, svg)</span><br><span class="line"><span class="keyword">const</span> room = <span class="keyword">new</span> <span class="title class_">Room</span>(drawArea, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">drawArea.<span class="title function_">on</span>(<span class="attr">event</span>: <span class="function"><span class="params">Event</span> =&gt;</span> &#123;</span><br><span class="line">    room.<span class="property">mine</span>.<span class="property">activeUtil</span>[event.<span class="property">type</span>](event.<span class="property">data</span>.<span class="property">x</span>, event.<span class="property">data</span>.<span class="property">y</span>)</span><br><span class="line">    room.<span class="title function_">postMessage</span>(&#123;</span><br><span class="line">        userId：room.<span class="property">mine</span>.<span class="property">userId</span>,</span><br><span class="line">        <span class="attr">type</span>: event.<span class="property">type</span>,</span><br><span class="line">        <span class="attr">data</span>: event.<span class="property">data</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其它远端 Room 接收 message 事件，在 Room 中找到当前正在绘制的用户，在本机还原绘制信息。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Room</span> &#123;</span><br><span class="line">    <span class="title function_">onMessage</span>(<span class="params">message</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> user = <span class="variable language_">this</span>.<span class="title function_">getUser</span>(message.<span class="property">userId</span>)</span><br><span class="line">        user.<span class="property">activeUtil</span>[message.<span class="property">type</span>](message.<span class="property">data</span>.<span class="property">x</span>, message.<span class="property">data</span>.<span class="property">y</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如此，即可在多台设备上实现相同的绘制效果。</p>
+<p>本篇主要讲解面向对象设计，同步信息的代码此处不过多赘述，按照各自的思路实现即可。</p>
+<h1 id="节尾"><a href="#节尾" class="headerlink" title="节尾"></a>节尾</h1><p>以上便是整个远程协同最为核心的面向对象设计，通过对于这几个类的扩展，优雅的实现了远程协同这一系统。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/21/%E8%BF%9C%E7%A8%8B%E8%A7%86%E9%A2%91%E5%8D%8F%E5%90%8C%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="prev" title="远程视频协同架构设计">
+      <i class="fa fa-chevron-left"></i> 远程视频协同架构设计
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/12/%E8%BF%9C%E7%A8%8B%E5%8D%8F%E4%BD%9C-%E7%B2%BE%E5%87%86%E5%9D%90%E6%A0%87%E5%AE%9A%E4%BD%8D/" rel="next" title="远程协作-精准坐标定位">
+      远程协作-精准坐标定位 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">需求介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%83%E7%B4%A0%E5%88%86%E6%9E%90%E4%BB%A5%E5%8F%8A%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">元素分析以及面向对象设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%BB%E6%9D%BF-DrawArea"><span class="nav-number">3.1.</span> <span class="nav-text">画板 DrawArea</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%98%E5%88%B6%E5%B7%A5%E5%85%B7-DrawUtil"><span class="nav-number">3.2.</span> <span class="nav-text">绘制工具 DrawUtil</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7-User"><span class="nav-number">3.3.</span> <span class="nav-text">用户 User</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%BF%E9%97%B4-Room"><span class="nav-number">3.4.</span> <span class="nav-text">房间 Room</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E4%B8%8A%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">线上多人协作设计</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%8A%82%E5%B0%BE"><span class="nav-number">5.</span> <span class="nav-text">节尾</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Richard Chou</p>
+  <div class="site-description" itemprop="description">Blogs for Richard Chou</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

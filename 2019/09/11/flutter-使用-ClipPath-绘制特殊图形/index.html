@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言最近在使用 flutter 编写时 app 时遇到一个很令人头疼的设计稿，具体效果如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flutter 使用 ClipPath 裁剪元素">
+<meta property="og:url" content="http://example.com/2019/09/11/flutter-%E4%BD%BF%E7%94%A8-ClipPath-%E7%BB%98%E5%88%B6%E7%89%B9%E6%AE%8A%E5%9B%BE%E5%BD%A2/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言最近在使用 flutter 编写时 app 时遇到一个很令人头疼的设计稿，具体效果如下：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64664342-79bfe680-d481-11e9-8c9a-a0dd3477d467.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64664383-9e1bc300-d481-11e9-8901-d3df3be7cbbb.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64664382-96f4b500-d481-11e9-9a7b-1f12caac33f2.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64668253-7af81000-d48f-11e9-9b2c-d93307944243.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64668581-b47d4b00-d490-11e9-891c-a765dff71f0e.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64672492-3d4eb380-d49e-11e9-9e7b-09097f0c649d.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64672694-be0daf80-d49e-11e9-861d-622d42ea6075.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64673106-d7fbc200-d49f-11e9-8227-54a966a0f722.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64673169-0083bc00-d4a0-11e9-836a-6f89cc465753.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64673686-66247800-d4a1-11e9-89e4-caef1edece06.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64677125-97a14180-d4a9-11e9-9bb3-95f0d4f14da5.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64677487-37f76600-d4aa-11e9-9681-dc37ccae63cb.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64677798-e26f8900-d4aa-11e9-89fc-6f3f28f2a494.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/64679498-6d05b780-d4ae-11e9-852a-23bb2987b2d7.gif">
+<meta property="article:published_time" content="2019-09-11T10:41:42.000Z">
+<meta property="article:modified_time" content="2024-09-13T03:12:58.264Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23492006/64664342-79bfe680-d481-11e9-8c9a-a0dd3477d467.png">
+
+<link rel="canonical" href="http://example.com/2019/09/11/flutter-%E4%BD%BF%E7%94%A8-ClipPath-%E7%BB%98%E5%88%B6%E7%89%B9%E6%AE%8A%E5%9B%BE%E5%BD%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>flutter 使用 ClipPath 裁剪元素 | Richard Chou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Richard Chou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Richard Chou's blogs</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/09/11/flutter-%E4%BD%BF%E7%94%A8-ClipPath-%E7%BB%98%E5%88%B6%E7%89%B9%E6%AE%8A%E5%9B%BE%E5%BD%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="Blogs for Richard Chou">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          flutter 使用 ClipPath 裁剪元素
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-09-11 10:41:42" itemprop="dateCreated datePublished" datetime="2019-09-11T10:41:42+00:00">2019-09-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-13 03:12:58" itemprop="dateModified" datetime="2024-09-13T03:12:58+00:00">2024-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近在使用 flutter 编写时 app 时遇到一个很令人头疼的设计稿，具体效果如下：</p>
+<span id="more"></span>
+
+<p><img src="https://user-images.githubusercontent.com/23492006/64664342-79bfe680-d481-11e9-8c9a-a0dd3477d467.png" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64664383-9e1bc300-d481-11e9-8901-d3df3be7cbbb.png" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64664382-96f4b500-d481-11e9-9a7b-1f12caac33f2.png" alt="图片加载失败，需科学上网"></p>
+<p>可以发现，图形是不规则的，同时这种不规则的图形在不同的情况下展示效果也不一样，如果使用图片解决，又会出现阴影不协调的问题，所以得用到裁剪属性。</p>
+<h1 id="ClipPath"><a href="#ClipPath" class="headerlink" title="ClipPath"></a>ClipPath</h1><p>在flutter中实现这种不规则的图形，需要用到 <a href="https://api.flutter.dev/flutter/widgets/ClipPath-class.html"><strong>ClipPath</strong></a> 这个 widget，具体用法如下：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HeaderLeftClipPath</span> <span class="keyword">extends</span> <span class="title">CustomClipper</span>&lt;<span class="title">Path</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Path getClip(Size size) &#123;</span><br><span class="line">    <span class="keyword">const</span> itemWidth = <span class="number">168.0</span>;</span><br><span class="line">    <span class="keyword">const</span> bottomHeight = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> path = Path()</span><br><span class="line">      ..moveTo(<span class="number">0</span>, size.height)</span><br><span class="line">      ..lineTo(<span class="number">0</span>, <span class="number">20</span>)</span><br><span class="line">      ..quadraticBezierTo(<span class="number">0</span>, <span class="number">0</span>, <span class="number">20</span>, <span class="number">0</span>)</span><br><span class="line">      ..lineTo(itemWidth - <span class="number">40</span>, <span class="number">0</span>)</span><br><span class="line">      ..quadraticBezierTo(itemWidth - <span class="number">20</span>, <span class="number">0</span>, itemWidth - <span class="number">20</span>, <span class="number">20</span>)</span><br><span class="line">      ..lineTo(itemWidth - <span class="number">20</span>, size.height - <span class="number">20</span> - bottomHeight)</span><br><span class="line">      ..quadraticBezierTo(itemWidth - <span class="number">20</span>, size.height - bottomHeight, itemWidth, size.height - bottomHeight)</span><br><span class="line">      ..lineTo(size.width, size.height - bottomHeight)</span><br><span class="line">      ..lineTo(size.width, size.height)</span><br><span class="line">      ..close();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> path;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> shouldReclip(CustomClipper&lt;Path&gt; oldClipper) =&gt; <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Header</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">    <span class="meta">@override</span></span><br><span class="line">    build() &#123;</span><br><span class="line">        <span class="keyword">return</span> _buildLeftHeader()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    _buildLeftHeader() &#123;</span><br><span class="line">        <span class="keyword">return</span> ClipPath(</span><br><span class="line">            clipper: HeaderLeftClipPath(),</span><br><span class="line">            child: Container(</span><br><span class="line">                width: <span class="number">168</span>,</span><br><span class="line">                height: <span class="number">60</span>,</span><br><span class="line">                padding: EdgeInsets.only(right: <span class="number">20</span>),</span><br><span class="line">                decoration: BoxDecoration(</span><br><span class="line">                    color: Color(<span class="number">0xffff0000</span>)</span><br><span class="line">                ),</span><br><span class="line">            ),</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它的作用在于根据定义的路径进行裁剪后得到需要的图形，其中绘制路径时可以使用 flutter 提供的 api 进行特殊路径的绘制，例如贝塞尔曲线，经过上述裁剪，就能得到这样一个图形，也就是订单头部的左侧导航。</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64668253-7af81000-d48f-11e9-9b2c-d93307944243.png" alt="图片加载失败，需科学上网"></p>
+<p>接着我们再绘制中间部位的导航形状。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HeaderCenterClipPath</span> <span class="keyword">extends</span> <span class="title">CustomClipper</span>&lt;<span class="title">Path</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Path getClip(Size size) &#123;</span><br><span class="line">    <span class="keyword">var</span> path = Path()</span><br><span class="line">      ..moveTo(<span class="number">0</span>, size.height)</span><br><span class="line">      ..quadraticBezierTo(<span class="number">20</span>, size.height, <span class="number">20</span>, size.height -  <span class="number">20</span>)</span><br><span class="line">      ..lineTo(<span class="number">20</span>, <span class="number">20</span>)</span><br><span class="line">      ..quadraticBezierTo(<span class="number">20</span>, <span class="number">0</span>, <span class="number">40</span>, <span class="number">0</span>)</span><br><span class="line">      ..lineTo(size.width - <span class="number">40</span>, <span class="number">0</span>)</span><br><span class="line">      ..quadraticBezierTo(size.width - <span class="number">20</span>, <span class="number">0</span>, size.width - <span class="number">20</span>, <span class="number">20</span>)</span><br><span class="line">      ..lineTo(size.width - <span class="number">20</span>, size.height - <span class="number">20</span>)</span><br><span class="line">      ..quadraticBezierTo(size.width - <span class="number">20</span>, size.height, size.width, size.height)</span><br><span class="line">      ..close();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> path;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> shouldReclip(CustomClipper&lt;Path&gt; oldClipper) =&gt; <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Header</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">    <span class="meta">@override</span></span><br><span class="line">    build() &#123;</span><br><span class="line">        <span class="keyword">return</span> _buildCenterHeader()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    _buildCenterHeader() &#123;</span><br><span class="line">        <span class="keyword">return</span> ClipPath(</span><br><span class="line">            clipper: HeaderCenterClipPath(),</span><br><span class="line">            child: Container(</span><br><span class="line">                width: <span class="number">187</span>,</span><br><span class="line">                height: <span class="number">60</span>,</span><br><span class="line">                padding: EdgeInsets.only(right: <span class="number">20</span>),</span><br><span class="line">                decoration: BoxDecoration(</span><br><span class="line">                    color: Color(<span class="number">0xffff0000</span>)</span><br><span class="line">                ),</span><br><span class="line">            ),</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>得到形状如下：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64668581-b47d4b00-d490-11e9-891c-a765dff71f0e.png" alt="图片加载失败，需科学上网"></p>
+<p>最后再绘制右侧导航</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HeaderRightClipPath</span> <span class="keyword">extends</span> <span class="title">CustomClipper</span>&lt;<span class="title">Path</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Path getClip(Size size) &#123;</span><br><span class="line">    <span class="built_in">print</span>(size);</span><br><span class="line">    <span class="keyword">var</span> path = Path()</span><br><span class="line">      ..moveTo(<span class="number">0</span>, size.height)</span><br><span class="line">      ..quadraticBezierTo(<span class="number">20</span>, size.height, <span class="number">20</span>, size.height - <span class="number">20</span>)</span><br><span class="line">      ..lineTo(<span class="number">20</span>, <span class="number">20</span>)</span><br><span class="line">      ..quadraticBezierTo(<span class="number">20</span>, <span class="number">0</span>, <span class="number">40</span>, <span class="number">0</span>)</span><br><span class="line">      ..lineTo(size.width - <span class="number">20</span>, <span class="number">0</span>)</span><br><span class="line">      ..quadraticBezierTo(size.width, <span class="number">0</span>, size.width, <span class="number">20</span>)</span><br><span class="line">      ..lineTo(size.width, size.height)</span><br><span class="line">      ..close();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> path;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> shouldReclip(CustomClipper&lt;Path&gt; oldClipper) =&gt; <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Header</span> <span class="keyword">extends</span> <span class="title">StatelessWidget</span> </span>&#123;</span><br><span class="line">    <span class="meta">@override</span></span><br><span class="line">    build() &#123;</span><br><span class="line">        <span class="keyword">return</span> _buildRightHeader()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    _buildRightHeader() &#123;</span><br><span class="line">        <span class="keyword">return</span> ClipPath(</span><br><span class="line">            clipper: HeaderRightClipPath(),</span><br><span class="line">            child: Container(</span><br><span class="line">                width: <span class="number">187</span>,</span><br><span class="line">                height: <span class="number">60</span>,</span><br><span class="line">                padding: EdgeInsets.only(right: <span class="number">20</span>),</span><br><span class="line">                decoration: BoxDecoration(</span><br><span class="line">                    color: Color(<span class="number">0xffff0000</span>)</span><br><span class="line">                ),</span><br><span class="line">            ),</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>得到最终的图案</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64672492-3d4eb380-d49e-11e9-9e7b-09097f0c649d.png" alt="图片加载失败，需科学上网"></p>
+<p>将他们使用 Stack 布局汇总在一起，得到效果如下。</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64672694-be0daf80-d49e-11e9-861d-622d42ea6075.png" alt="图片加载失败，需科学上网"></p>
+<p>有点丑，哈哈，主要的原因是缺少阴影，以及背景色与设计稿不符，所以现在我们给剪切后的图形添加阴影效果。需要注意的是，如果直接给 ClipPath 部件包裹 Container，并且添加阴影效果，是达不到设计稿那样的效果的，原因在于即使 Container 被裁剪，但实际的大小还是原来的大小，所以阴影部分也需要绘制来达到效果。</p>
+<h1 id="绘制曲线阴影"><a href="#绘制曲线阴影" class="headerlink" title="绘制曲线阴影"></a>绘制曲线阴影</h1><p>因为自身也是 flutter 的新手，对于曲线阴影这种效果也不知道如何实现，于是在 google 中搜索得到了解决方案，具体<a href="https://gist.github.com/coman3/e631fd55cd9cdf9bd4efe8ecfdbb85a7">看这里</a>。</p>
+<p>话不多说，直接 command cv。</p>
+<p>使用此组件，对上面的代码进行改造，得到最终效果如下：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64673106-d7fbc200-d49f-11e9-8227-54a966a0f722.png" alt="图片加载失败，需科学上网"></p>
+<p>再把背景色切换为白色：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64673169-0083bc00-d4a0-11e9-836a-6f89cc465753.png" alt="图片加载失败，需科学上网"></p>
+<p>效果更加明显，为了使头部与底部融合为一体，需要在视觉上对用户进行欺骗，所以得把底部的阴影去掉。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HeaderContainerPath</span> <span class="keyword">extends</span> <span class="title">CustomClipper</span>&lt;<span class="title">Rect</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Rect getClip(Size size) &#123;</span><br><span class="line">    <span class="keyword">return</span> Rect.fromLTRB(<span class="number">-10</span>, <span class="number">0</span>, size.width, size.height);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="built_in">bool</span> shouldReclip(CustomClipper&lt;Rect&gt; oldClipper) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">_buildHeader() &#123;</span><br><span class="line">    <span class="keyword">return</span> ClipRect(</span><br><span class="line">      clipper: HeaderContainerPath(),</span><br><span class="line">      child: Container(</span><br><span class="line">        height: <span class="number">60</span>,</span><br><span class="line">        child: Stack(</span><br><span class="line">          children: &lt;Widget&gt;[</span><br><span class="line">            Positioned(</span><br><span class="line">              left: <span class="number">0</span>,</span><br><span class="line">              child: _buildLeftHeader(),</span><br><span class="line">            ),</span><br><span class="line">            Positioned(</span><br><span class="line">              left: <span class="number">135</span> - <span class="number">8.0</span>,</span><br><span class="line">              child: _buildCenterHeader(),</span><br><span class="line">            ),</span><br><span class="line">            Positioned(</span><br><span class="line">              left: <span class="number">283</span> - <span class="number">9.0</span>,</span><br><span class="line">              child: _buildRightHeader(),</span><br><span class="line">            )</span><br><span class="line">          ],</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为头部的裁剪是一个矩形，所以我们这里需要用到 ClipRect 这个部件，同时 CustomClipper 范型需要指定为 Rect, 同时 getClip 返回一个 Rect 对象。因为需要保留最左侧和头部的阴影，所以裁剪时，需要向左和向上偏移 10px。</p>
+<blockquote>
+<p>Rect.fromLTRB(-10, -10, size.width, size.height)</p>
+</blockquote>
+<p>得到效果如下：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64673686-66247800-d4a1-11e9-89e4-caef1edece06.png" alt="图片加载失败，需科学上网"></p>
+<p>再给底部容器添加阴影，得到一个融合为一体的容器，如图：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64677125-97a14180-d4a9-11e9-9bb3-95f0d4f14da5.png" alt="图片加载失败，需科学上网"></p>
+<p>效果貌似还不错，不过有一点细节没有完成，那就是激活的 tab 会有一个阴影效果覆盖其它的 tab，如图所示：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64677487-37f76600-d4aa-11e9-9681-dc37ccae63cb.png" alt="图片加载失败，需科学上网"></p>
+<p>如果用常规的思维来实现，那么非常麻烦，这里我们换一个思维方式来实现这个效果，添加一个渐变容器来模拟阴影效果。代码如下所示：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">_buildHeader() &#123;</span><br><span class="line">    <span class="keyword">return</span> ClipRect(</span><br><span class="line">        clipper: HeaderContainerPath(),</span><br><span class="line">        child: Container(</span><br><span class="line">            height: <span class="number">60</span>,</span><br><span class="line">            child: Stack(</span><br><span class="line">                children: &lt;Widget&gt;[</span><br><span class="line">                    Positioned(</span><br><span class="line">                        left: <span class="number">0</span>,</span><br><span class="line">                        child: _buildLeftHeader(),</span><br><span class="line">                    ),</span><br><span class="line">                    Positioned(</span><br><span class="line">                        left: <span class="number">135</span> - <span class="number">8.0</span>,</span><br><span class="line">                        child: _buildCenterHeader(),</span><br><span class="line">                    ),</span><br><span class="line">                    Positioned(</span><br><span class="line">                        bottom: <span class="number">0</span>,</span><br><span class="line">                        left: <span class="number">0</span>,</span><br><span class="line">                        right: <span class="number">0</span>,</span><br><span class="line">                        child: _buildShadow(), <span class="comment">// 阴影放置在倒数第二的位置</span></span><br><span class="line">                    ),</span><br><span class="line">                    Positioned(</span><br><span class="line">                        left: <span class="number">283</span> - <span class="number">9.0</span>,</span><br><span class="line">                        child: _buildRightHeader(),</span><br><span class="line">                    )</span><br><span class="line">                ],</span><br><span class="line">            ),</span><br><span class="line">        ),</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Widget _buildShadow() &#123;</span><br><span class="line">    <span class="keyword">return</span> Container(</span><br><span class="line">        height: <span class="number">8</span>,</span><br><span class="line">        decoration: BoxDecoration(</span><br><span class="line">        gradient: LinearGradient(colors: [Color.fromRGBO(<span class="number">255</span>, <span class="number">255</span>,<span class="number">255</span>, <span class="number">0</span>), Color.fromRGBO(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>)], begin: Alignment.topCenter, end: Alignment.bottomCenter)</span><br><span class="line">        ),</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>结果如图：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64677798-e26f8900-d4aa-11e9-89fc-6f3f28f2a494.png" alt="图片加载失败，需科学上网"></p>
+<p>右边的阴影有点深，是因为叠加了两层阴影，这个之后再解决。阴影容器放在倒数第二的位置是因为 flutter 没有 css 中 zIndex 的概念，层级是以代码的顺序为准，在 stack 布局中，写在最后的代码层级是最高的，所以阴影放置在倒数第二的位置，覆盖其它的 tab, 同时保证当前激活的 tab 不会被覆盖。</p>
+<h1 id="点击进行切换"><a href="#点击进行切换" class="headerlink" title="点击进行切换"></a>点击进行切换</h1><p>接下来进行点击切换的讲解，因为 flutter 不存在 zIndex，所以在点击的时候，我们需要改变 widget 在代码中的位置来提升激活 tab 的层级，代码如下：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">_buildHeader() &#123;</span><br><span class="line">    <span class="built_in">List</span>&lt;<span class="built_in">Function</span>&gt; tabOrder = [_buildLeftHeader, _buildCenterHeader, _buildRightHeader];</span><br><span class="line">    <span class="built_in">Function</span> activeOrder = tabOrder.removeAt(activeIndex); <span class="comment">// 先移除并取出激活的 tab</span></span><br><span class="line">    tabOrder = tabOrder.reversed.toList();</span><br><span class="line">    tabOrder.add(_buildShadow); <span class="comment">// 把阴影放到倒数第二的位置</span></span><br><span class="line">    tabOrder.add(activeOrder); <span class="comment">// 最终将激活的 tab 放入最后</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ClipRect(</span><br><span class="line">      clipper: HeaderContainerPath(),</span><br><span class="line">      child: Container(</span><br><span class="line">        height: <span class="number">60</span>,</span><br><span class="line">        child: Stack(</span><br><span class="line">          children: tabOrder.map&lt;Widget&gt;((fn) =&gt; fn()).toList(),</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终效果如下：</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/64679498-6d05b780-d4ae-11e9-852a-23bb2987b2d7.gif" alt="图片加载失败，需科学上网"></p>
+<p>最后奉上仓库地址：</p>
+<p><a href="https://github.com/Richard-Choooou/flutter-tabs">https://github.com/Richard-Choooou/flutter-tabs</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/06/26/react%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%B8%B2%E6%9F%93%E5%AE%9E%E8%B7%B52-%E6%95%B0%E6%8D%AE%E9%A2%84%E6%B8%B2%E6%9F%93/" rel="prev" title="react服务端渲染实践2: 数据预渲染">
+      <i class="fa fa-chevron-left"></i> react服务端渲染实践2: 数据预渲染
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/09/29/%E8%A7%A3%E5%86%B3-vue-cli-%E4%BD%BF%E7%94%A8-typescript-%E5%90%8E%E6%89%93%E5%8C%85%E5%B7%A8%E6%85%A2%E7%9A%84%E9%97%AE%E9%A2%98/" rel="next" title="解决 vue cli 使用 typescript 后打包巨慢的问题">
+      解决 vue cli 使用 typescript 后打包巨慢的问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ClipPath"><span class="nav-number">2.</span> <span class="nav-text">ClipPath</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%98%E5%88%B6%E6%9B%B2%E7%BA%BF%E9%98%B4%E5%BD%B1"><span class="nav-number">3.</span> <span class="nav-text">绘制曲线阴影</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%82%B9%E5%87%BB%E8%BF%9B%E8%A1%8C%E5%88%87%E6%8D%A2"><span class="nav-number">4.</span> <span class="nav-text">点击进行切换</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Richard Chou</p>
+  <div class="site-description" itemprop="description">Blogs for Richard Chou</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

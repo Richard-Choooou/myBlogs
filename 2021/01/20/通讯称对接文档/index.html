@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="项目背景在森果零售收银台项目中，需要在 app 内读取到电子秤的重量信息用于计重结算。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="森果收银台-通讯称对接文档">
+<meta property="og:url" content="http://example.com/2021/01/20/%E9%80%9A%E8%AE%AF%E7%A7%B0%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="项目背景在森果零售收银台项目中，需要在 app 内读取到电子秤的重量信息用于计重结算。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.senguo.cc/20210120153834.jpg">
+<meta property="og:image" content="https://img.senguo.cc/IMG_0742.HEIC.JPG">
+<meta property="og:image" content="https://img.senguo.cc/%E4%B8%B2%E5%8F%A3%E7%A7%B0%E9%80%9A%E4%BF%A1%E6%B5%81%E7%A8%8B.jpg">
+<meta property="article:published_time" content="2021-01-20T16:45:15.000Z">
+<meta property="article:modified_time" content="2024-09-13T03:12:58.268Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.senguo.cc/20210120153834.jpg">
+
+<link rel="canonical" href="http://example.com/2021/01/20/%E9%80%9A%E8%AE%AF%E7%A7%B0%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>森果收银台-通讯称对接文档 | Richard Chou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Richard Chou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Richard Chou's blogs</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/20/%E9%80%9A%E8%AE%AF%E7%A7%B0%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="Blogs for Richard Chou">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          森果收银台-通讯称对接文档
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-20 16:45:15" itemprop="dateCreated datePublished" datetime="2021-01-20T16:45:15+00:00">2021-01-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-13 03:12:58" itemprop="dateModified" datetime="2024-09-13T03:12:58+00:00">2024-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h1><p>在森果零售收银台项目中，需要在 app 内读取到电子秤的重量信息用于计重结算。</p>
+<p><img src="https://img.senguo.cc/20210120153834.jpg" alt="https://img.senguo.cc/20210120153834.jpg"></p>
+<span id="more"></span>
+
+<h1 id="项目术语"><a href="#项目术语" class="headerlink" title="项目术语"></a>项目术语</h1><ul>
+<li>通讯称 - 通讯称指能够将读数以二进制通过串口发送给计算机的电子秤，如图所示</li>
+</ul>
+<img src="https://img.senguo.cc/IMG_0742.HEIC.JPG" width="150">
+
+<ul>
+<li>串口 - 串口一般指串行接口。串行接口简称串口，也称串行通信接口或串行通讯接口（通常指COM接口），是采用串行通信方式的扩展接口，详见<a href="https://baike.baidu.com/item/%E4%B8%B2%E8%A1%8C%E6%8E%A5%E5%8F%A3/2909564?fromtitle=%E4%B8%B2%E5%8F%A3&fromid=1250303&fr=aladdin">百度百科</a></li>
+</ul>
+<!-- more -->
+
+<h1 id="技术挑战"><a href="#技术挑战" class="headerlink" title="技术挑战"></a>技术挑战</h1><ul>
+<li>android 平台 ndk 编译。</li>
+<li>能够同时支持多种串口通讯称数据的解析，不同品牌不同型号，协议都可能不同。</li>
+</ul>
+<h1 id="完成要求"><a href="#完成要求" class="headerlink" title="完成要求"></a>完成要求</h1><p>在 windows 以及 android 平台均可获取到通讯称称重信息，同时能够解析不同通讯称数据，且能够稳定读取。</p>
+<h1 id="第三方类库"><a href="#第三方类库" class="headerlink" title="第三方类库"></a>第三方类库</h1><ul>
+<li><a href="https://www.npmjs.com/package/serialport">serialport</a> [nodejs]</li>
+<li><a href="https://github.com/ReactiveX/RxJava">RxJava</a> [java]</li>
+<li><a href="https://github.com/cepr/android-serialport-api">android-serialport-api</a> [java]</li>
+</ul>
+<h1 id="代码设计"><a href="#代码设计" class="headerlink" title="代码设计"></a>代码设计</h1><p>在 Windows 和 android 平台上思路大致相同，仅在代码编写上因平台差异有所不同，流程如下图所示。</p>
+<p><img src="https://img.senguo.cc/%E4%B8%B2%E5%8F%A3%E7%A7%B0%E9%80%9A%E4%BF%A1%E6%B5%81%E7%A8%8B.jpg" alt="https://img.senguo.cc/%E4%B8%B2%E5%8F%A3%E7%A7%B0%E9%80%9A%E4%BF%A1%E6%B5%81%E7%A8%8B.jpg"></p>
+<h2 id="windows核心代码"><a href="#windows核心代码" class="headerlink" title="windows核心代码"></a>windows核心代码</h2><p>因 windows 平台使用 electron 编写，所以客户端层使用 nodejs 编写，nodejs 可以使用<a href="https://www.npmjs.com/package/serialport">serialport</a>这一库来连接串口，以下对此库的使用进行简要说明。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取可用串口列表</span></span><br><span class="line"><span class="keyword">await</span> <span class="title class_">Serialport</span>.<span class="title function_">list</span>()</span><br><span class="line"><span class="comment">// 实例化 Serialport 类，用于开启并访问串口</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">port</span>: <span class="title class_">ISerialport</span> = <span class="keyword">new</span> <span class="title class_">Serialport</span>(portList[i].<span class="property">path</span>, &#123;</span><br><span class="line">    <span class="attr">baudRate</span>: <span class="number">9600</span>,</span><br><span class="line">    <span class="attr">autoOpen</span>: <span class="literal">false</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 开启串口</span></span><br><span class="line">port.<span class="title function_">open</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接受串口发送的数据</span></span><br><span class="line">port.<span class="title function_">on</span>(<span class="string">&#x27;data&#x27;</span>, <span class="function">(<span class="params">chunk</span>) =&gt;</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 向串口写入数据</span></span><br><span class="line">port.<span class="title function_">write</span>(<span class="title class_">Buffer</span>.<span class="title function_">from</span>([<span class="number">0x54</span>, <span class="number">0x41</span>, <span class="number">0x52</span>, <span class="number">0x45</span>, <span class="number">0x0D</span>, <span class="number">0x0A</span>]))</span><br></pre></td></tr></table></figure>
+
+<p>serialport 库还有一些可用的辅助函数可帮助更好的使用数据，例如：</p>
+<ul>
+<li><a href="https://serialport.io/docs/api-parser-byte-length">ByteLength Parser</a> 可以根据字节数来分割流数据</li>
+<li><a href="https://serialport.io/docs/api-parser-regex">Regex Parser</a> 可根据正则表达式提取流数据</li>
+</ul>
+<p>更多请参考官方文档。</p>
+<p>以下代码是一个品牌通讯称的解析器, 其中有注释可做参考</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Regex</span> = <span class="built_in">require</span>(<span class="string">&#x27;@serialport/parser-regex&#x27;</span>)</span><br><span class="line"></span><br><span class="line">abstract <span class="keyword">class</span> <span class="title class_">ScaleParser</span> &#123;</span><br><span class="line">    public abstract <span class="title function_">parse</span>(<span class="attr">port</span>: <span class="title class_">ISerialport</span>): <span class="title class_">NodeJS</span>.<span class="property">WritableStream</span></span><br><span class="line">    public abstract <span class="title function_">setTare</span>(): boolean <span class="comment">// 去皮</span></span><br><span class="line">    public abstract <span class="title function_">setZero</span>(): boolean <span class="comment">// 清零</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ZhongKeYingTai</span> <span class="keyword">extends</span> <span class="title class_ inherited__">ScaleParser</span> &#123;</span><br><span class="line">    <span class="comment">// Serialport 实例</span></span><br><span class="line">    public <span class="attr">port</span>: <span class="title class_">ISerialport</span>| <span class="literal">null</span> = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 继承自 nodejs Transform 类，用于转换流数据</span></span><br><span class="line">    <span class="keyword">static</span> streamTransfer = <span class="keyword">class</span> <span class="title class_">StreamTransfer</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Transform</span> &#123;</span><br><span class="line">        <span class="comment">// chunk 为通过正则表达式提取到的数据</span></span><br><span class="line">        public <span class="title function_">_transform</span>(<span class="params">chunk: any, encoding: string, callback: (error?: <span class="built_in">Error</span> | <span class="literal">null</span>, data?: any) =&gt; <span class="keyword">void</span></span>) &#123;</span><br><span class="line">            <span class="keyword">let</span> weightStr = <span class="keyword">new</span> <span class="title class_">String</span>(chunk).<span class="title function_">toString</span>() <span class="comment">// 将二进制数据转换为字符</span></span><br><span class="line">            <span class="keyword">const</span> reg = <span class="regexp">/^[\s-]\d*\.\d*$/</span></span><br><span class="line">            <span class="comment">// 判断是否能够提取重量信息，提取到重量，那么将数据 push 出去，供后面使用，具体详见 nodejs Transform 类</span></span><br><span class="line">            <span class="keyword">if</span> (reg.<span class="title function_">test</span>(weightStr)) &#123;</span><br><span class="line">                <span class="variable language_">this</span>.<span class="title function_">push</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;</span><br><span class="line">                    <span class="attr">weight</span>: weightStr</span><br><span class="line">                &#125;))</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                log.<span class="title function_">warn</span>(<span class="string">&quot;weight NAN: &quot;</span> + weightStr)</span><br><span class="line">                <span class="title function_">sendException</span>(<span class="title class_">ScalesProtocol</span>.<span class="property">ZHONG_KE_YING_TAI</span>, weightStr, chunk)</span><br><span class="line">                <span class="variable language_">this</span>.<span class="title function_">push</span>(<span class="string">&quot;NAN&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="title function_">callback</span>()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 连接串口，解析数据</span></span><br><span class="line">    public <span class="title function_">parse</span>(<span class="attr">port</span>: <span class="title class_">ISerialport</span>): <span class="title class_">NodeJS</span>.<span class="property">WritableStream</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">port</span> = port</span><br><span class="line">        <span class="comment">// 通过正则表达式，提取需要数据进行转换</span></span><br><span class="line">        <span class="keyword">const</span> p = <span class="keyword">new</span> <span class="title class_">Regex</span>(&#123; <span class="attr">regex</span>: <span class="regexp">/WGT:\d(.*)P.*\r\n/</span> &#125;)</span><br><span class="line">        <span class="comment">// 上述说到的 转换流数据 </span></span><br><span class="line">        <span class="keyword">return</span> port.<span class="title function_">pipe</span>(p).<span class="title function_">pipe</span>(<span class="keyword">new</span> <span class="title class_">ZhongKeYingTai</span>.<span class="title function_">streamTransfer</span>())</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 去皮</span></span><br><span class="line">    public <span class="title function_">setTare</span>(): boolean &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">port</span>) &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">port</span>.<span class="title function_">write</span>(<span class="title class_">Buffer</span>.<span class="title function_">from</span>([<span class="number">0x54</span>, <span class="number">0x41</span>, <span class="number">0x52</span>, <span class="number">0x45</span>, <span class="number">0x0D</span>, <span class="number">0x0A</span>]))</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清零</span></span><br><span class="line">    public <span class="title function_">setZero</span>(): boolean &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">port</span>) &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">port</span>.<span class="title function_">write</span>(<span class="title class_">Buffer</span>.<span class="title function_">from</span>([<span class="number">0x54</span>, <span class="number">0x41</span>, <span class="number">0x52</span>, <span class="number">0x45</span>, <span class="number">0x0D</span>, <span class="number">0x0A</span>]))</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下代码为具体开启串口，并获取数据的代码，仅供参考</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Scale</span> &#123;</span><br><span class="line">    private <span class="attr">ports</span>: <span class="title class_">ISerialport</span>[] = []</span><br><span class="line">    <span class="comment">// public parses = [ZQScaleParser, DHMode1ScaleParser, DHMode2ScaleParser, DJScaleParser, ZhongKeYingTai]</span></span><br><span class="line">    public parser = <span class="keyword">new</span> <span class="title class_">ZhongKeYingTai</span>()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="title function_">startGetWeight</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">parser</span>) <span class="keyword">return</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">stopGetWeight</span>()</span><br><span class="line">        <span class="keyword">const</span> portList = <span class="keyword">await</span> <span class="title class_">Serialport</span>.<span class="title function_">list</span>()</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; portList.<span class="property">length</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">const</span> <span class="attr">port</span>: <span class="title class_">ISerialport</span> = <span class="keyword">new</span> <span class="title class_">Serialport</span>(portList[i].<span class="property">path</span>, &#123;</span><br><span class="line">                <span class="attr">baudRate</span>: <span class="number">9600</span>,</span><br><span class="line">                <span class="attr">autoOpen</span>: <span class="literal">false</span></span><br><span class="line">            &#125;)</span><br><span class="line"></span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">ports</span>.<span class="title function_">push</span>(port)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (port.<span class="property">isOpen</span>) &#123;</span><br><span class="line">                port.<span class="title function_">close</span>()</span><br><span class="line">            &#125;</span><br><span class="line">            port.<span class="title function_">open</span>()</span><br><span class="line"></span><br><span class="line">            <span class="keyword">const</span> closePortTimerId = <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (port.<span class="property">isOpen</span>) &#123;</span><br><span class="line">                    port.<span class="title function_">close</span>()</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;, <span class="number">10</span> * <span class="number">1000</span>) <span class="comment">// 10秒钟无数据返回，关闭串口</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// for (let j = 0; j &lt; this.parses.length; j++) &#123;</span></span><br><span class="line">            <span class="keyword">const</span> parserInstance = <span class="variable language_">this</span>.<span class="property">parser</span></span><br><span class="line">            <span class="keyword">const</span> stream = parserInstance.<span class="title function_">parse</span>(port)</span><br><span class="line">            stream.<span class="title function_">on</span>(<span class="string">&#x27;data&#x27;</span>, <span class="function">(<span class="params">data: any</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (closePortTimerId) &#123;</span><br><span class="line">                    <span class="built_in">clearTimeout</span>(closePortTimerId)</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">const</span> val = <span class="keyword">new</span> <span class="title class_">String</span>(data).<span class="title function_">toString</span>()</span><br><span class="line">                <span class="keyword">if</span> (val === <span class="string">&quot;NAN&quot;</span>) &#123;</span><br><span class="line">                    log.<span class="title function_">warn</span>(<span class="string">&quot;NAN&quot;</span>)</span><br><span class="line">                    <span class="comment">// parser.end()</span></span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="keyword">const</span> weightDataObj = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(val) <span class="comment">// 读取到的称重数据</span></span><br><span class="line">                    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            <span class="comment">// &#125;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">stopGetWeight</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">ports</span>.<span class="title function_">forEach</span>(<span class="function"><span class="params">port</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (port.<span class="property">isOpen</span>) &#123;</span><br><span class="line">                port.<span class="title function_">close</span>()</span><br><span class="line">            &#125;</span><br><span class="line">            port.<span class="title function_">destroy</span>()</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">ports</span> = []</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">setZero</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">parser</span>) &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">parser</span>.<span class="title function_">setZero</span>()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">setTare</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">parser</span>) &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">parser</span>.<span class="title function_">setTare</span>()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="android-平台核心代码"><a href="#android-平台核心代码" class="headerlink" title="android 平台核心代码"></a>android 平台核心代码</h2><p>android 对接串口相对较为麻烦，需要通过 NDK 构建 so 库，同时通过 JNI 调用原生代码，不过完成构建后，api 的使用与平常无异，串口库代码下载地址 <a href="https://github.com/cepr/android-serialport-api">https://github.com/cepr/android-serialport-api</a>，通过 NDK 构建这里不详细讲解，可参考网上<a href="https://blog.csdn.net/itdo_just/article/details/80514116">文章</a>。</p>
+<p>当完成上诉操作后，可以通过代码连接串口，以下对此库的使用进行简要说明。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SerialPortFinder</span> <span class="variable">serialPortFinder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SerialPortFinder</span>();</span><br><span class="line">serialPortFinder.getAllDevicesPath(); <span class="comment">// 通过此方法可以获得 android 机器的串口地址列表</span></span><br><span class="line"><span class="type">SerialPort</span> <span class="variable">serialPort</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SerialPort</span>(<span class="keyword">new</span> <span class="title class_">File</span>(serialPortFileName), baudrate, flags); <span class="comment">// 实例化串口后可以进行串口通讯，baudrate 一般为 9600 flags 一般为 0</span></span><br><span class="line"></span><br><span class="line"><span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> serialPort.getInputStream(); <span class="comment">// 获取串口输入流，称重的数据会以此进行传输</span></span><br></pre></td></tr></table></figure>
+
+<p>为了方便的处理流数据，我们可以使用 Rxjava 来进行数据的订阅与发布。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SerialPortListener</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Map&lt;String, Boolean&gt; mapIsListening = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Map&lt;String, SerialPort&gt; mapSerialPort = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Observable&lt;<span class="type">byte</span>[]&gt; startListen(<span class="keyword">final</span> String serialPortFileName, <span class="type">int</span> baudrate, <span class="type">int</span> flags) <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">if</span> (mapSerialPort.get(serialPortFileName) != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Exception</span>(serialPortFileName + <span class="string">&quot;串口已经在监听了&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">SerialPort</span> <span class="variable">serialPort</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        serialPort = <span class="keyword">new</span> <span class="title class_">SerialPort</span>(<span class="keyword">new</span> <span class="title class_">File</span>(serialPortFileName), baudrate, flags);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> serialPort.getInputStream();</span><br><span class="line">        <span class="keyword">if</span> (inputStream == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Exception</span>(serialPortFileName + <span class="string">&quot;串口输入流有问题&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        mapSerialPort.put(serialPortFileName, serialPort);</span><br><span class="line">        mapIsListening.put(serialPortFileName, <span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">return</span> Observable.create(<span class="keyword">new</span> <span class="title class_">ObservableOnSubscribe</span>&lt;<span class="type">byte</span>[]&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">subscribe</span><span class="params">(ObservableEmitter&lt;<span class="type">byte</span>[]&gt; emitter)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                <span class="keyword">while</span> (mapIsListening.get(serialPortFileName)) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">64</span>];</span><br><span class="line">                        <span class="type">int</span> <span class="variable">size</span> <span class="operator">=</span> inputStream.read(buffer); <span class="comment">// 读取串口数据</span></span><br><span class="line">                        <span class="keyword">if</span> (size &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                            emitter.onNext(buffer); <span class="comment">// 发送给订阅者</span></span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                        emitter.onError(e);</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                        <span class="keyword">return</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在需要使用到称重数据的地方，只需进行订阅即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">Observable&lt;<span class="type">byte</span>[]&gt; serialPortListener = SerialPortListener.startListen(serialPortPath, <span class="number">9600</span>, <span class="number">0</span>); <span class="comment">// 开启串口</span></span><br><span class="line"></span><br><span class="line"><span class="type">Timer</span> <span class="variable">timer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Timer</span>();</span><br><span class="line">timer.schedule(<span class="keyword">new</span> <span class="title class_">TimerTask</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            SerialPortListener.stop(serialPortPath);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="number">1000</span> * <span class="number">10</span>); <span class="comment">// 如果 10 秒后没返回数据，关闭串口</span></span><br><span class="line"></span><br><span class="line">serialPortListener</span><br><span class="line">    .subscribeOn(Schedulers.io())</span><br><span class="line">    .observeOn(AndroidSchedulers.mainThread())</span><br><span class="line">    .subscribe(<span class="keyword">new</span> <span class="title class_">Consumer</span>&lt;<span class="type">byte</span>[]&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">accept</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">            <span class="keyword">if</span> (timer != <span class="literal">null</span>) &#123;</span><br><span class="line">                timer.cancel(); <span class="comment">// 如果收到消息，去掉定时器，不关闭串口</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (SerialScalesParser serialScalesParser : serialWeightMeterPasers) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">w</span> <span class="operator">=</span> serialScalesParser.parseDataFromBytes(bytes); <span class="comment">// 通过解析器解析数据</span></span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (w != <span class="literal">null</span>) &#123;</span><br><span class="line">                    availablePort = SerialPortListener.mapSerialPort.get(serialPortPath);</span><br><span class="line">                    availableParser = serialScalesParser;</span><br><span class="line">                    weight = w;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在接受到串口发布的数据后，通过解析器来解析数据，如果解析到了数据，那么发送给上层应用，解析器代码示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">SerialScalesParser</span> &#123;</span><br><span class="line">    String <span class="title function_">parseDataFromBytes</span><span class="params">(<span class="type">byte</span>[] bytes)</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">setTare</span><span class="params">(SerialPort port)</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">setZero</span><span class="params">(SerialPort port)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AclasScalesParser</span> <span class="keyword">implements</span> <span class="title class_">SerialScalesParser</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">parseDataFromBytes</span><span class="params">(<span class="type">byte</span>[] bytes)</span> &#123;</span><br><span class="line">        <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">16</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">16</span>; i++) &#123;</span><br><span class="line">            buffer[i] = bytes[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">String</span>(buffer);</span><br><span class="line">        <span class="type">String</span> <span class="variable">pattern</span> <span class="operator">=</span> <span class="string">&quot;\\w([-\\s])\\s*(\\d+\\.\\d+)kg&quot;</span>; <span class="comment">// 将符号与数字分开匹配的原因在于，不同顶尖称的数据不一样，分别是 U- 2.231kgs 和 U-02.231kgs, 空格和0的差异。</span></span><br><span class="line">        <span class="type">Pattern</span> <span class="variable">regexp</span> <span class="operator">=</span> Pattern.compile(pattern);</span><br><span class="line">        <span class="type">Matcher</span> <span class="variable">matcher</span> <span class="operator">=</span> regexp.matcher(str);</span><br><span class="line">        <span class="keyword">if</span> (matcher.find()) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">symbol</span> <span class="operator">=</span> matcher.group(<span class="number">1</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">weight</span> <span class="operator">=</span> matcher.group(<span class="number">2</span>);</span><br><span class="line">            <span class="keyword">if</span> (symbol.equals(<span class="string">&quot;-&quot;</span>)) &#123;</span><br><span class="line">                <span class="keyword">return</span> symbol + weight;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> weight;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setTare</span><span class="params">(SerialPort port)</span> &#123;</span><br><span class="line">        <span class="type">OutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> port.getOutputStream();</span><br><span class="line">        <span class="type">byte</span>[] bytes = &#123;<span class="number">0x3C</span>, <span class="number">0x54</span>, <span class="number">0x4B</span>, <span class="number">0x3E</span>, <span class="number">0x09</span>&#125;; <span class="comment">// 顶尖去皮指令</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            outputStream.write(bytes);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setZero</span><span class="params">(SerialPort port)</span> &#123;</span><br><span class="line">        <span class="type">OutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> port.getOutputStream();</span><br><span class="line">        <span class="type">byte</span>[] bytes = &#123;<span class="number">0x3C</span>, <span class="number">0x5A</span>, <span class="number">0x4B</span>, <span class="number">0x3E</span>, <span class="number">0x09</span>&#125;; <span class="comment">// 顶尖清零指令</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            outputStream.write(bytes);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/28/%E5%A4%A7%E5%8D%8E%E6%9D%A1%E7%A0%81%E7%A7%A4%E5%AF%B9%E6%8E%A5%E6%80%BB%E7%BB%93/" rel="prev" title="大华条码秤对接经验总结">
+      <i class="fa fa-chevron-left"></i> 大华条码秤对接经验总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/22/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-%E6%89%93%E5%8D%B0%E6%9C%BA%E5%AF%B9%E6%8E%A5%E6%96%87%E6%A1%A3/" rel="next" title="森果收银台-打印机对接文档">
+      森果收银台-打印机对接文档 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">项目背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E6%9C%AF%E8%AF%AD"><span class="nav-number">2.</span> <span class="nav-text">项目术语</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E6%8C%91%E6%88%98"><span class="nav-number">3.</span> <span class="nav-text">技术挑战</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%8C%E6%88%90%E8%A6%81%E6%B1%82"><span class="nav-number">4.</span> <span class="nav-text">完成要求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%96%B9%E7%B1%BB%E5%BA%93"><span class="nav-number">5.</span> <span class="nav-text">第三方类库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%AE%BE%E8%AE%A1"><span class="nav-number">6.</span> <span class="nav-text">代码设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#windows%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%A0%81"><span class="nav-number">6.1.</span> <span class="nav-text">windows核心代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#android-%E5%B9%B3%E5%8F%B0%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%A0%81"><span class="nav-number">6.2.</span> <span class="nav-text">android 平台核心代码</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Richard Chou</p>
+  <div class="site-description" itemprop="description">Blogs for Richard Chou</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

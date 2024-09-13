@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="项目需求一套功能类似于有赞商城后台管理系统中店铺-微页面的系统，该系统实现用户可以选择所需要的组件，拖动调整组件的顺序，以及编辑组件的内容并且在移动端展示等相关功能,如下图所示。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一套自生成组件系统的构想与实践">
+<meta property="og:url" content="http://example.com/2018/09/15/%E6%A3%AE%E6%9E%9C%E5%BE%AE%E5%95%86%E5%9F%8E%E7%BB%84%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E5%8F%8A%E6%80%9D%E8%80%83/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="项目需求一套功能类似于有赞商城后台管理系统中店铺-微页面的系统，该系统实现用户可以选择所需要的组件，拖动调整组件的顺序，以及编辑组件的内容并且在移动端展示等相关功能,如下图所示。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/47292219-e8f9d580-d638-11e8-9227-11d3837aa389.gif">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/47292220-e9926c00-d638-11e8-998a-fbbf56bfc5aa.gif">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/45584267-1600ed00-b903-11e8-8986-1c65a1f9dbe5.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/45584282-58c2c500-b903-11e8-8375-b93c554779f0.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/47294424-9ff94f80-d63f-11e8-85a3-10b0a63d4ba3.gif">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/47294673-56f5cb00-d640-11e8-89e3-27fc9c60123d.gif">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/45584997-a3e2d500-b90f-11e8-825d-9f637c63d2f3.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/45585231-beb74880-b913-11e8-9bd2-c1952dd84f15.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/45585326-30dc5d00-b915-11e8-9f20-88bbfb62ed33.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/45586103-8586d480-b923-11e8-8088-8f8e7dbfd478.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/23492006/45586162-93892500-b924-11e8-8694-febae26b267e.png">
+<meta property="article:published_time" content="2018-09-15T15:27:04.000Z">
+<meta property="article:modified_time" content="2024-09-13T03:12:58.264Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/23492006/47292219-e8f9d580-d638-11e8-9227-11d3837aa389.gif">
+
+<link rel="canonical" href="http://example.com/2018/09/15/%E6%A3%AE%E6%9E%9C%E5%BE%AE%E5%95%86%E5%9F%8E%E7%BB%84%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E5%8F%8A%E6%80%9D%E8%80%83/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>一套自生成组件系统的构想与实践 | Richard Chou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Richard Chou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Richard Chou's blogs</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/09/15/%E6%A3%AE%E6%9E%9C%E5%BE%AE%E5%95%86%E5%9F%8E%E7%BB%84%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E6%96%B9%E6%A1%88%E5%8F%8A%E6%80%9D%E8%80%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="Blogs for Richard Chou">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          一套自生成组件系统的构想与实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-09-15 15:27:04" itemprop="dateCreated datePublished" datetime="2018-09-15T15:27:04+00:00">2018-09-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-13 03:12:58" itemprop="dateModified" datetime="2024-09-13T03:12:58+00:00">2024-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="项目需求"><a href="#项目需求" class="headerlink" title="项目需求"></a>项目需求</h1><p>一套功能类似于有赞商城后台管理系统中店铺-微页面的系统，该系统实现用户可以选择所需要的组件，拖动调整组件的顺序，以及编辑组件的内容并且在移动端展示等相关功能,如下图所示。<br><img src="https://user-images.githubusercontent.com/23492006/47292219-e8f9d580-d638-11e8-9227-11d3837aa389.gif" alt="图片加载失败，需科学上网"></p>
+<p><img src="https://user-images.githubusercontent.com/23492006/47292220-e9926c00-d638-11e8-998a-fbbf56bfc5aa.gif" alt="图片加载失败，需科学上网"></p>
+<span id="more"></span>
+
+<h1 id="开始前的思考"><a href="#开始前的思考" class="headerlink" title="开始前的思考"></a>开始前的思考</h1><h2 id="系统主要功能"><a href="#系统主要功能" class="headerlink" title="系统主要功能"></a>系统主要功能</h2><p>仔细想了一想，该系统需要实现下面三大功能</p>
+<ul>
+<li>组件系统</li>
+<li>移动端组件生成系统</li>
+<li>后台管理系统组件编辑功能</li>
+</ul>
+<h2 id="基于什么开发"><a href="#基于什么开发" class="headerlink" title="基于什么开发"></a>基于什么开发</h2><p>服务端渲染？还是用原生js封装组件？使用框架选 react 还是 vue？</p>
+<p>因为之前且尝试开发过element ui库的组件，<a href="https://juejin.im/post/5b77d591e51d4538aa1b2971">详情点这</a>，对于element ui的架构有一定的了解，于是打算把基本的功能照搬element ui的架构，先基于vue开发一套组件系统，其他的功能再自行定制。</p>
+<h1 id="构建时的思考"><a href="#构建时的思考" class="headerlink" title="构建时的思考"></a>构建时的思考</h1><h2 id="构建工具的搭建"><a href="#构建工具的搭建" class="headerlink" title="构建工具的搭建"></a>构建工具的搭建</h2><p>构建工具我选择了webpack，大版本为4.0，试着吃吃螃蟹。先思考下需要webpack的哪些功能：</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>相关插件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>es6-es5</td>
+<td>babel-loader</td>
+</tr>
+<tr>
+<td>sass-css</td>
+<td>sass-loader css-loader style-loader</td>
+</tr>
+<tr>
+<td>css文件抽离</td>
+<td>mini-css-extract-plugin</td>
+</tr>
+<tr>
+<td>html模版</td>
+<td>html-loader 以及 html-webpack-plugin</td>
+</tr>
+<tr>
+<td>vue文件解析</td>
+<td>vue-loader</td>
+</tr>
+<tr>
+<td>图片文件解析</td>
+<td>file-loader</td>
+</tr>
+<tr>
+<td>markdown转换vue</td>
+<td>vue-markdown-loader</td>
+</tr>
+<tr>
+<td>删除文件</td>
+<td>clean-webpack-plugin 或者脚本</td>
+</tr>
+<tr>
+<td>热更新</td>
+<td>HotModuleReplacementPlugin</td>
+</tr>
+<tr>
+<td>webpack配置合并</td>
+<td>webpack-merge</td>
+</tr>
+</tbody></table>
+<p>基本上就是以上的loader及插件了。</p>
+<p>因为组件库涉及到多个功能的打包，比如组件库，预览时的配置，以及后面会提到的和其他项目的集成，所以对于webpack的配置，可以学习vue-cli中的配置，将公共的配置抽离，特殊的配置通过webpack-merge插件完成合并。</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/45584267-1600ed00-b903-11e8-8986-1c65a1f9dbe5.png" alt="图片加载失败，需科学上网"></p>
+<p>这里将不同的需求及功能抽离成了如上图所示的几个webpack配置，<br>其中webpack.base.js为公共的配置，如下图所示，分别处理了vue文件，图片以及js文件</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/45584282-58c2c500-b903-11e8-8375-b93c554779f0.png" alt="图片加载失败，需科学上网"></p>
+<p>这篇文章的目的是主要提供一个思路，所以这里不详细讲解webpack的相关配置。</p>
+<h2 id="除了构建工具，还能不能更加高效的完成开发？"><a href="#除了构建工具，还能不能更加高效的完成开发？" class="headerlink" title="除了构建工具，还能不能更加高效的完成开发？"></a>除了构建工具，还能不能更加高效的完成开发？</h2><p>其实对于开发来说，提高效率的主要方式就是将相同的事物封装起来，就好比一个函数的封装，这里因为组件文件的结构是相似的，所以我学习element ui的做法，将组件的创建过程封装成脚本，运行命令就能够直接生成好文件，以及添加配置文件。代码如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> fileSave = <span class="built_in">require</span>(<span class="string">&#x27;file-save&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> getUnifiedName = <span class="built_in">require</span>(<span class="string">&#x27;../utils&#x27;</span>).<span class="property">getUnifiedName</span></span><br><span class="line"><span class="keyword">const</span> uppercamelcase = <span class="built_in">require</span>(<span class="string">&#x27;uppercamelcase&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">&#x27;../config&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> component_name = process.<span class="property">argv</span>[<span class="number">2</span>]                                  <span class="comment">//组件文件名 横杠分隔</span></span><br><span class="line"><span class="keyword">const</span> <span class="title class_">ComponentName</span> = <span class="title function_">uppercamelcase</span>(component_name)                    <span class="comment">//组件帕斯卡拼写法命名</span></span><br><span class="line"><span class="keyword">const</span> componentCnName = process.<span class="property">argv</span>[<span class="number">3</span>] || <span class="title class_">ComponentName</span>                <span class="comment">//组件中文名</span></span><br><span class="line"><span class="keyword">const</span> componentFnName = <span class="string">&#x27;$&#x27;</span> + <span class="title function_">getUnifiedName</span>(component_name)            <span class="comment">//组件函数名</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/** 以下模版字符串不能缩进，否则创建的文件内容排版会混乱  **/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> createFiles = [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">packagesPath</span>, component_name, <span class="string">&#x27;index.js&#x27;</span>),</span><br><span class="line">        <span class="attr">content</span>: <span class="string">`import Vue from &#x27;vue&#x27;</span></span><br><span class="line"><span class="string">import <span class="subst">$&#123;ComponentName&#125;</span> from &#x27;./src/main.vue&#x27;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">const Component = Vue.extend(<span class="subst">$&#123;ComponentName&#125;</span>)</span></span><br><span class="line"><span class="string"><span class="subst">$&#123;ComponentName&#125;</span>.install = function(Vue) &#123;</span></span><br><span class="line"><span class="string">    Vue.component(<span class="subst">$&#123;ComponentName&#125;</span>.name, <span class="subst">$&#123;ComponentName&#125;</span>)</span></span><br><span class="line"><span class="string">    Vue.prototype.<span class="subst">$&#123;componentFnName&#125;</span> = function() &#123;</span></span><br><span class="line"><span class="string">        const instance = new Component()</span></span><br><span class="line"><span class="string">        instance.$mount()</span></span><br><span class="line"><span class="string">        return instance</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">export default <span class="subst">$&#123;ComponentName&#125;</span>`</span></span><br><span class="line">    &#125;, &#123;</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">packagesPath</span>, component_name, <span class="string">&#x27;src&#x27;</span>, <span class="string">&#x27;main.scss&#x27;</span>),</span><br><span class="line">        <span class="attr">content</span>: <span class="string">`@import &#x27;~@/style/common/variable.scss&#x27;;</span></span><br><span class="line"><span class="string">@import &#x27;~@/style/common/mixins.scss&#x27;;</span></span><br><span class="line"><span class="string">@import &#x27;~@/style/common/functions.scss&#x27;;`</span></span><br><span class="line">    &#125;, &#123;</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">packagesPath</span>, component_name, <span class="string">&#x27;src&#x27;</span>, <span class="string">&#x27;main.vue&#x27;</span>),</span><br><span class="line">        <span class="attr">content</span>: <span class="string">`&lt;template&gt;</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">&lt;/template&gt;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt;script&gt;</span></span><br><span class="line"><span class="string">export default &#123;</span></span><br><span class="line"><span class="string">    name: &#x27;<span class="subst">$&#123;getUnifiedName(component_name)&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&lt;/script&gt;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt;style lang=&quot;scss&quot; scoped&gt;</span></span><br><span class="line"><span class="string">@import &#x27;./main.scss&#x27;;</span></span><br><span class="line"><span class="string">&lt;/style&gt;`</span></span><br><span class="line">    &#125;, &#123;</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;src&#x27;</span>, <span class="string">&#x27;doc&#x27;</span>, <span class="string">`<span class="subst">$&#123;component_name&#125;</span>.md`</span>),</span><br><span class="line">        <span class="attr">content</span>: <span class="string">`## <span class="subst">$&#123;ComponentName&#125;</span> <span class="subst">$&#123;componentCnName&#125;</span></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt;div class=&quot;example-conainer&quot;&gt;</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;phone-container&quot;&gt;</span></span><br><span class="line"><span class="string">        &lt;div class=&quot;phone-screen&quot;&gt;</span></span><br><span class="line"><span class="string">            &lt;div class=&quot;title&quot;&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">            &lt;div class=&quot;webview-container&quot;&gt;</span></span><br><span class="line"><span class="string">                &lt;sg-<span class="subst">$&#123;component_name&#125;</span>&gt;&lt;/sg-<span class="subst">$&#123;component_name&#125;</span>&gt;</span></span><br><span class="line"><span class="string">            &lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;edit-container&quot;&gt;</span></span><br><span class="line"><span class="string">        &lt;edit-component&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">&lt;/div&gt;</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">&lt;script&gt;</span></span><br><span class="line"><span class="string">    import editComponent from &#x27;../components/edit-components/<span class="subst">$&#123;component_name&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    export default &#123;</span></span><br><span class="line"><span class="string">        data() &#123;</span></span><br><span class="line"><span class="string">            return &#123;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">        &#125;,</span></span><br><span class="line"><span class="string">        components: &#123;</span></span><br><span class="line"><span class="string">            editComponent</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&lt;/script&gt;</span></span><br><span class="line"><span class="string">        `</span></span><br><span class="line">    &#125;, &#123;</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;src/components/edit-components&#x27;</span>, <span class="string">`<span class="subst">$&#123;component_name&#125;</span>.vue`</span>),</span><br><span class="line">        <span class="attr">content</span>: <span class="string">``</span></span><br><span class="line">    &#125;</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> componentsJson = <span class="built_in">require</span>(path.<span class="title function_">join</span>(config.<span class="property">srcPath</span>, <span class="string">&#x27;components.json&#x27;</span>))</span><br><span class="line"><span class="keyword">const</span> docNavConfig = <span class="built_in">require</span>(path.<span class="title function_">join</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;src&#x27;</span>, <span class="string">&#x27;router&#x27;</span>, <span class="string">&#x27;nav.config.json&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(docNavConfig[component_name]) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;component_name&#125;</span> 已经存在，请检查目录或者components.json文件`</span>)</span><br><span class="line">    process.<span class="title function_">exit</span>(<span class="number">0</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(componentsJson[component_name]) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;component_name&#125;</span> 已经存在，请检查目录或者nav.config.json文件`</span>)</span><br><span class="line">    process.<span class="title function_">exit</span>(<span class="number">0</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">createFiles.<span class="title function_">forEach</span>(<span class="function"><span class="params">file</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">fileSave</span>(file.<span class="property">path</span>)</span><br><span class="line">    .<span class="title function_">write</span>(file.<span class="property">content</span>, <span class="string">&#x27;utf8&#x27;</span>)</span><br><span class="line">    .<span class="title function_">end</span>(<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">componentsJson[component_name] = &#123;&#125;</span><br><span class="line">componentsJson[component_name].<span class="property">path</span> =  <span class="string">`./packages/<span class="subst">$&#123;component_name&#125;</span>/index.js`</span></span><br><span class="line">componentsJson[component_name].<span class="property">cnName</span> = componentCnName</span><br><span class="line">componentsJson[component_name].<span class="property">fnName</span> = componentFnName</span><br><span class="line">componentsJson[component_name].<span class="property">propsData</span> = &#123;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">docNavConfig[component_name] = &#123;&#125;</span><br><span class="line">docNavConfig[component_name].<span class="property">path</span> =  <span class="string">`./src/doc/<span class="subst">$&#123;component_name&#125;</span>.md`</span></span><br><span class="line">docNavConfig[component_name].<span class="property">cnName</span> = componentCnName</span><br><span class="line">docNavConfig[component_name].<span class="property">vueRouterHref</span> = <span class="string">&#x27;/&#x27;</span> + component_name</span><br><span class="line">docNavConfig[component_name].<span class="property">fnName</span> = componentFnName</span><br><span class="line"></span><br><span class="line"><span class="title function_">fileSave</span>(path.<span class="title function_">join</span>(config.<span class="property">srcPath</span>, <span class="string">&#x27;components.json&#x27;</span>))</span><br><span class="line">    .<span class="title function_">write</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(componentsJson, <span class="literal">null</span>, <span class="string">&#x27;  &#x27;</span>), <span class="string">&#x27;utf8&#x27;</span>)</span><br><span class="line">    .<span class="title function_">end</span>(<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_">fileSave</span>(path.<span class="title function_">join</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;src&#x27;</span>, <span class="string">&#x27;router&#x27;</span>, <span class="string">&#x27;nav.config.json&#x27;</span>))</span><br><span class="line">    .<span class="title function_">write</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(docNavConfig, <span class="literal">null</span>, <span class="string">&#x27;  &#x27;</span>), <span class="string">&#x27;utf8&#x27;</span>)</span><br><span class="line">    .<span class="title function_">end</span>(<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;组件创建完成&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>以及删除组件</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> fsdo = <span class="built_in">require</span>(<span class="string">&#x27;fs-extra&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> fileSave = <span class="built_in">require</span>(<span class="string">&#x27;file-save&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">&#x27;../config&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> component_name = process.<span class="property">argv</span>[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> files = [&#123;</span><br><span class="line">    <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">packagesPath</span>, component_name),</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;dir&#x27;</span></span><br><span class="line">&#125;, &#123;</span><br><span class="line">    <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;src&#x27;</span>, <span class="string">&#x27;doc&#x27;</span>, <span class="string">`<span class="subst">$&#123;component_name&#125;</span>.md`</span>),</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;file&#x27;</span></span><br><span class="line">&#125;, &#123;</span><br><span class="line">    <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">srcPath</span>, <span class="string">&#x27;components.json&#x27;</span>),</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;json&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: component_name</span><br><span class="line">&#125;, &#123;</span><br><span class="line">    <span class="attr">path</span>: path.<span class="title function_">join</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;src&#x27;</span>, <span class="string">&#x27;router&#x27;</span>, <span class="string">&#x27;nav.config.json&#x27;</span>),</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;json&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: component_name</span><br><span class="line">&#125;]</span><br><span class="line"></span><br><span class="line">files.<span class="title function_">forEach</span>(<span class="function"><span class="params">file</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span>(file.<span class="property">type</span>) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;dir&#x27;</span>:</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;file&#x27;</span>:</span><br><span class="line">            <span class="title function_">removeFiles</span>(file.<span class="property">path</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;json&#x27;</span>:</span><br><span class="line">            <span class="title function_">deleteJsonItem</span>(file.<span class="property">path</span>, file.<span class="property">key</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="attr">default</span>:</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;unknow file type&#x27;</span>)</span><br><span class="line">            process.<span class="title function_">exit</span>(<span class="number">0</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">removeFiles</span>(<span class="params">path</span>) &#123;</span><br><span class="line">    fsdo.<span class="title function_">removeSync</span>(path)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">deleteJsonItem</span>(<span class="params">path, key</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> targetJson = <span class="built_in">require</span>(path)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(targetJson[key]) &#123;</span><br><span class="line">        <span class="keyword">delete</span> targetJson[key]</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="title function_">fileSave</span>(path)</span><br><span class="line">        .<span class="title function_">write</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(targetJson, <span class="literal">null</span>, <span class="string">&#x27;  &#x27;</span>), <span class="string">&#x27;utf8&#x27;</span>)</span><br><span class="line">        .<span class="title function_">end</span>(<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;组件删除完成&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="如何开发vue组件"><a href="#如何开发vue组件" class="headerlink" title="如何开发vue组件"></a>如何开发vue组件</h2><p>用过vue的同学应该知道vue开发组件有两种方式，一种是 vue.component()的方式，另一种是vue.extend()方式，可以在上面的创建文件代码中看见，这两种方式我都用到了。原因是，对于配置组件的页面，需要用到声明式组件，对于移动端渲染，声明式组件肯定是不行的，所以需要用到函数式的组件。</p>
+<h2 id="如何打包vue组件"><a href="#如何打包vue组件" class="headerlink" title="如何打包vue组件"></a>如何打包vue组件</h2><p>打包vue组件，当然不能将其他无用的功能打包进库中，所以再来一套单独的webpack配置</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> merge = <span class="built_in">require</span>(<span class="string">&#x27;webpack-merge&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> webpackBaseConfig = <span class="built_in">require</span>(<span class="string">&#x27;./webpack.base&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> miniCssExtractPlugin = <span class="built_in">require</span>(<span class="string">&#x27;mini-css-extract-plugin&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">&#x27;./config&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">ENV</span> = process.<span class="property">argv</span>.<span class="property">NODE_ENV</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">merge</span>(webpackBaseConfig, &#123;</span><br><span class="line">    <span class="attr">output</span>: &#123;</span><br><span class="line">        <span class="attr">filename</span>: <span class="string">&#x27;senguo.m.ui.js&#x27;</span>,</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">resolve</span>(config.<span class="property">basePath</span>, <span class="string">&#x27;./dist/ui&#x27;</span>),</span><br><span class="line">        <span class="attr">publicPath</span>: <span class="string">&#x27;/dist/ui&#x27;</span>,</span><br><span class="line">        <span class="attr">libraryTarget</span>: <span class="string">&#x27;umd&#x27;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">externals</span>: &#123;</span><br><span class="line">        <span class="attr">vue</span>: &#123;</span><br><span class="line">            <span class="attr">root</span>: <span class="string">&#x27;Vue&#x27;</span>,</span><br><span class="line">            <span class="attr">commonjs</span>: <span class="string">&#x27;vue&#x27;</span>,</span><br><span class="line">            <span class="attr">commonjs2</span>: <span class="string">&#x27;vue&#x27;</span>,</span><br><span class="line">            <span class="attr">amd</span>: <span class="string">&#x27;vue&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">module</span>: &#123;</span><br><span class="line">        <span class="attr">rules</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">test</span>: <span class="regexp">/\.(sc|c)ss$/</span>,</span><br><span class="line">                <span class="attr">use</span>: [miniCssExtractPlugin.<span class="property">loader</span>, </span><br><span class="line">                &#123;<span class="attr">loader</span>: <span class="string">&#x27;css-loader&#x27;</span>&#125;, </span><br><span class="line">                &#123;<span class="attr">loader</span>: <span class="string">&#x27;sass-loader&#x27;</span>&#125;]</span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="attr">plugins</span>: [</span><br><span class="line">        <span class="keyword">new</span> <span class="title function_">miniCssExtractPlugin</span>(&#123;</span><br><span class="line">            <span class="attr">filename</span>: <span class="string">&quot;sg-m-ui.css&quot;</span></span><br><span class="line">        &#125;)</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>先看看组件的入口文件，这是通过配置文件自动生成的，所以不必操心什么。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//文件从 build/bin/build-entry.js生成</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">SgAlert</span> <span class="keyword">from</span> <span class="string">&#x27;./packages/alert/index.js&#x27;</span> </span><br><span class="line"><span class="keyword">import</span> <span class="title class_">SgSwipe</span> <span class="keyword">from</span> <span class="string">&#x27;./packages/swipe/index.js&#x27;</span> </span><br><span class="line"><span class="keyword">import</span> <span class="title class_">SgGoodsList</span> <span class="keyword">from</span> <span class="string">&#x27;./packages/goods-list/index.js&#x27;</span> </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> components = [<span class="title class_">SgAlert</span>,<span class="title class_">SgSwipe</span>,<span class="title class_">SgGoodsList</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> install = <span class="keyword">function</span>(<span class="params">Vue</span>) &#123;</span><br><span class="line">    components.<span class="title function_">forEach</span>(<span class="function"><span class="params">component</span> =&gt;</span> &#123;</span><br><span class="line">        component.<span class="title function_">install</span>(<span class="title class_">Vue</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* istanbul ignore if */</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable language_">window</span> !== <span class="string">&#x27;undefined&#x27;</span> &amp;&amp; <span class="variable language_">window</span>.<span class="property">Vue</span>) &#123;</span><br><span class="line">    <span class="title function_">install</span>(<span class="variable language_">window</span>.<span class="property">Vue</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// module.exports = &#123;install&#125;</span></span><br><span class="line"><span class="comment">// module.exports.default = module.exports</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;install&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="该如何看见我开发的组件？"><a href="#该如何看见我开发的组件？" class="headerlink" title="该如何看见我开发的组件？"></a>该如何看见我开发的组件？</h2><p>因为开发组件时肯定是需要一套webpack的配置用于启动web服务和热更新，所以在build文件夹中，编写了另外一套webpack配置用于开发时预览组件</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;--webpack.<span class="property">dev</span>.<span class="property">js</span>--&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">&#x27;webpack&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> merge = <span class="built_in">require</span>(<span class="string">&#x27;webpack-merge&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> webpackBaseConfig = <span class="built_in">require</span>(<span class="string">&#x27;./webpack.base&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> webpackCleanPlugin = <span class="built_in">require</span>(<span class="string">&#x27;clean-webpack-plugin&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">&#x27;./config&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">merge</span>(webpackBaseConfig, &#123;</span><br><span class="line">    <span class="attr">module</span>: &#123;</span><br><span class="line">        <span class="attr">rules</span>: [&#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.(sc|c)ss$/</span>,</span><br><span class="line">            <span class="attr">use</span>: [&#123;</span><br><span class="line">                <span class="attr">loader</span>: <span class="string">&#x27;style-loader&#x27;</span></span><br><span class="line">            &#125;, &#123;</span><br><span class="line">                <span class="attr">loader</span>: <span class="string">&#x27;vue-style-loader&#x27;</span>,</span><br><span class="line">            &#125;, &#123;</span><br><span class="line">                <span class="attr">loader</span>: <span class="string">&#x27;css-loader&#x27;</span></span><br><span class="line">            &#125;, &#123;</span><br><span class="line">                <span class="attr">loader</span>: <span class="string">&#x27;sass-loader&#x27;</span></span><br><span class="line">            &#125;]</span><br><span class="line">        &#125;]</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">devServer</span>: &#123;</span><br><span class="line">        <span class="attr">host</span>: <span class="string">&#x27;0.0.0.0&#x27;</span>,</span><br><span class="line">        <span class="attr">publicPath</span>: <span class="string">&#x27;/&#x27;</span>,</span><br><span class="line">        <span class="attr">hot</span>: <span class="literal">true</span>,</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="attr">plugins</span>: [</span><br><span class="line">        <span class="keyword">new</span> <span class="title function_">webpackCleanPlugin</span>(</span><br><span class="line">            [<span class="string">&#x27;../dist&#x27;</span>], &#123;</span><br><span class="line">                <span class="attr">root</span>: config.<span class="property">basePath</span>,</span><br><span class="line">                <span class="attr">allowExternal</span>: <span class="literal">true</span></span><br><span class="line">            &#125;</span><br><span class="line">        ),</span><br><span class="line">        <span class="keyword">new</span> webpack.<span class="title class_">HotModuleReplacementPlugin</span>()</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;--webpack.<span class="property">demo</span>.<span class="property">js</span>--&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> merge = <span class="built_in">require</span>(<span class="string">&#x27;webpack-merge&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> webpackDevConfig = <span class="built_in">require</span>(<span class="string">&#x27;./webpack.dev&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">&#x27;./config&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> htmlWebpackPlugin = <span class="built_in">require</span>(<span class="string">&#x27;html-webpack-plugin&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> webpackDemoConfig= <span class="title function_">merge</span>(webpackDevConfig, &#123;</span><br><span class="line">    <span class="attr">entry</span>: path.<span class="title function_">resolve</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;index.js&#x27;</span>),</span><br><span class="line"></span><br><span class="line">    <span class="attr">output</span>: &#123;</span><br><span class="line">        <span class="attr">filename</span>: <span class="string">&#x27;index.js&#x27;</span>,</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">resolve</span>(config.<span class="property">basePath</span>, <span class="string">&#x27;./dist&#x27;</span>),</span><br><span class="line">        <span class="attr">publicPath</span>: <span class="string">&#x27;/&#x27;</span></span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="attr">module</span>: &#123;</span><br><span class="line">        <span class="attr">rules</span>: [&#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.md$/</span>,</span><br><span class="line">            <span class="attr">use</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">loader</span>: <span class="string">&#x27;vue-loader&#x27;</span></span><br><span class="line">            &#125;, </span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">loader</span>: <span class="string">&#x27;vue-markdown-loader/lib/markdown-compiler&#x27;</span>,</span><br><span class="line">                <span class="attr">options</span>: &#123;</span><br><span class="line">                    <span class="attr">raw</span>: <span class="literal">true</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;]</span><br><span class="line">        &#125;,  &#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.html$/</span>,</span><br><span class="line">            <span class="attr">use</span>: [&#123;<span class="attr">loader</span>: <span class="string">&#x27;html-loader&#x27;</span>&#125;]</span><br><span class="line">        &#125;, ]</span><br><span class="line">    &#125;, </span><br><span class="line">    </span><br><span class="line">    <span class="attr">plugins</span>: [</span><br><span class="line">        <span class="keyword">new</span> <span class="title function_">htmlWebpackPlugin</span>(&#123;</span><br><span class="line">            <span class="attr">template</span>: path.<span class="title function_">join</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;index.html&#x27;</span>),</span><br><span class="line">            <span class="attr">inject</span>: <span class="string">&#x27;body&#x27;</span></span><br><span class="line">        &#125;)</span><br><span class="line">    ]</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = webpackDemoConfig</span><br></pre></td></tr></table></figure>
+
+<p>在其中可以看见使用了md文件，使用md文件的目的是：</p>
+<ol>
+<li>可以在开发时直接预览组件</li>
+<li>可以很方便的编写说明文档</li>
+</ol>
+<p>通过vue-markdown-loader就可以将md文件解析成vue文件了，这个库是element ui 的官方人员开发的，其实原理很简单，就是将md文档先解析成html文档，再将html文档放入vue文档的template标签内，script 和 style标签单独抽离并排放置，就是一个vue的文档了，解析完后交给vue-loader处理就可以将md文档内容渲染到页面了。</p>
+<h2 id="那么预览页面的路由该如何处理呢？"><a href="#那么预览页面的路由该如何处理呢？" class="headerlink" title="那么预览页面的路由该如何处理呢？"></a>那么预览页面的路由该如何处理呢？</h2><p>就像上面创建文件那样，通过配置文件以及脚本动态生成路由文件，运行开发模式之前，先创建路由js文件即可</p>
+<p>配置文件一览</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;main&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./src/pages/main.vue&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;cnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;首页&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;vueRouterHref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/main&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;alert&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./src/doc/alert.md&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;cnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;警告&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;vueRouterHref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/alert&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;swipe&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./src/doc/swipe.md&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;cnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;轮播&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;vueRouterHref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/swipe&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;goods-list&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span><span class="string">&quot;./src/doc/goods-list.md&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;cnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;商品列表&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;vueRouterHref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/goods-list&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>构建完成的路由文件</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//文件从 build/bin/build-route.js生成</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Vue</span> <span class="keyword">from</span> <span class="string">&#x27;vue&#x27;</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Router</span> <span class="keyword">from</span> <span class="string">&#x27;vue-router&#x27;</span></span><br><span class="line"><span class="keyword">const</span> navConfig = <span class="built_in">require</span>(<span class="string">&#x27;./nav.config.json&#x27;</span>)</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">SgMain</span> <span class="keyword">from</span> <span class="string">&#x27;../pages/main.vue&#x27;</span> </span><br><span class="line"><span class="keyword">import</span> <span class="title class_">SgAlert</span> <span class="keyword">from</span> <span class="string">&#x27;../doc/alert.md&#x27;</span> </span><br><span class="line"><span class="keyword">import</span> <span class="title class_">SgSwipe</span> <span class="keyword">from</span> <span class="string">&#x27;../doc/swipe.md&#x27;</span> </span><br><span class="line"><span class="keyword">import</span> <span class="title class_">SgGoodsList</span> <span class="keyword">from</span> <span class="string">&#x27;../doc/goods-list.md&#x27;</span> </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="title class_">Vue</span>.<span class="title function_">use</span>(<span class="title class_">Router</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> modules = [<span class="title class_">SgMain</span>,<span class="title class_">SgAlert</span>,<span class="title class_">SgSwipe</span>,<span class="title class_">SgGoodsList</span>]</span><br><span class="line"><span class="keyword">const</span> routes = []</span><br><span class="line"></span><br><span class="line"><span class="title class_">Object</span>.<span class="title function_">keys</span>(navConfig).<span class="title function_">map</span>(<span class="function">(<span class="params">value, index</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> obj = &#123;&#125;</span><br><span class="line">    obj.<span class="property">path</span> = value.<span class="property">vueRouterHref</span>,</span><br><span class="line">    obj.<span class="property">component</span> = modules[index]</span><br><span class="line">    routes.<span class="title function_">push</span>(obj)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">new</span> <span class="title class_">Router</span>(&#123;</span><br><span class="line">    <span class="attr">mode</span>: <span class="string">&#x27;hash&#x27;</span>,</span><br><span class="line">    routes</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>就这样，从组件的创建到项目的运行都是自动的啦。</p>
+<h2 id="介个编辑拖拽的功能要咋弄呢？"><a href="#介个编辑拖拽的功能要咋弄呢？" class="headerlink" title="介个编辑拖拽的功能要咋弄呢？"></a>介个编辑拖拽的功能要咋弄呢？</h2><p><img src="https://user-images.githubusercontent.com/23492006/47294424-9ff94f80-d63f-11e8-85a3-10b0a63d4ba3.gif" alt="图片加载失败，需科学上网"></p>
+<p>当然是用的插件啦，简单粗暴，<a href="https://www.npmjs.com/package/vuedraggable">看这里</a>,它是基于<a href="https://github.com/RubaXa/Sortable">Sortable.js</a>封装的，有赞貌似用的也是这个库。</p>
+<p>但看到右边的那个编辑框，我不禁陷入了沉思，怎么样才能做到只开发一次，这个配置页面就不用管理了？</p>
+<h2 id="编辑组件的组件？？？"><a href="#编辑组件的组件？？？" class="headerlink" title="编辑组件的组件？？？"></a>编辑组件的组件？？？</h2><p><img src="https://user-images.githubusercontent.com/23492006/47294673-56f5cb00-d640-11e8-89e3-27fc9c60123d.gif" alt="图片加载失败，需科学上网"></p>
+<p>由于中文的博大精深，姑且将下面的关键字分为两种：</p>
+<ol>
+<li>用于移动端展示的组件—— <strong>功能组件</strong></li>
+<li>用于编辑功能组件的组件—- <strong>选项组件</strong></li>
+</ol>
+<p><img src="https://user-images.githubusercontent.com/23492006/45584997-a3e2d500-b90f-11e8-825d-9f637c63d2f3.png" alt="图片加载失败，需科学上网"></p>
+<p>分析需求可以发现，功能组件的内容都是可以由选项组件编辑的，最初我的想法是，选项组件的内容也根据配置文件生成，比如组件的props数据，这样就不用开发选项组件了，仔细一想还是太年轻了，配置项不可能满足设计稿以及不同的需求。</p>
+<p>只能同时开发另一套选项组件咯，于是乎将选项组件的内容追加到自动生成文件的列表，这样微微先省点事。</p>
+<h3 id="组件间的通信咋办？"><a href="#组件间的通信咋办？" class="headerlink" title="组件间的通信咋办？"></a>组件间的通信咋办？</h3><p>功能组件与选项组件间的通信可不是一件简单的事，首先要所有的组件实现同一种通信方式，其次也不能因为参数的丢失而导致报错，更重要的是，功能组件在移动端渲染后需要将选项组件配置的选项还原。</p>
+<p>嗯，用那些方式好呢？</p>
+<p>vuex? 需要对每一个组件都添加状态管理，麻烦</p>
+<p>eventBus? 我怕我记不住事件名，导致通信混乱</p>
+<p>props？是个好办法，但是选项组件要怎么样高效的把配置的数据传递出来呢？v-model就是一个很优雅的方式</p>
+<p>首先功能组件的props与选项组件的v-model绑定同一个model，这样就能实现高效的通信，就像这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;--swipe.<span class="property">md</span>--&gt;</span><br><span class="line"></span><br><span class="line">## <span class="title class_">Swipe</span> 轮播</span><br><span class="line"></span><br><span class="line">&lt;div <span class="keyword">class</span>=<span class="string">&quot;example-conainer&quot;</span>&gt;</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;phone-container&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;phone-screen&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;title&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;webview-container&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;phoneScreen&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                <span class="tag">&lt;<span class="name">sg-swipe</span> <span class="attr">:data</span>=<span class="string">&quot;data&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">sg-swipe</span>&gt;</span>          //功能组件使用 data 传入数据</span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;edit-container&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">edit-component</span> <span class="attr">v-model</span>=<span class="string">&quot;data&quot;</span>&gt;</span>                     //选项组件使用v-model绑定模型</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"><span class="keyword">import</span> editComponent <span class="keyword">from</span> <span class="string">&#x27;../components/edit-components/swipe&#x27;</span></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="title function_">data</span>(<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        <span class="keyword">return</span> &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">            <span class="attr">data</span>: &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">                <span class="attr">imagesList</span>: [<span class="string">&#x27;https://aecpm.alicdn.com/simba/img/TB183NQapLM8KJjSZFBSutJHVXa.jpg&#x27;</span>]</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">            &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="attr">components</span>: &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        editComponent</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">&#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>就这样，完美解决组件间通信，但是这是静态的组件，别忘了还有一个难点，那就是位于编辑微页面的动态匿名组件该如何进行参数传递，以及知道传递什么参数而不会导致报错。</p>
+<h2 id="拖拽系统的构建"><a href="#拖拽系统的构建" class="headerlink" title="拖拽系统的构建"></a>拖拽系统的构建</h2><p>在处理这个问题之前，先了解拖拽系统的构建，先看个示例图</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/45585231-beb74880-b913-11e8-9bd2-c1952dd84f15.png" alt="图片加载失败，需科学上网"></p>
+<p>其中左侧手机里的内容是用v-for渲染的动态组件，右侧选项组件也是动态组件，是一一对应的关系。这样就实现了上面所想的，功能组件和选项组件一旦创建，配置页面就会自动添加对应的组件，而不用管理，如下图所示</p>
+<p><img src="https://user-images.githubusercontent.com/23492006/45585326-30dc5d00-b915-11e8-9f20-88bbfb62ed33.png" alt="图片加载失败，需科学上网"></p>
+<p>但这样就会有一个问题，每个组件内部的数据不一致，得知道选中的组件是什么，以及知道该如何传递正确的数据，还记得之前的配置文件吗？其实这些组件也是读取的配置文件渲染的，配置文件如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;alert&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span>          <span class="comment">// 组件名</span></span><br><span class="line">        <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./packages/alert/index.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;cnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;警告&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;fnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$SgAlert&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;propsData&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span> <span class="comment">//props需要传递的数据</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;swipe&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./packages/swipe/index.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;cnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;轮播&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;fnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$SgSwipe&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;propsData&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;imagesList&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;https://aecpm.alicdn.com/simba/img/TB183NQapLM8KJjSZFBSutJHVXa.jpg&quot;</span><span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;goods-list&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./packages/goods-list/index.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;cnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;商品列表&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;fnName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$SgGoodsList&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;propsData&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line"></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>每一个组件的配置项都添加了propsData，propsData和功能组件props数据以及选项组件v-model关联，这样就不用担心缺失字段而报错了，但是这样的做法给开发添加了麻烦。</p>
+<blockquote>
+<p>组件编写的过程中还得将数据手动添加到配置文件，看能不能直接读取vue文件的props解决这个问题</p>
+</blockquote>
+<p>到了这一步，组件以及组件的编辑拖拽功能均已完成，要考虑的是，如何把微页面编辑功能集成到现有的后台系统中去，因为微页面编辑功能是给客户用的，这里为了效率和组件系统一同开发了。</p>
+<h2 id="如何与现有商户后台系统集成"><a href="#如何与现有商户后台系统集成" class="headerlink" title="如何与现有商户后台系统集成"></a>如何与现有商户后台系统集成</h2><p>vue路由的配置，每一个路由都对应一个组件，那么这个系统也可以这样做，只需要把中间那部分拖拽配置组件的页面打包后引入到父工程（商户后台管理系统）中去就好了，那么该如何处理呢？其实很简单，将webpack打包入口设置成相对应的vue文件就行，就像这样。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">merge</span>(webpackBaseConfig, &#123;</span><br><span class="line">    <span class="attr">entry</span>: path.<span class="title function_">resolve</span>(config.<span class="property">examplesPath</span>, <span class="string">&#x27;src/manage-system-app.vue&#x27;</span>),      <span class="comment">//将vue文件作为入口文件</span></span><br><span class="line">    <span class="attr">output</span>: &#123;</span><br><span class="line">        <span class="attr">filename</span>: <span class="string">&#x27;components-manage.js&#x27;</span>,</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">resolve</span>(config.<span class="property">basePath</span>, <span class="string">&#x27;./dist/components-manage&#x27;</span>),</span><br><span class="line">        <span class="attr">publicPath</span>: <span class="string">&#x27;/dist/components-manage&#x27;</span>,</span><br><span class="line">        <span class="attr">libraryTarget</span>: <span class="string">&#x27;umd&#x27;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    someModule,</span><br><span class="line">    someOptions</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>然后在父工程引入组件库以及样式文件，再将路由配置成这个打包后的js文件就行。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">EditPage</span> <span class="keyword">from</span> <span class="string">&#x27;@/pages/EditPage.js&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Router</span>(&#123;</span><br><span class="line">    <span class="attr">routes</span>: [&#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;/edit-page&#x27;</span>,</span><br><span class="line">        <span class="attr">components</span>: <span class="title class_">EditPage</span></span><br><span class="line">    &#125;]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://user-images.githubusercontent.com/23492006/45586103-8586d480-b923-11e8-8088-8f8e7dbfd478.png" alt="图片加载失败，需科学上网"></p>
+<h2 id="组件渲染系统"><a href="#组件渲染系统" class="headerlink" title="组件渲染系统"></a>组件渲染系统</h2><p>这还不简单么，看代码就懂了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">InsertModule</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">element, componentsData, thatVue</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span>(element <span class="keyword">instanceof</span> <span class="title class_">String</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> el = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(element)</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">element</span> = el ? el : <span class="variable language_">document</span>.<span class="property">body</span></span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(element <span class="keyword">instanceof</span> <span class="title class_">HTMLElement</span>) &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">element</span> = element</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;传入的元素不是一个dom元素id或者dom元素&#x27;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(componentsData) == <span class="string">&#x27;[]&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;传入的组件列表为空&#x27;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">componentsData</span> = componentsData</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">vueInstance</span> = thatVue</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">insertToElement</span>()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">insertToElement</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">componentsData</span>.<span class="title function_">forEach</span>(<span class="function">(<span class="params">component, index</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 执行函数示例化相对应的组件</span></span><br><span class="line">            <span class="keyword">const</span> componentInstance = (<span class="variable language_">this</span>.<span class="property">vueInstance</span>[component.<span class="property">fnName</span>] </span><br><span class="line">                                    &amp;&amp; </span><br><span class="line">                                    <span class="variable language_">this</span>.<span class="property">vueInstance</span>[component.<span class="property">fnName</span>] <span class="keyword">instanceof</span> <span class="title class_">Function</span></span><br><span class="line">                                    &amp;&amp;</span><br><span class="line">                                    <span class="variable language_">this</span>.<span class="property">vueInstance</span>[component.<span class="property">fnName</span>](&#123;<span class="attr">propsData</span>: component.<span class="property">propsData</span>&#125;)</span><br><span class="line">                                    ||</span><br><span class="line">                                    &#123;&#125;</span><br><span class="line">                                )</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> (componentInstance.<span class="property">$el</span>) &#123;</span><br><span class="line">                <span class="comment">// 将组件dom追加到页面中</span></span><br><span class="line">                <span class="variable language_">this</span>.<span class="property">element</span>.<span class="title function_">appendChild</span>(</span><br><span class="line">                    componentInstance.<span class="property">$el</span></span><br><span class="line">                )</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`组件 <span class="subst">$&#123;component.fnName&#125;</span> 不存在`</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;) </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> install = <span class="keyword">function</span>(<span class="params">Vue</span>) &#123;</span><br><span class="line">    <span class="title class_">Vue</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">$insertModule</span> = <span class="keyword">function</span>(<span class="params">element, componentsData</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> self = <span class="variable language_">this</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">InsertModule</span>(element, componentsData, self)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* istanbul ignore if */</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable language_">window</span> !== <span class="string">&#x27;undefined&#x27;</span> &amp;&amp; <span class="variable language_">window</span>.<span class="property">Vue</span>) &#123;</span><br><span class="line">    <span class="title function_">install</span>(<span class="variable language_">window</span>.<span class="property">Vue</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;install&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里将之前配置的props数据传入至组件完成相关配置，这也是之前为什么选择prosp通信的原因</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">vueInstance</span>[component.<span class="property">fnName</span>](&#123;<span class="attr">propsData</span>: component.<span class="property">propsData</span>&#125;)</span><br><span class="line"></span><br><span class="line">&lt;-- swipe.<span class="property">js</span> --&gt;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Vue</span> <span class="keyword">from</span> <span class="string">&#x27;vue&#x27;</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Swipe</span> <span class="keyword">from</span> <span class="string">&#x27;./src/main.vue&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title class_">Component</span> = <span class="title class_">Vue</span>.<span class="title function_">extend</span>(<span class="title class_">Swipe</span>)</span><br><span class="line"><span class="title class_">Swipe</span>.<span class="property">install</span> = <span class="keyword">function</span>(<span class="params">Vue</span>) &#123;</span><br><span class="line">    <span class="title class_">Vue</span>.<span class="title function_">component</span>(<span class="title class_">Swipe</span>.<span class="property">name</span>, <span class="title class_">Swipe</span>)</span><br><span class="line">    <span class="title class_">Vue</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">$SgSwipe</span> = <span class="keyword">function</span>(<span class="params">options</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> instance = <span class="keyword">new</span> <span class="title class_">Component</span>(&#123;</span><br><span class="line">            <span class="attr">data</span>: options.<span class="property">data</span> || &#123;&#125;,</span><br><span class="line">            <span class="attr">propsData</span>: &#123;<span class="attr">data</span>: options.<span class="property">propsData</span> || &#123;&#125;&#125;      <span class="comment">//这里接收了数据</span></span><br><span class="line">        &#125;)</span><br><span class="line">        instance.$mount()</span><br><span class="line">        <span class="keyword">return</span> instance</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">Swipe</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://user-images.githubusercontent.com/23492006/45586162-93892500-b924-11e8-8694-febae26b267e.png" alt="图片加载失败，需科学上网"></p>
+<p>就系介样，渲染完成，200元一条的8g内存的梦啥时候能够实现？</p>
+<p><span id = "end"></span></p>
+<h1 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h1><p>最后，奉上此系统精简版的webpack配置，除了没拖拽系统以及组件渲染系统，其他的基本都支持，可以在此配置上定制自己的功能，但是强烈建议阅读<a href="https://github.com/ElemeFE/element">element ui</a>的脚手架配置，尝试从0-1定制自己的脚手架哦。</p>
+<p><a href="https://github.com/Richard-Choooou/vue-component-webpack">https://github.com/Richard-Choooou/vue-component-webpack</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/13/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%9A%84%E5%A4%9A%E9%A1%B5%E9%9D%A2webpack%E9%85%8D%E7%BD%AE/" rel="prev" title="自动化的多页面webpack配置">
+      <i class="fa fa-chevron-left"></i> 自动化的多页面webpack配置
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/17/%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E7%9A%84this%E6%8C%87%E5%90%91/" rel="next" title="箭头函数的this指向">
+      箭头函数的this指向 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E9%9C%80%E6%B1%82"><span class="nav-number">1.</span> <span class="nav-text">项目需求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E5%89%8D%E7%9A%84%E6%80%9D%E8%80%83"><span class="nav-number">2.</span> <span class="nav-text">开始前的思考</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD"><span class="nav-number">2.1.</span> <span class="nav-text">系统主要功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E4%BB%80%E4%B9%88%E5%BC%80%E5%8F%91"><span class="nav-number">2.2.</span> <span class="nav-text">基于什么开发</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E6%97%B6%E7%9A%84%E6%80%9D%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">构建时的思考</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E5%B7%A5%E5%85%B7%E7%9A%84%E6%90%AD%E5%BB%BA"><span class="nav-number">3.1.</span> <span class="nav-text">构建工具的搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%A4%E4%BA%86%E6%9E%84%E5%BB%BA%E5%B7%A5%E5%85%B7%EF%BC%8C%E8%BF%98%E8%83%BD%E4%B8%8D%E8%83%BD%E6%9B%B4%E5%8A%A0%E9%AB%98%E6%95%88%E7%9A%84%E5%AE%8C%E6%88%90%E5%BC%80%E5%8F%91%EF%BC%9F"><span class="nav-number">3.2.</span> <span class="nav-text">除了构建工具，还能不能更加高效的完成开发？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%BC%80%E5%8F%91vue%E7%BB%84%E4%BB%B6"><span class="nav-number">3.3.</span> <span class="nav-text">如何开发vue组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%89%93%E5%8C%85vue%E7%BB%84%E4%BB%B6"><span class="nav-number">3.4.</span> <span class="nav-text">如何打包vue组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%A5%E5%A6%82%E4%BD%95%E7%9C%8B%E8%A7%81%E6%88%91%E5%BC%80%E5%8F%91%E7%9A%84%E7%BB%84%E4%BB%B6%EF%BC%9F"><span class="nav-number">3.5.</span> <span class="nav-text">该如何看见我开发的组件？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%82%A3%E4%B9%88%E9%A2%84%E8%A7%88%E9%A1%B5%E9%9D%A2%E7%9A%84%E8%B7%AF%E7%94%B1%E8%AF%A5%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E5%91%A2%EF%BC%9F"><span class="nav-number">3.6.</span> <span class="nav-text">那么预览页面的路由该如何处理呢？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E4%B8%AA%E7%BC%96%E8%BE%91%E6%8B%96%E6%8B%BD%E7%9A%84%E5%8A%9F%E8%83%BD%E8%A6%81%E5%92%8B%E5%BC%84%E5%91%A2%EF%BC%9F"><span class="nav-number">3.7.</span> <span class="nav-text">介个编辑拖拽的功能要咋弄呢？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%BE%91%E7%BB%84%E4%BB%B6%E7%9A%84%E7%BB%84%E4%BB%B6%EF%BC%9F%EF%BC%9F%EF%BC%9F"><span class="nav-number">3.8.</span> <span class="nav-text">编辑组件的组件？？？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E5%92%8B%E5%8A%9E%EF%BC%9F"><span class="nav-number">3.8.1.</span> <span class="nav-text">组件间的通信咋办？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8B%96%E6%8B%BD%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%9E%84%E5%BB%BA"><span class="nav-number">3.9.</span> <span class="nav-text">拖拽系统的构建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%B8%8E%E7%8E%B0%E6%9C%89%E5%95%86%E6%88%B7%E5%90%8E%E5%8F%B0%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90"><span class="nav-number">3.10.</span> <span class="nav-text">如何与现有商户后台系统集成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E6%B8%B2%E6%9F%93%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.11.</span> <span class="nav-text">组件渲染系统</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9D%9F%E8%AF%AD"><span class="nav-number">4.</span> <span class="nav-text">结束语</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Richard Chou</p>
+  <div class="site-description" itemprop="description">Blogs for Richard Chou</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

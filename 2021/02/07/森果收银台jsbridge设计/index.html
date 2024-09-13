@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言森果收银台中涉及到不少跨平台通信，如电子秤，打印机、副屏、钱箱等客户端才能调用的硬件，同时涉及到 android 和 windows 两个平台，如果不设计通信交互，那么代码将会变得十分混乱，因此一个好用的 jsBridge 设计对收银台来说尤为重要。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="森果收银台 jsBridge 设计">
+<meta property="og:url" content="http://example.com/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言森果收银台中涉及到不少跨平台通信，如电子秤，打印机、副屏、钱箱等客户端才能调用的硬件，同时涉及到 android 和 windows 两个平台，如果不设计通信交互，那么代码将会变得十分混乱，因此一个好用的 jsBridge 设计对收银台来说尤为重要。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E9%80%9A%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E6%A8%A1%E5%9E%8B-new.png">
+<meta property="og:image" content="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E6%A8%A1%E5%9D%97%E9%80%9A%E4%BF%A1.png">
+<meta property="og:image" content="https://img.senguo.cc/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-jsbridge-%E7%B1%BB%E5%9B%BE.svg">
+<meta property="article:published_time" content="2021-02-07T10:06:29.000Z">
+<meta property="article:modified_time" content="2024-09-13T03:12:58.264Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E9%80%9A%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E6%A8%A1%E5%9E%8B-new.png">
+
+<link rel="canonical" href="http://example.com/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>森果收银台 jsBridge 设计 | Richard Chou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Richard Chou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Richard Chou's blogs</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="Blogs for Richard Chou">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          森果收银台 jsBridge 设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-07 10:06:29" itemprop="dateCreated datePublished" datetime="2021-02-07T10:06:29+00:00">2021-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-13 03:12:58" itemprop="dateModified" datetime="2024-09-13T03:12:58+00:00">2024-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>森果收银台中涉及到不少跨平台通信，如电子秤，打印机、副屏、钱箱等客户端才能调用的硬件，同时涉及到 android 和 windows 两个平台，如果不设计通信交互，那么代码将会变得十分混乱，因此一个好用的 jsBridge 设计对收银台来说尤为重要。</p>
+<span id="more"></span>
+
+<h1 id="jsbridge-简介"><a href="#jsbridge-简介" class="headerlink" title="jsbridge 简介"></a>jsbridge 简介</h1><p>jsBridge 指通过<strong>客户端</strong>以及 <strong>web</strong> 端定义的接口实现互相通信的桥梁，使用 jsBridge 客户端可以调用 web 端方法，反之亦然。因不同平台与 web 端通信方式不同，所以 jsBridge 还有一个作用在于抹平不同平台的差异，实现通信交互的一致性。</p>
+<h2 id="jsbridge-需注意的点"><a href="#jsbridge-需注意的点" class="headerlink" title="jsbridge 需注意的点"></a>jsbridge 需注意的点</h2><h3 id="参数传递"><a href="#参数传递" class="headerlink" title="参数传递"></a>参数传递</h3><p>首先是参数传递，参数一般只可传递简单的基础类型，最好是通过 json 来传递，利于跨平台以及参数扩展。</p>
+<h3 id="回调方法"><a href="#回调方法" class="headerlink" title="回调方法"></a>回调方法</h3><p>同时客户端完成操作后可能需要传递参数给 web 端，所以需要定义回调方法，但需要根据场景来进行定义，否则可能会造成内存泄漏。</p>
+<h2 id="常见的-jsbridge"><a href="#常见的-jsbridge" class="headerlink" title="常见的 jsbridge"></a>常见的 jsbridge</h2><p>市面上常见的 jsbridge 接口有以下几个例子：</p>
+<h3 id="微信-jsSdk"><a href="#微信-jsSdk" class="headerlink" title="微信 jsSdk"></a>微信 jsSdk</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">wx.<span class="title function_">scanQRCode</span>(&#123;</span><br><span class="line">    <span class="attr">desc</span>: <span class="string">&#x27;scanQRCode desc&#x27;</span>,</span><br><span class="line">    <span class="attr">needResult</span>: <span class="number">0</span>, <span class="comment">// 默认为0，扫描结果由微信处理，1则直接返回扫描结果，</span></span><br><span class="line">    <span class="attr">scanType</span>: [<span class="string">&quot;qrCode&quot;</span>,<span class="string">&quot;barCode&quot;</span>], <span class="comment">// 可以指定扫二维码还是一维码，默认二者都有</span></span><br><span class="line">    <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">res</span>) &#123;</span><br><span class="line">       <span class="comment">// 回调</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="attr">error</span>: <span class="keyword">function</span>(<span class="params">res</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(res.<span class="property">errMsg</span>.<span class="title function_">indexOf</span>(<span class="string">&#x27;function_not_exist&#x27;</span>) &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="title function_">alert</span>(<span class="string">&#x27;版本过低请升级&#x27;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="cordova"><a href="#cordova" class="headerlink" title="cordova"></a>cordova</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">cordova.<span class="property">plugins</span>.<span class="property">barcodeScanner</span>.<span class="title function_">scan</span>(</span><br><span class="line">    <span class="keyword">function</span> (<span class="params">result</span>) &#123;</span><br><span class="line">        <span class="title function_">alert</span>(<span class="string">&quot;We got a barcoden&quot;</span> +</span><br><span class="line">        <span class="string">&quot;Result: &quot;</span> + result.<span class="property">text</span> + <span class="string">&quot;n&quot;</span> +</span><br><span class="line">        <span class="string">&quot;Format: &quot;</span> + result.<span class="property">format</span> + <span class="string">&quot;n&quot;</span> +</span><br><span class="line">        <span class="string">&quot;Cancelled: &quot;</span> + result.<span class="property">cancelled</span>);</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">function</span> (<span class="params">error</span>) &#123;</span><br><span class="line">        <span class="title function_">alert</span>(<span class="string">&quot;Scanning failed: &quot;</span> + error);</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h2 id="森果收银台-jsbridge-接口定义"><a href="#森果收银台-jsbridge-接口定义" class="headerlink" title="森果收银台 jsbridge 接口定义"></a>森果收银台 jsbridge 接口定义</h2><p>森果收银台的 jsbridge 接口定义如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">speak</span>(<span class="params">text: string</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (isAndroid) &#123;</span><br><span class="line">        cashierBridge.<span class="title function_">invokeClientFunction</span>(<span class="title class_">ClientEvents</span>.<span class="property">speak</span>, &#123;</span><br><span class="line">            text</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        cashierBridge.<span class="title function_">invokeClientFunction</span>(<span class="title class_">ClientEvents</span>.<span class="property">speak</span>, &#123;</span><br><span class="line">            text</span><br><span class="line">        &#125;, <span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (data.<span class="property">status</span> === <span class="string">&#x27;success&#x27;</span>) &#123;</span><br><span class="line">                <span class="keyword">const</span> bytes = data.<span class="property">data</span>.<span class="property">data</span></span><br><span class="line">                <span class="keyword">const</span> blob = <span class="keyword">new</span> <span class="title class_">Blob</span>([bytes.<span class="property">buffer</span>], &#123;</span><br><span class="line">                    <span class="attr">type</span>: <span class="string">&#x27;audio/x-mpeg&#x27;</span></span><br><span class="line">                &#125;)</span><br><span class="line">                <span class="keyword">const</span> audio = <span class="keyword">new</span> <span class="title class_">Audio</span>()</span><br><span class="line">                audio.<span class="property">src</span> = <span class="variable language_">window</span>.<span class="property">URL</span>.<span class="title function_">createObjectURL</span>(blob)</span><br><span class="line">                audio.<span class="title function_">play</span>()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>咱们定义的接口相对起来比较原始，但可以通过这原始的定义封装更高层次的接口，达到上面两个第三方接口同样的效果，更利于扩展，如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleChannels</span> &#123;</span><br><span class="line">    public <span class="keyword">static</span> <span class="title function_">getSN</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">            cashierBridge.<span class="title function_">invokeClientFunction</span>(<span class="title class_">ClientEvents</span>.<span class="property">getSN</span>, <span class="function">(<span class="params">result: string</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="title function_">resolve</span>(result)</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public <span class="keyword">static</span> <span class="title function_">openDraw</span>(<span class="params"></span>) &#123;</span><br><span class="line">        printer.<span class="title function_">print</span>(<span class="string">&#x27;G3AAEBA=&#x27;</span>) <span class="comment">// 打印机开钱箱指令 Buffer.from([0x1b, 0x70, 0x00, 0x10, 0x10]).toString(&#x27;base64&#x27;)</span></span><br><span class="line">        cashierBridge.<span class="title function_">invokeClientFunction</span>(<span class="title class_">ClientEvents</span>.<span class="property">openDraw</span>) <span class="comment">// 客户端开钱箱</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同时对于 <strong>invokeClientFunction</strong> 有多种函数签名，以应对不同场景，避免造成内存泄漏。</p>
+<h1 id="jsBridge-设计"><a href="#jsBridge-设计" class="headerlink" title="jsBridge 设计"></a>jsBridge 设计</h1><h2 id="发布订阅模式"><a href="#发布订阅模式" class="headerlink" title="发布订阅模式"></a>发布订阅模式</h2><p><a id="model"></a><br>在此之前需先了解发布订阅模式，因为整个收银台 jsBridge 都是通过发布订阅模式来进行模块解耦以及平台解耦，这里不详细讲述发布订阅模式，可在<a href="https://www.cnblogs.com/suyuanli/p/9655699.html">此篇文章</a>了解详情，以下是收银台 jsBridge 通信模型。</p>
+<p><img src="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E9%80%9A%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E6%A8%A1%E5%9E%8B-new.png" alt="jsBridge 通信模型"></p>
+<p>收银台 jsBridge 通过 web 端和客户端分别实现发布订阅模式，同时经过平台特定接口通信，轻松实现跨平台的发布订阅模式。web 平台的 modules 可以随意与客户端平台 modules 通信，反之亦然，如下所示。</p>
+<p><img src="https://img.senguo.cc/%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E6%A8%A1%E5%9D%97%E9%80%9A%E4%BF%A1.png" alt="jsBridge 模块通信模型"></p>
+<p>通过以上两个模型，可以大致了解森果收银台 jsBridge 的通信流程。</p>
+<h2 id="web-端-jsBridge-设计"><a href="#web-端-jsBridge-设计" class="headerlink" title="web 端 jsBridge 设计"></a>web 端 jsBridge 设计</h2><h3 id="android-与-js-通信"><a href="#android-与-js-通信" class="headerlink" title="android 与 js 通信"></a>android 与 js 通信</h3><p>在讲解 web 端 jsbridge 之前，先了解一下 android 端如何与 js 通信，因为这涉及到 web 端 jsBridge 设计。<br>js 调用 android 方法，首先需要在 webview 中定义 javascriptInterface, 如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">webView.addJavascriptInterface(<span class="keyword">new</span> <span class="title class_">JavascriptInterface</span>(), <span class="string">&quot;clientBridge&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">JavascriptInterface</span> &#123;</span><br><span class="line">    <span class="meta">@SuppressLint(&quot;JavascriptInterface&quot;)</span></span><br><span class="line">    <span class="meta">@android</span>.webkit.JavascriptInterface</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendEventToClient</span><span class="params">(String eventName, String data, String callbackName)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressLint(&quot;JavascriptInterface&quot;)</span></span><br><span class="line">    <span class="meta">@android</span>.webkit.JavascriptInterface</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendEventToClient</span><span class="params">(String eventName, String data)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上述方法，即可在 web 端调用 android 函数</p>
+<blockquote>
+<p>window.clientBridge.sendEventToClient(event, JSON.stringify(params || {}))</p>
+</blockquote>
+<p>其中 <strong>clientBridge</strong> 是 webview 定义在 Window 上的全局对象，通过此对象可调用 android 方法。</p>
+<p>android 执行 js 函数可通过以下方式调用</p>
+<blockquote>
+<p>webView.loadUrl(“javascript:window.invokeFunction()”);</p>
+</blockquote>
+<p>通过上述安卓代码可以得知 js 调用 android 的每一个方法都需要定义在 javascriptInterface 中，当然也可以通过 prompt 以及链接跳转的形式与 android 通信，这里不过多赘述。</p>
+<p>每一个函数定义在 javascriptInterface 中会导致一个问题，如果有很多方法，那么 javascriptInterface 会有些混乱，代码不好维护，同时 android 调用 web 端的代码也容易出现以下问题。</p>
+<ol>
+<li>如果 window 对象上定义过多全局函数不利于维护，还可能造成内存泄漏。</li>
+<li>如果 web 端 window 对象上没定义这一函数，那么可能会报错。</li>
+<li>window 对象上的函数上下文可能访问不到调用客户端函数的上下文，导致代码组织混乱，更不利于维护，这是很关键的一点。</li>
+</ol>
+<p>所以 web 端 jsBridge 封装需解决以上三个问题。</p>
+<h3 id="如果-window-上定义过多全局函数不利于维护，还可能造成内存泄漏"><a href="#如果-window-上定义过多全局函数不利于维护，还可能造成内存泄漏" class="headerlink" title="如果 window 上定义过多全局函数不利于维护，还可能造成内存泄漏"></a>如果 window 上定义过多全局函数不利于维护，还可能造成内存泄漏</h3><p>解决这一问题最好的办法就是只在 window 上定义一个全局对象，所以 web 端 jsBridge 整体接口如下。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CashierBridge</span> &#123;</span><br><span class="line">    private <span class="attr">eventListeners</span>: <span class="title class_">Map</span>&lt;<span class="title class_">CashierEvents</span> | <span class="title class_">SecondScreenEvents</span>, <span class="title class_">Set</span>&lt;<span class="function">(<span class="params">value: any</span>) =&gt;</span> <span class="keyword">void</span>&gt;&gt;</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">addEventListener</span>(<span class="attr">event</span>: <span class="title class_">CashierEvents</span> | <span class="title class_">SecondScreenEvents</span>, <span class="attr">fn</span>: <span class="function">(<span class="params">value: any</span>) =&gt;</span> <span class="keyword">void</span>): <span class="function">() =&gt;</span> <span class="keyword">void</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">dispatchEvent</span>(<span class="params">event: CashierEvents | SecondScreenEvents, value: string</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">invokeClientFunction</span>(<span class="params">event: ClientEvents | SecondScreenEvents, params?: any | ((result: any) =&gt; <span class="keyword">void</span>), callback?: (result: any) =&gt; <span class="keyword">void</span></span>) &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> cashierBridge = <span class="keyword">new</span> <span class="title class_">CashierBridge</span>()</span><br><span class="line"></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">cashierBridge</span> = &#123;</span><br><span class="line">    <span class="attr">dispatch</span>: <span class="keyword">function</span>(<span class="params">event: CashierEvents, value: any</span>) &#123;</span><br><span class="line">        cashierBridge.<span class="title function_">dispatchEvent</span>(event, value)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面代码可见是实现了一个发布订阅模式，这即是 web 端的事件入口，至于具体的业务功能实现，分布在各个子模块，子模块只需向 <strong>CashierBridge</strong> 订阅消息，即可接收到来自客户端的事件。</p>
+<blockquote>
+<p>cashierBridge.addEventListener(CashierEvents.updateWeightInfo, (val) &#x3D;&gt; {})</p>
+</blockquote>
+<p>而客户端只需维护一个 js 接口，即可向 web 端发送信息。</p>
+<blockquote>
+<p>webView.loadUrl(“javascript:window.cashierBridge &amp;&amp; window.cashierBridge.dispatch(‘event’, ‘data’)”);</p>
+</blockquote>
+<p>同时解决“<strong>如果 web 端 window 上没定义这一函数，那么可能会报错</strong>”这一问题。</p>
+<p>在以往的代码中，我们经常会遇到这样的接口定义。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 安卓拍照</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">getBase64ImgFromAndroidCharter</span>  = <span class="keyword">function</span> (<span class="params">str, type </span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>像上面说到的 android 调用 js 代码，需要这样才能将数据传递给 web 端。</p>
+<blockquote>
+<p>webView.loadUrl(“javascript:window.getBase64ImgFromAndroidCharter(‘data’, ‘data’)”);</p>
+</blockquote>
+<p>这样就带来了“<strong>window 上的函数上下文可能访问不到调用客户端函数的上下文，导致代码组织混乱，更不利于维护</strong>”这一问题，通过传递回调方法即可解决上下文不一致的问题，如下：</p>
+<blockquote>
+<p>cashierBridge.invokeClientFunction(ClientEvents.getSN, (result: string) &#x3D;&gt; {})</p>
+</blockquote>
+<p>但如果不定义一个全局函数，那么 android 端如何调用到我们执行客户端方法时传递的回调函数呢？这样又回到了第一个问题。</p>
+<blockquote>
+<p>如果 window 上定义过多全局函数不利于维护，还可能造成内存泄漏</p>
+</blockquote>
+<p>对此我们可以这样解决。</p>
+<ol>
+<li>将回调函数缓存起来</li>
+<li>客户端告知 web 端你将要执行一个回调函数，并给出该回调函数相关的信息</li>
+</ol>
+<h4 id="将回调函数缓存起来"><a href="#将回调函数缓存起来" class="headerlink" title="将回调函数缓存起来"></a>将回调函数缓存起来</h4><p>定义一个专用于 android 平台通信的类</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AndroidIPC</span> &#123;</span><br><span class="line">    private callbacks = <span class="keyword">new</span> <span class="title class_">Map</span>&lt;string, <span class="function">(<span class="params">result: any</span>) =&gt;</span> <span class="keyword">void</span>&gt;()</span><br><span class="line"></span><br><span class="line">    public <span class="title function_">invokeMethod</span>(<span class="params">event: ClientEvents | SecondScreenEvents, params?: any | ((result: any) =&gt; <span class="keyword">void</span>), callback?: (result: any) =&gt; <span class="keyword">void</span></span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    private <span class="title function_">initChannel</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将调用客户端接口的回调函数缓存在 callbacks map 中，同时给 invokeMethod 定义多种签名，避免不必要的内存浪费，使用起来也更便利，代码实现如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public <span class="title function_">invokeMethod</span>(<span class="params">event: ClientEvents | SecondScreenEvents, params?: any | ((result: any) =&gt; <span class="keyword">void</span>), callback?: (result: any) =&gt; <span class="keyword">void</span></span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> callbackName = <span class="string">&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">let</span> <span class="title function_">callbackFn</span> = (<span class="params"></span>) =&gt; &#123;&#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">arguments</span>[<span class="number">1</span>]) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">toString</span>.<span class="title function_">call</span>(params) === <span class="string">&#x27;[object Function]&#x27;</span>) &#123;</span><br><span class="line">                callbackName = <span class="title function_">generateRandomKey</span>(<span class="number">32</span>) <span class="comment">// 给回调函数生成一个不重复的 key 值</span></span><br><span class="line">                callbackFn = <span class="variable language_">arguments</span>[<span class="number">1</span>]</span><br><span class="line">                <span class="variable language_">this</span>.<span class="property">callbacks</span>.<span class="title function_">set</span>(callbackName, callbackFn) <span class="comment">// 将回调函数缓存起来</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">arguments</span>[<span class="number">2</span>]) &#123;</span><br><span class="line">            callbackName = <span class="title function_">generateRandomKey</span>(<span class="number">32</span>) <span class="comment">// 给回调函数生成一个不重复的 key 值</span></span><br><span class="line">            callbackFn = <span class="variable language_">arguments</span>[<span class="number">2</span>]</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">callbacks</span>.<span class="title function_">set</span>(callbackName, callbackFn) <span class="comment">// 将回调函数缓存起来</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (callbackName) &#123;</span><br><span class="line">            <span class="variable language_">window</span>.<span class="property">clientBridge</span>.<span class="title function_">sendEventToClient</span>(event, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(params || &#123;&#125;), callbackName) <span class="comment">// 如果传递了回调函数，那么把回调函数 key 发送给客户端</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable language_">window</span>.<span class="property">clientBridge</span>.<span class="title function_">sendEventToClient</span>(event, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(params || &#123;&#125;))</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><a id="callback"></a><br>那客户端如何调用到定义在这类内部的函数呢？这就需要客户端告知 web 端需要执行回调函数了。</p>
+<h4 id="客户端告知-web-端你将要执行一个回调函数，并给出该回调函数相关的信息"><a href="#客户端告知-web-端你将要执行一个回调函数，并给出该回调函数相关的信息" class="headerlink" title="客户端告知 web 端你将要执行一个回调函数，并给出该回调函数相关的信息"></a>客户端告知 web 端你将要执行一个回调函数，并给出该回调函数相关的信息</h4><p>为此，专门定义了一个收银台事件称之为 callback, 客户端发送 callback 事件给 web 端，同时传递回调信息，web 端收到消息后，找到对应函数并且执行，代码如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">private <span class="title function_">initChannel</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// 客户端函数调用完毕后，如果传递了回调函数，那么会通过这个事件来执行回调函数</span></span><br><span class="line">    cashierBridge.<span class="title function_">addEventListener</span>(<span class="title class_">CashierEvents</span>.<span class="property">callback</span>, <span class="function">(<span class="params">message: &#123;</span></span></span><br><span class="line"><span class="params"><span class="function">        callbackName: string,</span></span></span><br><span class="line"><span class="params"><span class="function">        callbackData: any</span></span></span><br><span class="line"><span class="params"><span class="function">    &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> data = <span class="literal">null</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            data = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(message.<span class="property">callbackData</span>)</span><br><span class="line">        &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">            data = message.<span class="property">callbackData</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (message.<span class="property">callbackName</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> cb = <span class="variable language_">this</span>.<span class="property">callbacks</span>.<span class="title function_">get</span>(message.<span class="property">callbackName</span>) <span class="comment">// 通过给客户端传递回来的 callback name 在 map 中找到对应的回调函数，并且执行</span></span><br><span class="line">            cb &amp;&amp; <span class="title function_">cb</span>(data)</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">callbacks</span>.<span class="title function_">delete</span>(message.<span class="property">callbackName</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>就这样，完成了一个事件的轮回，下图是 web 端以及 android 的类图，可供参考。</p>
+<p><img src="https://img.senguo.cc/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-jsbridge-%E7%B1%BB%E5%9B%BE.svg" alt="https://img.senguo.cc/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-jsbridge-%E7%B1%BB%E5%9B%BE.svg"></p>
+<h2 id="android-端设计"><a href="#android-端设计" class="headerlink" title="android 端设计"></a>android 端设计</h2><p>完成了 web 端设计，接下来了解事件是如何在 android 端中传递的，通过森果收银台 jsBridge <a href="#model">通信模型</a>可以了解到，android 端也使用了<strong>发布订阅</strong>模式实现了模块间的解耦。</p>
+<p>在 android 端中，使用了 <strong>eventBus</strong> 进行事件的订阅与派发。在上面的类图中可以看到，实现了 <strong>CashierEvent</strong> 以及 <strong>ClientEvent</strong> 两个事件。</p>
+<p><strong>CashierEvent</strong> 指发向 web 端的事件，<strong>ClientEvent</strong> 指接收来自 web 端的事件，那么这两个类的作用是什么呢？</p>
+<h3 id="接收-web-端消息"><a href="#接收-web-端消息" class="headerlink" title="接收 web 端消息"></a>接收 web 端消息</h3><p>在定义 webview 的 javascriptInterface 时，定义了一个函数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">JavascriptInterface</span> &#123;</span><br><span class="line">    <span class="meta">@SuppressLint(&quot;JavascriptInterface&quot;)</span></span><br><span class="line">    <span class="meta">@android</span>.webkit.JavascriptInterface</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendEventToClient</span><span class="params">(String eventName, String data, String callbackName)</span> &#123; <span class="comment">// web 端发送事件到客户端，将事件通过 eventbus 派发出去由各个子模块实现功能</span></span><br><span class="line">        <span class="type">ClientEvent</span> <span class="variable">clientEvent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClientEvent</span>(eventName, data, callbackName);</span><br><span class="line">        EventBus.getDefault().post(clientEvent);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数，即是 android 端事件的入口，通过这个入口，实例化 <strong>ClientEvent</strong> 再通过 eventBus 派发给各个子模块，由各个子模块来决定是否响应消息，如下所示。</p>
+<p>客户端：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cashierBridge.<span class="title function_">invokeClientFunction</span>(<span class="title class_">ClientEvents</span>.<span class="property">speak</span>, &#123;</span><br><span class="line">    text</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>android 端：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(ClientEvent event)</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span> (event.getEventName()) &#123;</span><br><span class="line">        <span class="keyword">case</span> ClientEvent.speak:</span><br><span class="line">            <span class="comment">// 百度语音播报</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">text</span> <span class="operator">=</span> event.getData().getString(<span class="string">&quot;text&quot;</span>);</span><br><span class="line">            BaiduSpeaker.getInstance().speak(text);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="发送消息给-web-端"><a href="#发送消息给-web-端" class="headerlink" title="发送消息给 web 端"></a>发送消息给 web 端</h3><p>发送消息给 web 端，则需要使用到 <strong>CashierEvent</strong> 这一事件，在整个 webview 中，为了避免调用 web 端函数混乱，所以只定义了一个出口，所有的事件通过这个出口发向 web 端。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 客户端发送事件到 web 端。各个子模块通过 eventbus 发送 CashierEvent 事件到此处后传递消息到 web 端</span></span><br><span class="line"><span class="meta">@Subscribe(threadMode = ThreadMode.MAIN)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onCashierEvent</span><span class="params">(CashierEvent event)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">javascript</span> <span class="operator">=</span> String.format(<span class="string">&quot;javascript:window.cashierBridge &amp;&amp; window.cashierBridge.dispatch(&#x27;%s&#x27;, &#x27;%s&#x27;)&quot;</span>, event.getEventName(), event.getData());</span><br><span class="line">    webView.loadUrl(javascript);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用法示例如下。</p>
+<p>android 端：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 发送称重信息</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">sendWeight</span><span class="params">(String weight)</span> &#123;</span><br><span class="line">    <span class="type">CashierEvent</span> <span class="variable">event</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CashierEvent</span>(CashierEvent.updateWeightInfo, weight);</span><br><span class="line">    EventBus.getDefault().post(event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>web 端：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cashierBridge.<span class="title function_">addEventListener</span>(<span class="title class_">CashierEvents</span>.<span class="property">updateWeightInfo</span>, <span class="function">(<span class="params">val</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">weight</span> = val</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="执行-web-端回调函数"><a href="#执行-web-端回调函数" class="headerlink" title="执行 web 端回调函数"></a>执行 web 端回调函数</h3><p>如何执行客户端的回调函数呢？在 <a href="#callback">web 端 jsBridge 设计</a>中有讲到，回调函数的执行是由客户端发送 <strong>callback</strong> 事件告知 web 端需要执行回调函数，所以客户端只需构造一个 <strong>CashierEvent</strong> 事件就好了，只是这个 CashierEvent 有一些特殊，它需要使用到 <strong>CashierCallback</strong> 类。</p>
+<p>先看看 <strong>CashierCallback</strong> 类的构造函数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CashierCallback</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CashierCallback</span><span class="params">(ClientEvent event, JSONObject callbackData)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.callbackName = event.getCallbackName();</span><br><span class="line">        <span class="built_in">this</span>.callbackJsonData = callbackData;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它接收一个 <strong>ClientEvent</strong> 实例，在实例化 <strong>ClientEvent</strong> 时，会存储 callbackName 这一变量。通过 callbackName 就能够找到定义在 web 端 androidIPC 类中的回调函数。</p>
+<p>那么回调信息给 web 端，只需如下操作。</p>
+<p>web 端：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cashierBridge.<span class="title function_">invokeClientFunction</span>(<span class="title class_">ClientEvents</span>.<span class="property">getVersion</span>, <span class="function">(<span class="params">data: &#123;</span></span></span><br><span class="line"><span class="params"><span class="function">    version: string</span></span></span><br><span class="line"><span class="params"><span class="function">&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">currentVersoin</span> = data.<span class="property">version</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>android 端：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(ClientEvent clientEvent)</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span> (clientEvent.getEventName()) &#123;</span><br><span class="line">        <span class="keyword">case</span> ClientEvent.getVersion:</span><br><span class="line">            <span class="type">String</span> <span class="variable">version</span> <span class="operator">=</span> getCurrentVersion();</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">json</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">            json.put(<span class="string">&quot;version&quot;</span>, version);</span><br><span class="line">            CashierEvent.<span class="type">CashierCallback</span> <span class="variable">callback</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CashierEvent</span>.CashierCallback(clientEvent, json);</span><br><span class="line">            <span class="type">CashierEvent</span> <span class="variable">cashierEvent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CashierEvent</span>(callback);</span><br><span class="line">            EventBus.getDefault().post(cashierEvent);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可进一步封装为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(ClientEvent clientEvent)</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span> (clientEvent.getEventName()) &#123;</span><br><span class="line">        <span class="keyword">case</span> ClientEvent.getVersion:</span><br><span class="line">            <span class="type">String</span> <span class="variable">version</span> <span class="operator">=</span> getCurrentVersion();</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">json</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">            json.put(<span class="string">&quot;version&quot;</span>, version);</span><br><span class="line">            clientEvent.reply(json)</span><br><span class="line">            <span class="comment">// CashierEvent.CashierCallback callback = new CashierEvent.CashierCallback(clientEvent, json);</span></span><br><span class="line">            <span class="comment">// CashierEvent cashierEvent = new CashierEvent(callback);</span></span><br><span class="line">            <span class="comment">// EventBus.getDefault().post(cashierEvent);</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，通过 web 端和客户端分别实现发布订阅模式，做到了跨平台的发布订阅，达到了解耦的目的，代码逻辑也更加清晰易读。</p>
+<h1 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h1><p>至此已完成 android 与 web 端的通信交互，electron 平台因为原理相同且代码比较简单，篇幅有限，此处不过多讲解。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/06/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="prev" title="森果收银台架构设计">
+      <i class="fa fa-chevron-left"></i> 森果收银台架构设计
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/27/%E7%B3%BB%E7%BB%9F%E6%9B%B4%E6%96%B0%E6%8F%90%E7%A4%BA%E8%AE%BE%E8%AE%A1/" rel="next" title="系统模块更新提示设计">
+      系统模块更新提示设计 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#jsbridge-%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">jsbridge 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#jsbridge-%E9%9C%80%E6%B3%A8%E6%84%8F%E7%9A%84%E7%82%B9"><span class="nav-number">2.1.</span> <span class="nav-text">jsbridge 需注意的点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92"><span class="nav-number">2.1.1.</span> <span class="nav-text">参数传递</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9E%E8%B0%83%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">回调方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84-jsbridge"><span class="nav-number">2.2.</span> <span class="nav-text">常见的 jsbridge</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E4%BF%A1-jsSdk"><span class="nav-number">2.2.1.</span> <span class="nav-text">微信 jsSdk</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cordova"><span class="nav-number">2.2.2.</span> <span class="nav-text">cordova</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0-jsbridge-%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89"><span class="nav-number">2.3.</span> <span class="nav-text">森果收银台 jsbridge 接口定义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#jsBridge-%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">jsBridge 设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">发布订阅模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#web-%E7%AB%AF-jsBridge-%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.2.</span> <span class="nav-text">web 端 jsBridge 设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#android-%E4%B8%8E-js-%E9%80%9A%E4%BF%A1"><span class="nav-number">3.2.1.</span> <span class="nav-text">android 与 js 通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C-window-%E4%B8%8A%E5%AE%9A%E4%B9%89%E8%BF%87%E5%A4%9A%E5%85%A8%E5%B1%80%E5%87%BD%E6%95%B0%E4%B8%8D%E5%88%A9%E4%BA%8E%E7%BB%B4%E6%8A%A4%EF%BC%8C%E8%BF%98%E5%8F%AF%E8%83%BD%E9%80%A0%E6%88%90%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="nav-number">3.2.2.</span> <span class="nav-text">如果 window 上定义过多全局函数不利于维护，还可能造成内存泄漏</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%86%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E7%BC%93%E5%AD%98%E8%B5%B7%E6%9D%A5"><span class="nav-number">3.2.2.1.</span> <span class="nav-text">将回调函数缓存起来</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%91%8A%E7%9F%A5-web-%E7%AB%AF%E4%BD%A0%E5%B0%86%E8%A6%81%E6%89%A7%E8%A1%8C%E4%B8%80%E4%B8%AA%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%EF%BC%8C%E5%B9%B6%E7%BB%99%E5%87%BA%E8%AF%A5%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E7%9B%B8%E5%85%B3%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="nav-number">3.2.2.2.</span> <span class="nav-text">客户端告知 web 端你将要执行一个回调函数，并给出该回调函数相关的信息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#android-%E7%AB%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.3.</span> <span class="nav-text">android 端设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A5%E6%94%B6-web-%E7%AB%AF%E6%B6%88%E6%81%AF"><span class="nav-number">3.3.1.</span> <span class="nav-text">接收 web 端消息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E7%BB%99-web-%E7%AB%AF"><span class="nav-number">3.3.2.</span> <span class="nav-text">发送消息给 web 端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C-web-%E7%AB%AF%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0"><span class="nav-number">3.3.3.</span> <span class="nav-text">执行 web 端回调函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E5%B0%BE"><span class="nav-number">4.</span> <span class="nav-text">结尾</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Richard Chou</p>
+  <div class="site-description" itemprop="description">Blogs for Richard Chou</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

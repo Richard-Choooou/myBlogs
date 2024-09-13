@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言一个系统随着功能迭代，会有很多功能，为了让这些功能被用户感知，一般都会有明确的状态提示用户，例如小红点以及弹窗等。但系统中一旦类似的功能点过多，如果不组织好代码就会导致混乱，本篇讲解如何利用面向对象设计以及组合模式解决这一问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="系统模块更新提示设计">
+<meta property="og:url" content="http://example.com/2021/02/27/%E7%B3%BB%E7%BB%9F%E6%9B%B4%E6%96%B0%E6%8F%90%E7%A4%BA%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="Richard Chou">
+<meta property="og:description" content="前言一个系统随着功能迭代，会有很多功能，为了让这些功能被用户感知，一般都会有明确的状态提示用户，例如小红点以及弹窗等。但系统中一旦类似的功能点过多，如果不组织好代码就会导致混乱，本篇讲解如何利用面向对象设计以及组合模式解决这一问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.senguo.cc/%E7%BA%A2%E7%82%B9%E6%8F%90%E7%A4%BA.png">
+<meta property="og:image" content="https://img.senguo.cc/20210227162242.jpg">
+<meta property="og:image" content="https://img.senguo.cc/%E6%B6%88%E6%81%AF%E6%8F%90%E7%A4%BA%E8%84%91%E5%9B%BE.png">
+<meta property="og:image" content="https://img.senguo.cc/20210227162242.jpg">
+<meta property="og:image" content="https://img.senguo.cc/%E7%BA%A2%E7%82%B9%E6%8F%90%E7%A4%BA.png">
+<meta property="og:image" content="https://img.senguo.cc/%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0%E6%A8%A1%E5%9D%97%E5%85%B3%E7%B3%BB%E5%9B%BE.png">
+<meta property="og:image" content="https://img.senguo.cc/%E6%A8%A1%E5%9D%97%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB%E7%A4%BA%E4%BE%8B.png">
+<meta property="article:published_time" content="2021-02-27T16:00:37.000Z">
+<meta property="article:modified_time" content="2024-09-13T03:12:58.264Z">
+<meta property="article:author" content="Richard Chou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.senguo.cc/%E7%BA%A2%E7%82%B9%E6%8F%90%E7%A4%BA.png">
+
+<link rel="canonical" href="http://example.com/2021/02/27/%E7%B3%BB%E7%BB%9F%E6%9B%B4%E6%96%B0%E6%8F%90%E7%A4%BA%E8%AE%BE%E8%AE%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>系统模块更新提示设计 | Richard Chou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Richard Chou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Richard Chou's blogs</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/27/%E7%B3%BB%E7%BB%9F%E6%9B%B4%E6%96%B0%E6%8F%90%E7%A4%BA%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Richard Chou">
+      <meta itemprop="description" content="Blogs for Richard Chou">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Richard Chou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          系统模块更新提示设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-27 16:00:37" itemprop="dateCreated datePublished" datetime="2021-02-27T16:00:37+00:00">2021-02-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-13 03:12:58" itemprop="dateModified" datetime="2024-09-13T03:12:58+00:00">2024-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>一个系统随着功能迭代，会有很多功能，为了让这些功能被用户感知，一般都会有明确的状态提示用户，例如小红点以及弹窗等。但系统中一旦类似的功能点过多，如果不组织好代码就会导致混乱，本篇讲解如何利用面向对象设计以及组合模式解决这一问题。</p>
+<img style="display: inline-block; width: 200px" src="https://img.senguo.cc/%E7%BA%A2%E7%82%B9%E6%8F%90%E7%A4%BA.png">
+<img style="display: inline-block; width: 200px" src="https://img.senguo.cc/20210227162242.jpg">
+
+<span id="more"></span>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>以下是一个过往的更新提示的简单示例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> isShowed = <span class="variable language_">localStorage</span>.<span class="title function_">getItem</span>(<span class="string">&#x27;is_show_blind-box_tip&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> (!isShowed) &#123;</span><br><span class="line">    <span class="variable language_">localStorage</span>.<span class="title function_">setItem</span>(<span class="string">&#x27;is_show_blind-box_tip&#x27;</span>, <span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">    <span class="comment">// do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到在触发前先通过 localStorage 判断之前是否触发过，同时触发后，给 localstorage 设置了标志，避免下次再次触发，这样会有以下几个问题：</p>
+<ol>
+<li>代码虽然简单，但系统中如果存在大量更新提示点，分布在各处不利于管理</li>
+<li>如果此处功能有更新，那么需要设置新的 localstorage key，之前的 key 一直存在于 localstorage 中，不利于管理，且会造成混乱</li>
+<li>到处设置 localstorage 可能会导致 key 名重复</li>
+<li>localstorage 一旦被 clear，会导致有大量的更新提示出现</li>
+</ol>
+<p>下图是对系统更新功能描绘的脑图，接下来以此作为讲解点。<br><img src="https://img.senguo.cc/%E6%B6%88%E6%81%AF%E6%8F%90%E7%A4%BA%E8%84%91%E5%9B%BE.png" alt="https://img.senguo.cc/%E6%B6%88%E6%81%AF%E6%8F%90%E7%A4%BA%E8%84%91%E5%9B%BE.png"></p>
+<h2 id="数据持久化"><a href="#数据持久化" class="headerlink" title="数据持久化"></a>数据持久化</h2><p>解决“<strong>localstorage 一旦被 clear，会导致有大量的更新提示出现</strong>”这一问题就需要考虑数据持久化，数据持久化方案有 4 种方案。</p>
+<h3 id="后端存储"><a href="#后端存储" class="headerlink" title="后端存储"></a>后端存储</h3><p>后端存储显然过于繁琐，且信息更新不够及时，同时发送过多请求也不太合理。更新点的提示并不是一个非常严肃的功能，不必为了丢失数据而担心，所以暂不考虑。</p>
+<h3 id="localstorage"><a href="#localstorage" class="headerlink" title="localstorage"></a>localstorage</h3><p>localstorage 作为常用的前端存储方案用在此处并不太合理，因为可能会因为某些原因清除 localstorage。</p>
+<h3 id="客户端-sqlite-存储"><a href="#客户端-sqlite-存储" class="headerlink" title="客户端 sqlite 存储"></a>客户端 sqlite 存储</h3><p>跨端传输数据有些繁琐，同时 sqlite 是关系型数据库，对于前端来说使用较为麻烦，所以还是不考虑。</p>
+<h3 id="indexedDB"><a href="#indexedDB" class="headerlink" title="indexedDB"></a>indexedDB</h3><p>indexedDB 类似于 mongoDB 是一个非关系型数据库，因为零售通是 hydride 应用，所以无需考虑兼容性，可以用在这一功能上。因 indexedDB 的 api 也不少，有上手成本，我们这使用了更为简单的封装，<a href="https://www.npmjs.com/package/localforage">localforage</a> 这一库来使用 indexedDB。</p>
+<h2 id="提示类型"><a href="#提示类型" class="headerlink" title="提示类型"></a>提示类型</h2><p>接着了解一下对于提示类型的定义。</p>
+<h3 id="板块提示"><a href="#板块提示" class="headerlink" title="板块提示"></a>板块提示</h3><p>对于板块提示，定义为会遮盖整个板块的提示，一般用于新手引导，以及新功能上线等遮罩，如图。</p>
+<p><img src="https://img.senguo.cc/20210227162242.jpg" alt="https://img.senguo.cc/20210227162242.jpg"></p>
+<h3 id="功能点提示"><a href="#功能点提示" class="headerlink" title="功能点提示"></a>功能点提示</h3><p>用于各个模块入口的更新提示，例如小红点，小浮窗等展现形式。</p>
+<p><img src="https://img.senguo.cc/%E7%BA%A2%E7%82%B9%E6%8F%90%E7%A4%BA.png" alt="https://img.senguo.cc/%E7%BA%A2%E7%82%B9%E6%8F%90%E7%A4%BA.png"></p>
+<h2 id="有效期"><a href="#有效期" class="headerlink" title="有效期"></a>有效期</h2><p>考虑到不同的提示过期时间是不一样的</p>
+<h3 id="点击一次消失"><a href="#点击一次消失" class="headerlink" title="点击一次消失"></a>点击一次消失</h3><p>通常大部分提示都是点击一次就消失，不会再出现第二次。</p>
+<h3 id="过期时间"><a href="#过期时间" class="headerlink" title="过期时间"></a>过期时间</h3><p>部分功能的提示是以过期时间来判断的，例如活动等信息。</p>
+<h3 id="常驻提示"><a href="#常驻提示" class="headerlink" title="常驻提示"></a>常驻提示</h3><p>常驻提示一般用于模块内数据更新提示，数据更新不被消费掉，那么提示会一直存在，例如带数字的小红点。</p>
+<h2 id="存在的问题以及解决方案"><a href="#存在的问题以及解决方案" class="headerlink" title="存在的问题以及解决方案"></a>存在的问题以及解决方案</h2><h3 id="新用户首次进入提示"><a href="#新用户首次进入提示" class="headerlink" title="新用户首次进入提示"></a>新用户首次进入提示</h3><p>因为功能点上线会在功能点入口添加小红点，点击一次消失，但新用户是不存在这些提示消费记录的，所以可能会出现大量的小红点，所以对于新用户，只进行板块级别的提示，一般是新手引导教程。</p>
+<h3 id="同一个功能存在不同版本的提示"><a href="#同一个功能存在不同版本的提示" class="headerlink" title="同一个功能存在不同版本的提示"></a>同一个功能存在不同版本的提示</h3><p>随着系统迭代，同一个功能会有很多次更新，同时也会有很多的版本提示，对于这个问题，一般采用最新的版本提示。</p>
+<h3 id="用户身份判断"><a href="#用户身份判断" class="headerlink" title="用户身份判断"></a>用户身份判断</h3><h4 id="使用-id-进行身份判断"><a href="#使用-id-进行身份判断" class="headerlink" title="使用 id 进行身份判断"></a>使用 id 进行身份判断</h4><p>这一问题针对同一台机器有多个用户使用，所以需要对用户的 id 也进行存储，但一台机器有多个用户使用的场景较少，所以成本相对高。</p>
+<h4 id="使用机器进行判断"><a href="#使用机器进行判断" class="headerlink" title="使用机器进行判断"></a>使用机器进行判断</h4><p>同一台机器无论有多少个用户判断，只提示一次，消息被消费后，切换用户也不再提示，因为这些提示也并非是非常重要的功能，所以这个方案实现成本更低，效率更高</p>
+<h3 id="老用户重装-app"><a href="#老用户重装-app" class="headerlink" title="老用户重装 app"></a>老用户重装 app</h3><p>老用户重装 app 后会导致之前的提示消费数据被清除，对于这个场景把老用户当作新用户来处理，进行板块级别的提示，因为这样的场景不会太多，同时提示一次也无伤大雅。</p>
+<h3 id="提示依赖问题"><a href="#提示依赖问题" class="headerlink" title="提示依赖问题"></a>提示依赖问题</h3><p>这个问题至关重要，提示依赖的场景是，一个模块入口的提示，依赖模块内部子模块的提示，子模块的提示不消除，那么这个入口的提示就不消除，同时还会有更夸张的多层嵌套依赖，接下来讲解如何解决这些问题。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="分布式管理"><a href="#分布式管理" class="headerlink" title="分布式管理"></a>分布式管理</h3><p>因为系统中存在很多的提示，散落在各个文件，所以我们还是使用分布式管理，避免集中管理带来的巨大代码冗余，但还是需要有一个能够直观找到各个模块的入口，所以通过面向对象的继承特性，同时结合 typescript 就能知道哪些模块使用到了提示，方便管理。</p>
+<h3 id="面向对象设计"><a href="#面向对象设计" class="headerlink" title="面向对象设计"></a>面向对象设计</h3><p>在面向对象设计方面，可以抽象两个接口，分别是 <strong>shouldShow</strong> 和 <strong>trigger</strong>。</p>
+<p>shouldShow 用于判断是否应该展示提示，trigger 用于触发提示被消费事件，接口示例如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">enum <span class="title class_">PromptExpiresType</span> &#123;</span><br><span class="line">    date = <span class="string">&#x27;date&#x27;</span>, <span class="comment">// 根据时间决定过期时间</span></span><br><span class="line">    once = <span class="string">&#x27;once&#x27;</span>, <span class="comment">// 点击一次</span></span><br><span class="line">    repeatedly = <span class="string">&#x27;repeatedly&#x27;</span> <span class="comment">// 点击多次</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BasePrompt</span> &#123;</span><br><span class="line">    public <span class="keyword">static</span> promptExpiresType = <span class="title class_">PromptExpiresType</span></span><br><span class="line">    private <span class="attr">versionCode</span>: number</span><br><span class="line">    private <span class="attr">key</span>: string</span><br><span class="line">    </span><br><span class="line">    private <span class="attr">expiresType</span>: <span class="title class_">PromptExpiresType</span></span><br><span class="line">    private expiresTime?: dayjs.<span class="property">Dayjs</span></span><br><span class="line">    private triggerTimes?: number</span><br><span class="line"></span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">options: &#123;</span></span><br><span class="line"><span class="params">        key: string,</span></span><br><span class="line"><span class="params">        versionCode: number</span></span><br><span class="line"><span class="params">        expiresType: PromptExpiresType</span></span><br><span class="line"><span class="params">        expiresTime?: dayjs.Dayjs</span></span><br><span class="line"><span class="params">        triggerTimes?: number</span></span><br><span class="line"><span class="params">    &#125;</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">key</span> = options.<span class="property">key</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">versionCode</span> = options.<span class="property">versionCode</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">expiresType</span> = options.<span class="property">expiresType</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">expiresTime</span> = options.<span class="property">expiresTime</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">triggerTimes</span> = options.<span class="property">triggerTimes</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public <span class="keyword">async</span> <span class="title function_">shouldShow</span>(): <span class="title class_">Promise</span>&lt;boolean&gt; &#123;</span><br><span class="line">        <span class="comment">// do something</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span> || <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public <span class="keyword">async</span> <span class="title function_">trigger</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="comment">// do something</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>同时通过 <strong>versionCode</strong> 进行版本管理，当功能需要提示更新时，修改版本号，下次再次激活时会再次进行提示。用法示例如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BlindBoxPrompt</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BasePrompt</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">super</span>(&#123;</span><br><span class="line">            <span class="attr">key</span>: <span class="string">&#x27;Ff4CbpdKD02VGRrYPfW4YhFBeqa1b4hPZd9JVnvrULtmCkmGkjAtnKebzy&#x27;</span>,</span><br><span class="line">            <span class="attr">expiresType</span>: <span class="title class_">BasePrompt</span>.<span class="property">promptExpiresType</span>.<span class="property">repeatedly</span>,</span><br><span class="line">            <span class="attr">versionCode</span>: <span class="number">6</span>,</span><br><span class="line">            <span class="attr">triggerTimes</span>: <span class="number">3</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> blindBoxPrompt =  <span class="keyword">new</span> <span class="title class_">BlindBoxPrompt</span>()</span><br><span class="line"></span><br><span class="line">blindBoxPrompt.<span class="title function_">shouldShow</span>().<span class="title function_">then</span>(<span class="function"><span class="params">show</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (show) &#123;</span><br><span class="line">        <span class="comment">// do show</span></span><br><span class="line"></span><br><span class="line">        blindBoxPrompt.<span class="title function_">trigger</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="组合模式"><a href="#组合模式" class="headerlink" title="组合模式"></a>组合模式</h3><p>通过上述代码可以完成对于单个提示点的管理。但是对于嵌套的提示点该如何处理呢？场景如下所示：<br><img src="https://img.senguo.cc/%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0%E6%A8%A1%E5%9D%97%E5%85%B3%E7%B3%BB%E5%9B%BE.png" alt="https://img.senguo.cc/%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0%E6%A8%A1%E5%9D%97%E5%85%B3%E7%B3%BB%E5%9B%BE.png"></p>
+<p>由上图可见，入口模块的更新提示依赖于子模块，孙子模块，甚至重孙子模块的更新提示，这类的依赖关系是一个树形结构，我们可以通过组合模式来进行处理，方式也很简单，对于组合模式，此处不过多讲解，可以在<a href="https://www.cnblogs.com/surahe/p/6074643.html">这篇文章</a>了解详情。</p>
+<p>代码设计如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BasePrompt</span> &#123;</span><br><span class="line">    protected <span class="attr">deps</span>: <span class="title class_">BasePrompt</span>[] = []</span><br><span class="line"></span><br><span class="line">    public <span class="keyword">async</span> <span class="title function_">shouldShow</span>(): <span class="title class_">Promise</span>&lt;boolean&gt; &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">deps</span>.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> depsShouldShows = <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">all</span>(<span class="variable language_">this</span>.<span class="property">deps</span>.<span class="title function_">map</span>(<span class="function"><span class="params">dep</span> =&gt;</span> dep.<span class="title function_">shouldShow</span>()))</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (depsShouldShows.<span class="title function_">some</span>(<span class="title class_">Boolean</span>)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// do something</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span> || <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在类中新增属性 deps，类型为自身的一个列表。同时在执行 <strong>shouldShow</strong> 时调用依赖的提示点的 <strong>shouldShow</strong> 函数，如果某个提示点 shouldShow 函数返回 true，则自身也应该返回 true 告知用户有更新，类似于递归函数，使用方式如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ModuleF</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BasePrompt</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">super</span>(&#123;</span><br><span class="line">            <span class="attr">key</span>: <span class="string">&#x27;Ff4CbpdKD02VGRrYPffasgaqweqweW4YhFBeqa1&#x27;</span>,</span><br><span class="line">            <span class="attr">expiresType</span>: <span class="title class_">BasePrompt</span>.<span class="property">promptExpiresType</span>.<span class="property">repeatedly</span>,</span><br><span class="line">            <span class="attr">versionCode</span>: <span class="number">6</span>,</span><br><span class="line">            <span class="attr">triggerTimes</span>: <span class="number">3</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ModuleE</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BasePrompt</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">super</span>(&#123;</span><br><span class="line">            <span class="attr">key</span>: <span class="string">&#x27;Ff4CbpdKD02VGRrYPfW4YhFBeqa1&#x27;</span>,</span><br><span class="line">            <span class="attr">expiresType</span>: <span class="title class_">BasePrompt</span>.<span class="property">promptExpiresType</span>.<span class="property">once</span>,</span><br><span class="line">            <span class="attr">versionCode</span>: <span class="number">1</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ModuleD</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BasePrompt</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">super</span>(&#123;</span><br><span class="line">            <span class="attr">key</span>: <span class="string">&#x27;Ff4CbpdKD02VGRrYPfW4YhFBeqa1b4hPZd9JVnvr&#x27;</span>,</span><br><span class="line">            <span class="attr">expiresType</span>: <span class="title class_">BasePrompt</span>.<span class="property">promptExpiresType</span>.<span class="property">date</span>,</span><br><span class="line">            <span class="attr">versionCode</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">expiresTime</span>: <span class="title function_">dayjs</span>(<span class="string">&#x27;2021-3-3&#x27;</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ModuleC</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BasePrompt</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">super</span>(&#123;</span><br><span class="line">            <span class="attr">key</span>: <span class="string">&#x27;Ff4CbpdKD02VGR&#x27;</span>,</span><br><span class="line">            <span class="attr">expiresType</span>: <span class="title class_">BasePrompt</span>.<span class="property">promptExpiresType</span>.<span class="property">date</span>,</span><br><span class="line">            <span class="attr">versionCode</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">expiresTime</span>: <span class="title function_">dayjs</span>(<span class="string">&#x27;2021-3-3&#x27;</span>)</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">deps</span> = [<span class="keyword">new</span> <span class="title class_">ModuleE</span>()]</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ModuleB</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BasePrompt</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">super</span>(&#123;</span><br><span class="line">            <span class="attr">key</span>: <span class="string">&#x27;Ff4CbpdKD02VGR41qweqw&#x27;</span>,</span><br><span class="line">            <span class="attr">expiresType</span>: <span class="title class_">BasePrompt</span>.<span class="property">promptExpiresType</span>.<span class="property">date</span>,</span><br><span class="line">            <span class="attr">versionCode</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">expiresTime</span>: <span class="title function_">dayjs</span>(<span class="string">&#x27;2021-3-3&#x27;</span>)</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">deps</span> = [<span class="keyword">new</span> <span class="title class_">ModuleC</span>(), <span class="keyword">new</span> <span class="title class_">ModuleD</span>()]</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ModuleA</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BasePrompt</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">super</span>(&#123;</span><br><span class="line">            <span class="attr">key</span>: <span class="string">&#x27;Ff4CbpdKD02VGRrYPfW4YhFBeqa1b4hPZd9JVnvrULtmCkmGkjAtnKebzy&#x27;</span>,</span><br><span class="line">            <span class="attr">expiresType</span>: <span class="title class_">BasePrompt</span>.<span class="property">promptExpiresType</span>.<span class="property">repeatedly</span>,</span><br><span class="line">            <span class="attr">versionCode</span>: <span class="number">6</span>,</span><br><span class="line">            <span class="attr">triggerTimes</span>: <span class="number">3</span></span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">deps</span> = [<span class="keyword">new</span> <span class="title class_">ModuleB</span>(), <span class="keyword">new</span> <span class="title class_">ModuleF</span>()]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码完成了如下图所示的依赖关系：</p>
+<p><img src="https://img.senguo.cc/%E6%A8%A1%E5%9D%97%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB%E7%A4%BA%E4%BE%8B.png" alt="https://img.senguo.cc/%E6%A8%A1%E5%9D%97%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB%E7%A4%BA%E4%BE%8B.png"></p>
+<p>至此，已完成这一提示功能的整体代码设计，代码量极少，但带来的收益却不少。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/07/%E6%A3%AE%E6%9E%9C%E6%94%B6%E9%93%B6%E5%8F%B0jsbridge%E8%AE%BE%E8%AE%A1/" rel="prev" title="森果收银台 jsBridge 设计">
+      <i class="fa fa-chevron-left"></i> 森果收银台 jsBridge 设计
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/20/%E6%A3%AE%E6%9E%9C%E9%9B%B6%E5%94%AE%E6%94%B6%E9%93%B6%E5%8F%B0%E5%89%AF%E5%B1%8F%E9%80%9A%E4%BF%A1%E8%AE%BE%E8%AE%A1/" rel="next" title="森果零售收银台主副屏通信设计">
+      森果零售收银台主副屏通信设计 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.2.</span> <span class="nav-text">数据持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8E%E7%AB%AF%E5%AD%98%E5%82%A8"><span class="nav-number">1.2.1.</span> <span class="nav-text">后端存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#localstorage"><span class="nav-number">1.2.2.</span> <span class="nav-text">localstorage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF-sqlite-%E5%AD%98%E5%82%A8"><span class="nav-number">1.2.3.</span> <span class="nav-text">客户端 sqlite 存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#indexedDB"><span class="nav-number">1.2.4.</span> <span class="nav-text">indexedDB</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">提示类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%BF%E5%9D%97%E6%8F%90%E7%A4%BA"><span class="nav-number">1.3.1.</span> <span class="nav-text">板块提示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%9F%E8%83%BD%E7%82%B9%E6%8F%90%E7%A4%BA"><span class="nav-number">1.3.2.</span> <span class="nav-text">功能点提示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E6%95%88%E6%9C%9F"><span class="nav-number">1.4.</span> <span class="nav-text">有效期</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%82%B9%E5%87%BB%E4%B8%80%E6%AC%A1%E6%B6%88%E5%A4%B1"><span class="nav-number">1.4.1.</span> <span class="nav-text">点击一次消失</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%87%E6%9C%9F%E6%97%B6%E9%97%B4"><span class="nav-number">1.4.2.</span> <span class="nav-text">过期时间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E9%A9%BB%E6%8F%90%E7%A4%BA"><span class="nav-number">1.4.3.</span> <span class="nav-text">常驻提示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98%E4%BB%A5%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.5.</span> <span class="nav-text">存在的问题以及解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E7%94%A8%E6%88%B7%E9%A6%96%E6%AC%A1%E8%BF%9B%E5%85%A5%E6%8F%90%E7%A4%BA"><span class="nav-number">1.5.1.</span> <span class="nav-text">新用户首次进入提示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E4%B8%80%E4%B8%AA%E5%8A%9F%E8%83%BD%E5%AD%98%E5%9C%A8%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC%E7%9A%84%E6%8F%90%E7%A4%BA"><span class="nav-number">1.5.2.</span> <span class="nav-text">同一个功能存在不同版本的提示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E8%BA%AB%E4%BB%BD%E5%88%A4%E6%96%AD"><span class="nav-number">1.5.3.</span> <span class="nav-text">用户身份判断</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-id-%E8%BF%9B%E8%A1%8C%E8%BA%AB%E4%BB%BD%E5%88%A4%E6%96%AD"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">使用 id 进行身份判断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%9C%BA%E5%99%A8%E8%BF%9B%E8%A1%8C%E5%88%A4%E6%96%AD"><span class="nav-number">1.5.3.2.</span> <span class="nav-text">使用机器进行判断</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%80%81%E7%94%A8%E6%88%B7%E9%87%8D%E8%A3%85-app"><span class="nav-number">1.5.4.</span> <span class="nav-text">老用户重装 app</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.5.5.</span> <span class="nav-text">提示依赖问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.6.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E7%AE%A1%E7%90%86"><span class="nav-number">1.6.1.</span> <span class="nav-text">分布式管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.6.2.</span> <span class="nav-text">面向对象设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.6.3.</span> <span class="nav-text">组合模式</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Richard Chou</p>
+  <div class="site-description" itemprop="description">Blogs for Richard Chou</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Richard Chou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
